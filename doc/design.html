@@ -1027,6 +1027,19 @@ __
 meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
+meta::note('hypotheticals', <<'__');
+Hypothetical statements.
+It is important to be able to make statements in hypothetical cases. For instance, you might want to say something like 'suppose I read file X and get back Y', or 'f 5 should write "hello 5"
+to stdout'. As such, all interactions with the system are modeled as first-class values that can be interpreted by various handlers. This lets you run an entire program in a hypothetical
+context.
+
+This all works because of the type signature of the main method:
+
+| main :: kernel * environment -> kernel * return_code
+
+
+
+__
 meta::note('motivation', <<'__');
 Motivation for this language.
 Caterwaul is essentially perfect for my purposes. The only real problems it faces are that (1) it's limited to Javascript, and more importantly, (2) it has no compiler-driven verification
@@ -1067,6 +1080,18 @@ You can also defer a set of options by using it in another definition. For examp
 
 | g x = 2 * f x
   g 10 /!print /: g 1 == 4              # Prints 22, since the only f that works here is f x = x + 1.
+
+__
+meta::note('syntax', <<'__');
+Language syntax.
+This language doesn't really have syntax. The editor works on syntax trees, and it's up to the user what those look like. Tree nodes are Caterwaul syntax subclasses that are equipped with
+editing methods. You indirectly invoke these methods using keystrokes in the editor.
+
+__
+meta::note('verification', <<'__');
+Verifying properties of programs.
+I like the idea of composable QuickCheck-style verification. You make assertions about the behavior of a program or function, and this behavior is then used to reduce the set of possibilities
+to the ones that are valid.
 
 __
 meta::parent('/home/spencertipping/bin/notes', <<'__');
