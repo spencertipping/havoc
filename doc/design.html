@@ -1027,6 +1027,16 @@ __
 meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
+meta::note('motivation', <<'__');
+Motivation for this language.
+Caterwaul is essentially perfect for my purposes. The only real problems it faces are that (1) it's limited to Javascript, and more importantly, (2) it has no compiler-driven verification
+process such as a static type system. Static types are the wrong way to go in my opinion, but it would be nice to have a compiler that could inform me about changes that would break the
+behavior of methods in nonlocal ways. It would also be nice to optimize based on requirement statements provided by the programmer.
+
+Another motivation, though a questionable one, is the heavy overloading of operators and functions. This is questionable because it makes the program ambiguous to a reader; fixing this
+probably requires IDE support, and that makes this language into a very big project.
+
+__
 meta::note('relational', <<'__');
 Relational definitions.
 Functions, and in general definitions, serve to form a sort of relation. This follows because each function can have multiple definitions and multiple functions can be defined the same way. To
