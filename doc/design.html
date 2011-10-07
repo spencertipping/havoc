@@ -1050,6 +1050,22 @@ Another motivation, though a questionable one, is the heavy overloading of opera
 probably requires IDE support, and that makes this language into a very big project.
 
 __
+meta::note('optimization', <<'__');
+Optimization.
+Performance is very important. Although programmers more or less consciously recognize that it is secondary to development efficiency, performant languages/platforms generally win out over
+slow ones. As such, the Solid compiler and runtime are geared towards optimizing for the platform they're running on.
+
+Javascript optimization.
+Javascript creates some interesting optimization problems because JIT and memory allocation are both expensive. This means that a lot of up-front shape analysis is worthwhile.
+
+Java bytecode optimization.
+JVM optimization is something I still need to explore.
+
+Machine code optimization.
+The priorities are different when writing x86 machine code. Performance is determined more by cache hits and misses than it is by computation-bound tasks, generally speaking. The reason this
+is more relevant for machine language than it is for Javascript is that emitting custom machine code lets us control the memory layout.
+
+__
 meta::note('relational', <<'__');
 Relational definitions.
 Functions, and in general definitions, serve to form a sort of relation. This follows because each function can have multiple definitions and multiple functions can be defined the same way. To
