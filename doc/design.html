@@ -1027,6 +1027,23 @@ __
 meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
+meta::note('bootstrap', <<'__');
+Bootstrapping.
+This language exposes the compiler as an object; this is useful for being able to write build scripts. So the toplevel isn't run at runtime; it's run at compile-time, and you invoke
+meta-functions that describe your runtime program. For example:
+
+| module 'foo' qs
+    # module definition
+
+Bootstrap syntax is not extensible; it's a simple functional syntax with some literals. Note that this syntax is expressed in terms of syntax nodes rather than text.
+
+__
+meta::note('forcing', <<'__');
+Forcing expressions.
+A central rule of Solid's editor is that ⊥ (bottom) can never be reached. If it can be proven that ⊥ will be reached, then a backtrack happens until the last variable and the ⊥-returning
+alternative is considered to be impossible. If ⊥ is variant on user input, then the compiler warns you that your program is unsound.
+
+__
 meta::note('hypotheticals', <<'__');
 Hypothetical statements.
 It is important to be able to make statements in hypothetical cases. For instance, you might want to say something like 'suppose I read file X and get back Y', or 'f 5 should write "hello 5"
@@ -1037,7 +1054,14 @@ This all works because of the type signature of the main method:
 
 | main :: kernel * environment -> kernel * return_code
 
+There are functions whose type is kernel -> kernel; these are used to model side-effects. The rule is that kernel access governs synchronization; if f k1 = k2 and g k1 = k3, then k2 and k3 can
+be computed in parallel; whereas any dependency of g on k2 requires serialization.
 
+__
+meta::note('il', <<'__');
+Intermediate language.
+This is where the semantics of Solid are defined across all language backends. The intermediate language is continuation-based and has garbage collection with functor-governed traversal. It
+supports a set of untyped root functions (and no type checking is done at runtime); these are used to manipulate all values.
 
 __
 meta::note('motivation', <<'__');
@@ -1098,10 +1122,23 @@ You can also defer a set of options by using it in another definition. For examp
   g 10 /!print /: g 1 == 4              # Prints 22, since the only f that works here is f x = x + 1.
 
 __
+meta::note('roles', <<'__');
+Role of compiler vs editor.
+The compiler is responsible for running IL. The editor is responsible for generating IL somehow (the details of this are editor-specific), and showing existing IL to the user in a way that
+makes sense.
+
+The catch here is that the editor may opt to include nondeterministic features such as test-driven disambiguation. IL is available as an object-oriented library that provides basic
+interpretation, so to some extent the compiler is available to anything manipulating the editor.
+
+__
 meta::note('syntax', <<'__');
 Language syntax.
 This language doesn't really have syntax. The editor works on syntax trees, and it's up to the user what those look like. Tree nodes are Caterwaul syntax subclasses that are equipped with
 editing methods. You indirectly invoke these methods using keystrokes in the editor.
+
+Role of syntax with semantics.
+Your program needs to be compiled into something that can be run. There's a standard intermediate language used by all compiler backends; your editor needs to macroexpand your program into
+this IL.
 
 __
 meta::note('verification', <<'__');
