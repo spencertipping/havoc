@@ -1040,7 +1040,7 @@ Bootstrap syntax is not extensible; it's a simple functional syntax with some li
 __
 meta::note('forcing', <<'__');
 Forcing expressions.
-A central rule of Solid's editor is that ⊥ (bottom) can never be reached. If it can be proven that ⊥ will be reached, then a backtrack happens until the last variable and the ⊥-returning
+A central rule of the editor is that ⊥ (bottom) can never be reached. If it can be proven that ⊥ will be reached, then a backtrack happens until the last variable and the ⊥-returning
 alternative is considered to be impossible. If ⊥ is variant on user input, then the compiler warns you that your program is unsound.
 
 __
@@ -1060,8 +1060,15 @@ be computed in parallel; whereas any dependency of g on k2 requires serializatio
 __
 meta::note('il', <<'__');
 Intermediate language.
-This is where the semantics of Solid are defined across all language backends. The intermediate language is continuation-based and has garbage collection with functor-governed traversal. It
-supports a set of untyped root functions (and no type checking is done at runtime); these are used to manipulate all values.
+This is where the semantics are defined across all language backends. The intermediate language is continuation-based and has garbage collection with functor-governed traversal. It supports a
+set of untyped root functions (and no type checking is done at runtime); these are used to manipulate all values.
+
+__
+meta::note('meta', <<'__');
+Syntax graph meta-information.
+Meta-information is either user-specified or computed at runtime. It doesn't impact the semantics of the program, but rather compilation variants. So, for example, you can specify things like
+'this region of code is particularly tricky', or 'this needs to be fast', and those things will be prioritized. Ultimately, it's probably best expressed as a set of weights that you can
+modify.
 
 __
 meta::note('motivation', <<'__');
@@ -1077,10 +1084,11 @@ __
 meta::note('optimization', <<'__');
 Optimization.
 Performance is very important. Although programmers more or less consciously recognize that it is secondary to development efficiency, performant languages/platforms generally win out over
-slow ones. As such, the Solid compiler and runtime are geared towards optimizing for the platform they're running on.
+slow ones. As such, the compiler and runtime are geared towards optimizing for the platform they're running on.
 
 Javascript optimization.
-Javascript creates some interesting optimization problems because JIT and memory allocation are both expensive. This means that a lot of up-front shape analysis is worthwhile.
+Javascript creates some interesting optimization problems because JIT and memory allocation are both expensive. This means that a lot of up-front shape analysis is worthwhile. It also
+optimizes for representations that pack well under gzipping and Javascript minification.
 
 Java bytecode optimization.
 JVM optimization is something I still need to explore.
@@ -1129,6 +1137,46 @@ makes sense.
 
 The catch here is that the editor may opt to include nondeterministic features such as test-driven disambiguation. IL is available as an object-oriented library that provides basic
 interpretation, so to some extent the compiler is available to anything manipulating the editor.
+
+__
+meta::note('structure', <<'__');
+Algebraic structure.
+Algebra is interesting in that it unifies values and operations. This follows from the group axioms: if you have an identity element and an associative and closed binary operator, then you
+have the nice property that A = eA for all A; so A can be considered both a value and a postfix unary transform.
+
+That's a digression, however. I'm more interested in expressing ordinary values and processes in terms of algebraic structures. Most programming languages just use algebraic operators for
+numbers, probably because numbers have an obvious algebraic structure and data structures don't. But what if they did? What if functions did too?
+
+| vector = float * float * float                        <- this * is associative, but not commutative
+  vector n = n == 1 ? float : float * vector (n - 1)    <- the recursive definition
+
+Functions have algebraic combinators too:
+
+| (f * g) x = f g x
+  (f + g) x = f x + g x                                 <- indirect; this is a property of addition over functions
+
+Note that addition is not a good way to encode cons-style lists.
+
+Functions have a 'functionality' factor. This governs the behavior of composition and makes function application associative. So, for example:
+
+| x = 5                                                 <- x has functionality 0
+  f x = x + 1                                           <- f has functionality 1
+  g h = h 5                                             <- g has functionality 2
+
+Here is an associative definition of multiplication by example over the above values:
+
+| x * x = 25                    <- closure of functionality over the ring operator *
+  f * x = 6                     <- application of higher-functionality value to lower-functionality value
+  f * f * x = 7                 <- associativity woot! the first * is composition, the second is application
+  g * f = 6                     <- application of higher-functionality value to lower-functionality value
+  g * x = ⊥                     <- functionality is quasi-continuous; this is an error
+
+This definition enables us to unify function application and multiplication:
+
+| f * x = f x                   <- when functionality(f) > functionality(x)
+  f * g = \x -> f g x           <- when functionality(f) <= functionality(g)
+
+And therefore, both function application and, equivalently, multiplication, are associative.
 
 __
 meta::note('syntax', <<'__');
