@@ -1169,7 +1169,7 @@ Here is an associative definition of multiplication by example over the above va
   f * x = 6                     <- application of higher-functionality value to lower-functionality value
   f * f * x = 7                 <- associativity woot! the first * is composition, the second is application
   g * f = 6                     <- application of higher-functionality value to lower-functionality value
-  g * x = ⊥                     <- functionality is quasi-continuous; this is an error
+  g * x = ⊥                     <- functionality is integer-continuous; this is an error
 
 This definition enables us to unify function application and multiplication:
 
@@ -1177,6 +1177,21 @@ This definition enables us to unify function application and multiplication:
   f * g = \x -> f g x           <- when functionality(f) <= functionality(g)
 
 And therefore, both function application and, equivalently, multiplication, are associative.
+
+How is addition defined such that it (1) distributes across multiplication, and (2) is closed? This is an interesting challenge. Here are the properties addition would need to have:
+
+| (f + g) x      = f x + g x                    <- certainly
+  0 * f          = 0                            <- certainly
+  1 * f          = f                            <- certainly
+  2 * f          = f + f                        <- certainly
+  f (x + y)      = f x + f y                    <- probably
+  (f + g)(x + y) = f x + f y + g x + g y        <- probably, though I'm unsure about ordering (since addition is not necessarily commutative)
+
+This implies some things about how functionality is computed (written F[] for brevity):
+
+| F[f + g]  = F[f] if F[f] = F[g]
+              ⊥    if F[f] ≠ F[g]
+  F[f * g] <= F[g]                              <- why is this true, and is it always the case?
 
 __
 meta::note('syntax', <<'__');
