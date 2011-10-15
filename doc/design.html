@@ -1148,7 +1148,7 @@ That's a digression, however. I'm more interested in expressing ordinary values 
 numbers, probably because numbers have an obvious algebraic structure and data structures don't. But what if they did? What if functions did too?
 
 | vector = float * float * float                        <- this * is associative, but not commutative
-  vector n = n == 1 ? float : float * vector (n - 1)    <- the recursive definition
+  vector n = n == 1 ? float : float * vector (n - 1)    <- the recursive definition, generalized by n
 
 Functions have algebraic combinators too:
 
@@ -1171,14 +1171,16 @@ Here is an associative definition of multiplication by example over the above va
   g * f = 6                     <- application of higher-functionality value to lower-functionality value
   g * x = ⊥                     <- functionality is integer-continuous; this is an error
 
-This definition enables us to unify function application and multiplication:
+This definition enables us to unify function application and multiplication (I use F[x] to indicate the functionality of x):
 
-| f * x = f x                   <- when functionality(f) > functionality(x)
-  f * g = \x -> f g x           <- when functionality(f) <= functionality(g)
+| f * x = f x                   <- when F[f] = F[x] + 1
+  f * g = \x -> f g x           <- when F[f] = F[g]
 
 And therefore, both function application and, equivalently, multiplication, are associative. Note, however, that there's a problem here. Specifically, consider f * x * g, where x has
 functionality 0 and f and g each have functionality 1. There is no reason that (f x) g = f (x g). Fortunately, we can solve this problem by subscripting * by its left-hand functionality; so
 otherwise ambiguous expressions like f * x * g become things like f *1 x *0 g. *1 is itself associative, and so is *0.
+
+This hack also solves the problem of equations like (f x) y = f (x y), which no longer have to be true since there are two different multiplication operators being used here.
 
 How is addition defined such that it (1) distributes across multiplication, and (2) is closed? This is an interesting challenge. Here are the properties addition would need to have:
 
