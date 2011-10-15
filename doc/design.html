@@ -1176,7 +1176,9 @@ This definition enables us to unify function application and multiplication:
 | f * x = f x                   <- when functionality(f) > functionality(x)
   f * g = \x -> f g x           <- when functionality(f) <= functionality(g)
 
-And therefore, both function application and, equivalently, multiplication, are associative.
+And therefore, both function application and, equivalently, multiplication, are associative. Note, however, that there's a problem here. Specifically, consider f * x * g, where x has
+functionality 0 and f and g each have functionality 1. There is no reason that (f x) g = f (x g). Fortunately, we can solve this problem by subscripting * by its left-hand functionality; so
+otherwise ambiguous expressions like f * x * g become things like f *1 x *0 g. *1 is itself associative, and so is *0.
 
 How is addition defined such that it (1) distributes across multiplication, and (2) is closed? This is an interesting challenge. Here are the properties addition would need to have:
 
