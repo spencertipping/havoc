@@ -1044,6 +1044,21 @@ A central rule of the editor is that ⊥ (bottom) can never be reached. If it ca
 alternative is considered to be impossible. If ⊥ is variant on user input, then the compiler warns you that your program is unsound.
 
 __
+meta::note('haskell-deficiencies', <<'__');
+Deficiencies of Haskell.
+I saw a Haskell presentation recently and realized what a beautiful language it is. So before going to the effort of engineering a whole new language, I figure I should pay Haskell the respect
+of figuring out exactly what's wrong with it.
+
+| 1. Forced-homogeneous data structures with 1:1 data:type complexity.
+  2. No projection of functions into value space, at least not in a straightforward way (this prevents useful introspection and self-hosting optimization).
+  3. No compile-time verification of equivalences such as the monad laws.
+  4. The compiler is not first-class enough to make it straightforward to write an optimizing Javascript backend.
+  5. No first-class representation of data structures and modules.
+  6. Logical incompleteness due to a lack of empirical verification (though QuickCheck is a step in the right direction).
+  7. No implicit provision of resources, though monads may solve this.
+  8. Poor garbage collection and memory allocation in some situations (probably limited lifecycle analysis).
+
+__
 meta::note('hypotheticals', <<'__');
 Hypothetical statements.
 It is important to be able to make statements in hypothetical cases. For instance, you might want to say something like 'suppose I read file X and get back Y', or 'f 5 should write "hello 5"
