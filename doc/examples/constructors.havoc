@@ -1,0 +1,23 @@
+Data constructors | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+A data constructor is a relation that maps to ⊥. This tells Havoc that it would be unproductive to follow an equality relation to normalize a form. In other words, the form is already fully
+normalized. The reason we write it in the first place is to prevent unintentional overloading; it is still an error to use a function that is never mentioned in an in-scope equation.
+
+Here are the data structure definitions and a trivial function for linked lists:
+
+nil  ∋ _     = ⊥
+cons ∋ _ x y = ⊥
+
+length ∋ _ cons x y = 1 + _ y
+         _ nil      = 0
+
+Each line inserts an element into the global namespaces 'nil' and 'cons'. Equations of the form E1[_] = E2[_] are short for x : E1[x] = E2[x]. That is, it simultaneously establishes the
+equation and returns a value that satisfies it.
+
+Here are some examples of using this linked list:
+
+l1 = cons 5 nil           ⋅ cons x y = ⊥
+cons x l1 = cons 5 l1       nil      = ⊥
+cons x y = l1

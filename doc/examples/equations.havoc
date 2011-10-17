@@ -1,0 +1,35 @@
+Havoc equations | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc assumes that every toplevel expression is definitionally true. This means two things. First, interpretations that violate one of these definitions are discarded. Second, you can create
+equations by returning boolean values from functions and invoking those functions at the toplevel.
+
+Forcing.
+The IO API tries to get rid of any unevaluated functions you may have. It will continue traversing the equality relation until it hits ⊥ or ends up with something that matches no more
+equations. This last statement is important. It means that equations such as x = x + 1 ∀ x will cause every program to hang! A program that never halts probably contains a contradiction.
+Rather than proving the presence of this contradiction, Havoc will continue searching for a valid interpretation of the world.
+
+Fortunately, you can detect these things by looking at the table of equation traversal weights. This table tracks the number of times each equation was used, and which direction it was used
+in. If you wrote something like x = x + 1 ∀ x, you'd see a very high traversal weight for x → x + 1, and this would be a clue that this equation was causing a problem.
+
+Abstraction.
+Abstraction isn't quite as simple as it seems like it should be; there's a subtle catch. The catch has to do with the way variables are handled. Compare these two equations:
+
+| f x   = x + y = 10
+  f x y = x + y = 10
+
+The statement 'f 5' is equivalent to 'f 5 y' in every context, since each binds y at the same scope. However, the first definition always binds 'y' and the second allows the caller to specify
+the bound variable. Free variables such as the 'y' in the first equation are a very bad idea in most cases. The only legitimate use for them is when you want to abstract a data structure with
+many constructors. For example, here's one way to define a linked list:
+
+| nil  ∋ _     = ⊥
+  cons ∋ _ x y = ⊥
+
+The problem with this definition as it stands is that it requires two set selections in order to obtain the two data constructors. A unifying function can be used here to bind both 'nil' and
+'cons':
+
+| linked_list = nil == ⊥ and cons x y == ⊥
+
+Now you can assert linked_list and have a pair of functions 'nil' and 'cons' that satisfy the two equations given. (Incidentally, the == operator is identical to = semantically, but has higher
+precedence.)

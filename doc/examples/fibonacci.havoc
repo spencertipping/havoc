@@ -1,8 +1,0 @@
-Fibonacci sequence in Havoc | Spencer Tipping
-Licensed under the terms of the MIT source code license
-
-Introduction.
-This file introduces a recursive Fibonacci relation into the global namespace.
-
-fibonacci f ←  f n = n                     ← n < 2  ∋ f 8 = 13, f 2 = 1, and f 0 = 0
-                     f (n - 1) + f (n - 2) ↤

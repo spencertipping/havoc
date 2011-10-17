@@ -30,6 +30,10 @@ syn match   havoc_literal_num   +-\?\d\+\(\.\d\+\)\?+
 syn match   havoc_literal_sym   +'[^\[\](){}, ]\++
 syn match   havoc_bind          +:\w\++
 
+syn keyword havoc_placeholder   _
+
+syn match   havoc_identifier    /[a-z_]\S*/
+
 hi link havoc_qualifier         Special
 hi link havoc_equivalence       Keyword
 hi link havoc_grouping          Special
@@ -44,6 +48,8 @@ hi link havoc_literal_str       String
 hi link havoc_literal_num       Number
 hi link havoc_literal_sym       Identifier
 hi link havoc_bind              Identifier
+
+hi link havoc_placeholder       Identifier
 
 " Set operations:
 syn match   havoc_quantifier    / \(∀\|∃\) /
