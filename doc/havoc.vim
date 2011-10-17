@@ -28,6 +28,7 @@ syn match   havoc_infix         /\<[-\/<⋅]\w\+/
 syn region  havoc_literal_str   matchgroup=havoc_quotation start=/"/ end=/"/ skip=/\\./
 syn match   havoc_literal_num   +-\?\d\+\(\.\d\+\)\?+
 syn match   havoc_literal_sym   +'[^\[\](){}, ]\++
+syn match   havoc_bind          +:\w\++
 
 hi link havoc_qualifier         Special
 hi link havoc_equivalence       Keyword
@@ -42,6 +43,7 @@ hi link havoc_quotation         Special
 hi link havoc_literal_str       String
 hi link havoc_literal_num       Number
 hi link havoc_literal_sym       Identifier
+hi link havoc_bind              Identifier
 
 " Set operations:
 syn match   havoc_quantifier    / \(∀\|∃\) /

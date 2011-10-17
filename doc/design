@@ -1027,6 +1027,36 @@ __
 meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
+meta::note('destructuring-semantics', <<'__');
+Destructuring semantics.
+Suppose we have an equation. How do we know which terms are being defined? For example:
+
+| f x = x > 0 ? x * f(x - 1) : 1
+
+Given that both f and x are present in the right-hand side, what is the intent of this definition? Are we defining f or x? Most people would agree that we're defining f, but this is a matter
+of syntactic intuition and convention more than it is a property of the equation. The equation simply dictates the relationship of f and x lexically without defining anything at all.
+
+Maybe we could choose to expose f in some scope by quantifying it; for example:
+
+| {even, odd} : even x = x = 0 || odd (x - 1)
+                odd x  = x = 1 || even (x - 1)
+
+In this case it's clear that we're grabbing the functions 'even' and 'odd' from the two equations, without necessarily asserting the equations' universal truth.
+
+__
+meta::note('scoping', <<'__');
+Defining the scope of a statement.
+An equation at toplevel constrains all variables that it mentions in a global way. For example:
+
+| x + y = 10
+
+This is an unscoped invariant, and such statements are very powerful. This true statement must hold until you shadow either x or y. Here's an example of the power of such a statement:
+
+| print $ x + y         / No runtime evaluation is performed, and the values of x and y are immaterial; this compiles into 'print 10'.
+  print $ f 5 ⋅ f x = 1             ← x = 0
+                      x * f (x - 1) ↤
+
+__
 meta::parent('/home/spencertipping/bin/notes', <<'__');
 function::note    5e2737593e8d13fc43bb10e97603e53a
 function::notes   7229b326ac8686b2db6de98496bc7527
