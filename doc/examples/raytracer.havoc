@@ -37,5 +37,20 @@ intersects v (sphere c r) = norm $ v - c = sqrt r
 Supplemental definitions.
 I'm being really optimistic here in assuming that the compiler can do things like this. But wouldn't it be awesome...
 
-(a * x ^ 2 + b * x + c = 0) = (x = (0 - b + (sqrt $ b ^ 2 - 4 * a * c) / (2 * b)) or
-                               x = (0 - b - (sqrt $ b ^ 2 - 4 * a * c) / (2 * b)))
+(sqrt x = sqrt y) = (x = y or x = 0 - y)
+
+(a * x ^ 2 + b * x + c = 0)  =  (x = (0 - b + sqrt numerator) / (2 * b) or  ← numerator > 0  ⋅ numerator = b ^ 2 - 4 * a * c
+                                 x = (0 - b - sqrt numerator) / (2 * b))
+
+Vectors derive equality and componentwise breakdowns, so the ray-sphere intersection equation ends up disassembling into three scalar quadratic equations (albeit with gnarly coefficients). At
+that point the quadratic formula stated above can be used.
+
+Ray tracer logic.
+
+distance r s = reduce minimum {x : x > 0 and intersects (r * x) s}
+collision r nil         best     = best
+collision r (cons s ss) (bs, bd) = collision r ss $  (bs, bd) ← bd < d  ⋅ d = distance r s
+                                                     (s, d)   ↤
+
+reflected (ray v dv) (bs, bd) = ray i (dv \/ n)  ⋅ i = v + bd * dv
+                                                   n = normal bs i

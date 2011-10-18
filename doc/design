@@ -1044,6 +1044,15 @@ Maybe we could choose to expose f in some scope by quantifying it; for example:
 In this case it's clear that we're grabbing the functions 'even' and 'odd' from the two equations, without necessarily asserting the equations' universal truth.
 
 __
+meta::note('equations', <<'__');
+What is an equation.
+An equation is a potentially forcing statement of truth. Let's assume an arbitrarily intelligent compiler for a moment. Then an equation is a local or global invariant in your program. You can
+use all of the equations together to solve for a main function.
+
+Most programs don't have scalar variants. That is, you're not solving linear equations over real numbers or anything. Instead, most programs have term ambiguity: Each word has multiple
+meanings and a solution must be found. Solving this is ultimately NP-complete (it becomes C-SAT), but this may not matter if an incremental solver and local constraints are used.
+
+__
 meta::note('scoping', <<'__');
 Defining the scope of a statement.
 An equation at toplevel constrains all variables that it mentions in a global way. For example:
@@ -1055,6 +1064,12 @@ This is an unscoped invariant, and such statements are very powerful. This true 
 | print $ x + y         / No runtime evaluation is performed, and the values of x and y are immaterial; this compiles into 'print 10'.
   print $ f 5 ⋅ f x = 1             ← x = 0
                       x * f (x - 1) ↤
+
+__
+meta::note('values', <<'__');
+Equations and values.
+I would like for the language to have a strong focus on returning values rather than equating things. The reason is that values are easier to compose than equations are, and most programs deal
+with data more than they prove things. How to phrase equations in such a way that programming is still value-focused?
 
 __
 meta::parent('/home/spencertipping/bin/notes', <<'__');
