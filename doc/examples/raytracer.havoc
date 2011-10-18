@@ -1,0 +1,41 @@
+Raytracer example | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This is an example to help me design the language. Until I write a compiler it won't be of any use to anyone other than to illustrate how to write some basic programs in Havoc.
+
+Vector geometry.
+For the sake of simplicity I'm using a regular constructor to encode vectors. Normally you'd use a tuple or something, but this is a perfectly reasonable way to do it.
+
+vector x y z = ⊥ ← number ∀ {x, y, z} ∋ vector 4 5 6 = ⊥
+x = vector x x x ← number x           ∋ vector 5 5 5 = 5
+
+f (vector x1 y1 z1) (vector x2 y2 z2) = vector (f x1 x2) (f y1 y2) (f z1 z2) ∀ f ∈ {(+), (-), (*), (/)}
+v1 . v2 = reduce (+) (v1 * v2) ⋅ reduce f (vector x y z) = f x (f y z)
+
+norm v = sqrt $ v . v
+unit v = v / norm v
+v1 -> v2 = v2 * (v1 . v2) / (v2 . v2)
+v1 |> v2 = v1 - (v1 -> v2)
+
+v \/ n = (v |> n) - (v -> n)                    / Reflection against a normal vector
+
+Ray definition.
+A ray is a start point and a direction vector.
+
+ray v dv = ⊥
+(*) (ray v dv) x = v + x * dv
+
+Sphere definition.
+A sphere has a center and a radius. For simplicity I'm not doing anything interesting like materials or transformations.
+
+sphere center radius = ⊥
+normal (sphere c r) v = v - c
+
+intersects v (sphere c r) = norm $ v - c = sqrt r
+
+Supplemental definitions.
+I'm being really optimistic here in assuming that the compiler can do things like this. But wouldn't it be awesome...
+
+(a * x ^ 2 + b * x + c = 0) = (x = (0 - b + (sqrt $ b ^ 2 - 4 * a * c) / (2 * b)) or
+                               x = (0 - b - (sqrt $ b ^ 2 - 4 * a * c) / (2 * b)))

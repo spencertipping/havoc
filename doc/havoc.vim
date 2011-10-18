@@ -32,7 +32,7 @@ syn match   havoc_bind          +:\w\++
 
 syn keyword havoc_placeholder   _
 
-syn match   havoc_identifier    /[a-z_]\S*/
+syn match   havoc_identifier    /[a-z_][^ \[\](){},]*/
 
 hi link havoc_qualifier         Special
 hi link havoc_equivalence       Keyword
@@ -55,7 +55,7 @@ hi link havoc_placeholder       Identifier
 syn match   havoc_quantifier    / \(∀\|∃\) /
 syn keyword havoc_quantifier    fa ex
 syn match   havoc_set_operator  / \(∈\|∉\|⊂\|⊃\|⊆\|⊇\|∪\|∩\|∨\|∧\) /
-syn keyword havoc_set_operator  in !in sub sup sub= sup= union intersect and or
+syn keyword havoc_set_operator  in !in sub sup sub= sup= and or
 
 syn match   havoc_oxford_comma  /,\s*\(or\|and\)\(\s\|$\)\@=/
 
