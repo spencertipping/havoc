@@ -1053,6 +1053,59 @@ Most programs don't have scalar variants. That is, you're not solving linear equ
 meanings and a solution must be found. Solving this is ultimately NP-complete (it becomes C-SAT), but this may not matter if an incremental solver and local constraints are used.
 
 __
+meta::note('execution-model', <<'__');
+Executing Havoc programs.
+The dumbest possible way to execute a Havoc program is to just use term rewriting. At its core, Havoc is a proof search tool of a sort. It tries to prove that if you start with one program
+state you can get to another.
+
+Let's assume that the execution model is, in fact, based on term rewriting. Matching terms to equations would be a matter of checking unification against all equations, then checking
+quantifications for the ones that match, then following the only candidate. (The program should be written in a way that there is only one data path; otherwise it is ambiguous.) This raises a
+couple of questions.
+
+| 1. Is it possible, in a dynamic language, to prove at compile-time that the program is unambiguous? (Possibly through construction, though maybe with some idempotence checking.)
+  2. Is it possible to close the world and map out all possible data flow paths? (An upper bound can certainly be computed.)
+
+Compiler design limitations.
+The Havoc compiler is limited by the halting problem. However, the halting problem is rarely a serious issue when compiling things. Havoc makes it a non-issue altogether by assuming that your
+program halts, since no useful program would run forever. [1]
+
+| [1] Not entirely true, but true enough that I'm making this assumption.
+
+Compile-time vs runtime.
+I may have gone over this before, but I'll say it again here. Havoc programs do have well-defined 'compile-time' and 'runtime' phases, and this separation is made for two reasons. First, it
+enables all kinds of optimizations that don't have to happen through JIT -- this is a huge performance advantage for platforms like Javascript and the JVM that have high JIT latency. Second,
+and more importantly, it enables a wide range of compile-time correctness checks.
+
+Havoc is required to constant-fold everything that does not have an explicit data dependency on runtime IO data. You can obtain an IO instance at compile-time as well, though this feature can
+be disabled via a compiler option to prevent security issues when compiling untrusted code.
+
+The type of a program file is roughly 'io environment -> io (io -> io)'.
+
+__
+meta::note('imprecision', <<'__');
+Imprecision: Where Havoc gets it wrong.
+Havoc is not required to be correct. It is required to correctly produce any well-defined value with a correctness probability of at least 1 - epsilon (where you define epsilon as a positive
+-- and thus nonzero -- quantity), but it is allowed to incorrectly assume that a nonterminating program terminates, and assign an arbitrary value to that program.
+
+For example, suppose you've written this:
+
+| f x = f $ x + 1
+  main = print $ f 6
+
+Havoc can do whatever it wants to with this program. It can loop forever if the implementation does no informal termination checking. It could print 6, 7, infinity, 'f 6', or any other value.
+The reason is that the value of 'f 6' really is undefined. It's technically ⊥, which has no information, but Havoc may not be able to prove that.
+
+Ok, so what prevents Havoc from mangling your data structures? The explicit definition of ⊥, actually. If you tell Havoc up front that a form is unevaluable, then Havoc will know not to
+evaluate it. So counterintuitively, this program has the well-defined output 'f 6':
+
+| f x = ⊥
+  main = print $ f 6
+
+The ⊥ here tells Havoc that you are deliberately terminating the evaluation graph. Because ⊥ never arises as the value of any computation, this is an unambiguous way to do it. [1]
+
+| [1] Is this true? If Havoc proves divergence, then does that generate ⊥? And if so, is this incongruous with an explicit definition?
+
+__
 meta::note('scoping', <<'__');
 Defining the scope of a statement.
 An equation at toplevel constrains all variables that it mentions in a global way. For example:
