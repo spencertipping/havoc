@@ -1,0 +1,6 @@
+Invariant scoping | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+You can imagine the problem that would arise if all equivalences lived at the toplevel. You'd write something that made local sense, like 'x = x + 0', and notice that all of your strings had
+"0" appended to them (or something similarly inconvenient). To fix this, Havoc has scoping operators that limit the visibility of some equations.
