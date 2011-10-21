@@ -1,0 +1,30 @@
+Quoting semantics | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc needs a way to specify which elements of an equation are literal and which aren't. For example, if I write this: 'factorial n = n * factorial (n - 1); factorial 0 = 1', am I specifying
+factorial or n? A naive pattern specification like this would cause the interpreter to consider 'factorial' to be a variable, which means that every instance of function application would be
+considered a possibility for the factorial equation.
+
+To fix this (no pun intended), you can quote a variable. Doing this is basically saying, 'this isn't a variable; it's literally the word factorial'. Here's the proper way to write factorial:
+
+| 'factorial n = n * 'factorial (n - 1) ← n > 0
+                 1                      ↤
+
+Implicit quoting and disambiguation.
+At first I was tempted to be idealistic about quotation and require that every function call use a quoted form. But this is crazy and lame, and doesn't support Havoc's goal of being
+deliberately ambiguous. So instead, here's the rule: Every unbound (!) identifier is a function that acts as a projection of its own quotation.
+
+When I defined the factorial function above, the literal 'factorial term was annotated with an identifier to disambiguate that particular equation from any other definitions involving the
+'factorial literal. So we could now define this:
+
+| 'factorial n = 5
+
+While these two 'factorial definitions use the same literal, they are obviously distinct equations. This is where implicit quoting comes in. When we use the factorial function in its unquoted
+form, we need to constrain it to specify the implementation:
+
+| print $ factorial 5 ⋅ factorial 3 = 6 and factorial 0 = 1
+
+Internal workings of disambiguation.
+When you write 'factorial 3 = 6', you're restricting the behavior of the factorial function. (TODO: It isn't obvious why constraining the function's behavior this way would follow a scope.
+There should be some mechanism for making this happen; perhaps some system of cuts when populating these implicit functions in the first place.)

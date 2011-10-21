@@ -1,0 +1,13 @@
+Forcing expression examples | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Equations have degrees of freedom; this is the number of dimensions of their solution space. For instance, if you have three equations over four variables, then you have one degree of freedom;
+that is, there is one scalar quantity that is independent. Havoc can determine the degrees of freedom for any given set of equations. For example:
+
+| f x = x + 1                           / DOF = 1
+  x > 5                                 / DOF = 0 (x is partially specified)
+  f x y = x + y                         / DOF = 2
+  f (x + y) = f x + f y                 / DOF = 2 (f is partially specified)
+
+Generally, the number of degrees of freedom corresponds to arity.
