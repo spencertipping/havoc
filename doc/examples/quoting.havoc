@@ -20,11 +20,8 @@ When I defined the factorial function above, the literal 'factorial term was ann
 
 | 'factorial n = 5
 
-While these two 'factorial definitions use the same literal, they are obviously distinct equations. This is where implicit quoting comes in. When we use the factorial function in its unquoted
-form, we need to constrain it to specify the implementation:
+While these two 'factorial definitions use the same literal, they are obviously distinct equations. This is where implicit quoting comes in. When we use the word 'factorial' without quoting
+it, it becomes a relation selector that binds multiple alternatives. That is, it expands into all of the in-scope literal relations involving 'factorial' and each solution is considered. If
+multiple solutions are present, then the compiler is required to emit an ambiguity warning and choose one arbitrarily.
 
-| print $ factorial 5 ⋅ factorial 3 = 6 and factorial 0 = 1
-
-Internal workings of disambiguation.
-When you write 'factorial 3 = 6', you're restricting the behavior of the factorial function. (TODO: It isn't obvious why constraining the function's behavior this way would follow a scope.
-There should be some mechanism for making this happen; perhaps some system of cuts when populating these implicit functions in the first place.)
+| 'print $ f 5 ⋅ f: 'factorial : f 3 = 6 and f 0 = 1
