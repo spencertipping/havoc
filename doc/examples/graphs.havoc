@@ -20,3 +20,13 @@ The graph structure looks something like this (please forgive the ascii art):
 
 There are some annotations required for this graph to really capture what's going on. In particular, notice that the variable 'n' has a dot over it. This means that it's local to the equation
 and doesn't constrain a global called 'n'. The dot above a variable is a 'variant marker'; that is, it absorbs a degree of freedom.
+
+Role of names.
+Names serve two purposes. One is to identify edges, and the other is to document the intuitive meaning of the graph. The trouble with a textual representation of a general graph is that
+attaching metadata to nodes requires some degree of repetition. (This follows because no instance of each node can be considered canonical.) For instance, in the fibonacci function above I put
+a dot over the variant 'n' on the left-hand side. But what about equations whose variant appears twice on each side?
+
+| f $ ẋ + x = f x + f x
+
+Here the dot seems misplaced; it should be over each copy of x, but this would create significant ergonomic overhead. What we'd really like to do is update each instance uniformly without
+going to the effort (since modifiers generally require extra keystrokes).
