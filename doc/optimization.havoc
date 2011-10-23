@@ -1,0 +1,44 @@
+Compiler optimizations | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+It is acceptable for your equations to leave things unspecified. In particular, suppose you're writing the factorial function recursively and specify that multiplication is associative (which
+it is):
+
+| fact n = n * fact (n - 1) ← n > 0  ∀ n        / Definition of factorial
+           1                ↤
+  x * (y * z) = (x * y) * z ∀ x, y, and z       / Definition of associativity
+
+There are two ways for Havoc to evaluate an expansion of factorial:
+
+| fact 5 = 5 * fact (4)                         / This is the expansion process; you wouldn't write this
+         = 5 * (4 * fact (3))
+         = 5 * (4 * (3 * fact (2)))
+         = 5 * (4 * (3 * (2 * fact (1))))
+         = 5 * (4 * (3 * (2 * (1 * fact (0)))))
+         = 5 * (4 * (3 * (2 * (1 * 1))))
+         = 5 * (4 * (3 * (2 * 1)))
+         = 5 * (4 * (3 * 2))
+         = 5 * (4 * 6)
+         = 5 * 24
+         = 120
+
+The other way involves using associativity to create a constant-space expansion:
+
+| fact 5 = 5 * fact (4)
+         = 5 * (4 * fact (3))
+         = (5 * 4) * fact (3)
+         =      20 * fact (3)
+         =      20 * (3 * fact (2))
+         =      (20 * 3) * fact (2)
+         =            60 * fact (2)
+         =            60 * (2 * fact (1))
+         =            (60 * 2) * fact (1)
+         =                 120 * fact (1)
+         =                 120 * (1 * fact (0))
+         =                 (120 * 1) * fact (0)
+         =                       120 * fact (0)
+         =                       120 * 1
+         =                       120
+
+When presented with both options, Havoc implementations should choose the second because it is more space-efficient and more performant.

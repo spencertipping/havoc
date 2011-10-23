@@ -1,9 +1,0 @@
-Editing flow | Spencer Tipping
-Licensed under the terms of the MIT source code license
-
-Introduction.
-Havoc (and, I would argue, programming in general) is poorly served by a strictly textual representation. This is true for a couple of reasons. First, text doesn't scale. This is a huge
-problem. Second, there are many configurations of text that don't correspond to valid programs.
-
-Graph operations.
-
