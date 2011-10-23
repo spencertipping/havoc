@@ -1,1 +1,10 @@
 Havoc: A relational programming language whose compiler is usually correct.
+
+If this language looks interesting, you should first check out Pure at
+http://pure-lang.googlecode.com. It is similar to Havoc in that it supports
+term rewriting, but has the following benefits over Havoc:
+
+1. It probably has no potentially debilitating contradictions
+2. It has reasonable performance
+3. Its compiler is not necessarily NP-complete
+4. Its compiler exists
