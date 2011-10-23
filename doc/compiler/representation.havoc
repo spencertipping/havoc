@@ -1,0 +1,7 @@
+Internal syntax representation | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc syntax is represented in terms of n-ary tree nodes, just like Caterwaul. However, Havoc source trees are different in a few ways. For one thing, all parentheses are implied; there is no
+parenthesis node. The reason is that operator precedence is well-defined and invariant at runtime. While it is possible to redefine operator precedence through rewriting, it isn't possible to
+introduce new operators that have undetermined precedence.
