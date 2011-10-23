@@ -2,26 +2,9 @@ Quoting semantics | Spencer Tipping
 Licensed under the terms of the MIT source code license
 
 Introduction.
-Havoc needs a way to specify which elements of an equation are literal and which aren't. For example, if I write this: 'factorial n = n * factorial (n - 1); factorial 0 = 1', am I specifying
-factorial or n? A naive pattern specification like this would cause the interpreter to consider 'factorial' to be a variable, which means that every instance of function application would be
-considered a possibility for the factorial equation.
+Explicit quoting is generally unnecessary in Havoc. The reason for this is that each operator has its own quoting semantics. Here are some examples, where implicitly-quoted variables are
+written with explicit quotes:
 
-To fix this (no pun intended), you can quote a variable. Doing this is basically saying, 'this isn't a variable; it's literally the word factorial'. Here's the proper way to write factorial:
-
-| 'factorial n = n * 'factorial (n - 1) ← n > 0
-                 1                      ↤
-
-Implicit quoting and disambiguation.
-At first I was tempted to be idealistic about quotation and require that every function call use a quoted form. But this is crazy and lame, and doesn't support Havoc's goal of being
-deliberately ambiguous. So instead, here's the rule: Every unbound (!) identifier is a function that acts as a projection of its own quotation.
-
-When I defined the factorial function above, the literal 'factorial term was annotated with an identifier to disambiguate that particular equation from any other definitions involving the
-'factorial literal. So we could now define this:
-
-| 'factorial n = 5
-
-While these two 'factorial definitions use the same literal, they are obviously distinct equations. This is where implicit quoting comes in. When we use the word 'factorial' without quoting
-it, it becomes a relation selector that binds multiple alternatives. That is, it expands into all of the in-scope literal relations involving 'factorial' and each solution is considered. If
-multiple solutions are present, then the compiler is required to emit an ambiguity warning and choose one arbitrarily.
-
-| 'print $ f 5 ⋅ f: 'factorial : f 3 = 6 and f 0 = 1
+| f x y = x + y ∀ x and y                               / Becomes: 'f x y = x + y ∀ 'x and 'y
+  fib n = n                         ← n < 2  ∀ n        / Becomes: 'fib n = n                           ← n < 2  ∀ 'n
+          fib (n - 1) + fib (n - 2) ↤                   / Becomes:          'fib (n - 1) + 'fib (n - 2) ↤

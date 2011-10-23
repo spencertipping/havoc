@@ -1,0 +1,30 @@
+Unquantified relations | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Haskell programmers get a nice notational advantage by not having to quantify the arguments to their functions. The reason this works is that the left-hand side of each equation has only a few
+forms, and each of these forms has well-defined quantification semantics. Haskell also has the limitation that each equation specifies the behavior of exactly one element, and no equation
+produces another equation. Havoc lacks these limitations and requires more specification.
+
+Generally speaking, strange things happen if you omit quantifiers on equations. For example:
+
+| fact n = n * fact (n - 1) ← n > 0
+           1                ↤
+
+This is the mathematical definition of factorial, but it will not behave as you expect. In particular, using it later on will most likely fail because the left-hand side of the equation won't
+match. Here's an example:
+
+| print $ fact 5                / <- prints 'fact 5' because 5 can't be unified to 'n'
+
+Hopefully what's going on makes some degree of sense; the original equation exposes the name 'n' as well as the name 'fact', and it considers each of these to be equally important. Put
+differently, here's the quotation in the original factorial definition:
+
+| 'fact 'n = 'n * 'fact ('n - 1) ← 'n > 0
+             1                   ↤
+
+The reason Havoc won't fix this for you is that you might very well want to write something like this at some point. For instance, suppose you want to have Havoc simplify trigonometric terms
+for optimization purposes. Then this is an equation you might want to have:
+
+| (sin x) ^ 2 + (cos x) ^ 2 = 1 ∀ x
+
+Doing this allows Havoc to rewrite things rather than computing the actual sine and cosine in situations where only the sum of squares is needed.

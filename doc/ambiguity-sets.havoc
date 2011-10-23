@@ -1,0 +1,18 @@
+Ambiguity sets | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc's semantics allow for deliberately ambiguous programs, and in general you should leverage this if possible. The reason is that it gives you a specification advantage in exchange for you
+writing unit tests. That is, you specify criteria of a working implementation, and Havoc will give you an implementation that is known to conform to your specifications (or give you an error
+if it can't find one). In fact, you could probably have Havoc write your whole program for you if you were willing to wait for it to uninsightfully explore all of your equations and quite
+possibly overfit the result to your specs.
+
+Anyway, to facilitate the definition of ambiguous functions Havoc does some strange things with equations. Anytime you have an equation that removes degrees of freedom from a quoted name,
+Havoc considers this to be an instantiation of something that constrains the name. This is important despite being nebulous. For example:
+
+| f x = x + 1 ∀ x
+  f x = x + 2 ∀ x
+
+These two 'f's, despite being the same name, are not in fact the same internally. The first equation quotes 'f' and internalizes it as 'the first alternative for f', and the second equation
+internalizes it as 'the second alternative for f'. Thus ambiguity sets are created; 'f 5' will invoke its return continuation multiple times until constrained. (The first time would be with 6,
+then with 7, though this order is officially unspecified.)
