@@ -16,3 +16,6 @@ Havoc considers this to be an instantiation of something that constrains the nam
 These two 'f's, despite being the same name, are not in fact the same internally. The first equation quotes 'f' and internalizes it as 'the first alternative for f', and the second equation
 internalizes it as 'the second alternative for f'. Thus ambiguity sets are created; 'f 5' will invoke its return continuation multiple times until constrained. (The first time would be with 6,
 then with 7, though this order is officially unspecified.)
+
+It's worth noting that any given equation is closed under ambiguity sets. This should make sense; a factorial equation shouldn't have to worry about the existence of other factorial functions.
+Therefore, alternative functions of the same name are shadowed by the prematurely disambiguated form being defined. (I consider this a significant feature.)
