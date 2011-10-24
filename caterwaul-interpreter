@@ -279,6 +279,7 @@ meta::define_form 'template', sub {
 __
 meta::alias('ed', 'edit sdoc::js::dependencies');
 meta::alias('ehp', 'havoc.parser');
+meta::alias('eht', 'havoc.tree');
 meta::alias('em', 'edit sdoc::js::modules');
 meta::alias('er', <<'__');
 edit sdoc::js::repl -f
@@ -290,6 +291,7 @@ edit sdoc::js::test -f
 __
 meta::alias('havoc', 'edit sdoc::js::havoc');
 meta::alias('havoc.parser', 'edit sdoc::js::havoc.parser');
+meta::alias('havoc.tree', 'edit sdoc::js::havoc.tree');
 meta::bootstrap('html', <<'__');
 <html>
   <head>
@@ -1615,6 +1617,10 @@ around_hook('test', sub {
   with_exported('pp::js::test-setup', sub {sh('node', @_)})});
 
 __
+meta::function('test-page', <<'__');
+file::write('test/caterwaul-interpreter.html', retrieve('pp::html::test'), mkpath => 1);
+
+__
 meta::function('touch', 'associate($_, \'\') for @_;');
 meta::function('uncompress', <<'__');
 # Compresses one or more attributes.
@@ -1702,6 +1708,10 @@ unlink $other if my $result = $observed eq (my $state = state());
 terminal::error("Verification failed; expected $state but got $observed from $other") unless $result;
 hook('after-verify', $result, observed => $observed, expected => $state);
 $result;
+__
+meta::hook('after-shell-command::test-page', <<'__');
+test_page();
+
 __
 meta::hook('before-shell::note-about-module-function', <<'__');
 terminal::info('use the "module" function to create a new Javascript file; e.g:', '',
@@ -2568,7 +2578,7 @@ with this, the source is transformed in these ways:
   4. Code is folded by operator precedence, top to bottom and left to right. Nodes are removed from the Cartesian plane as they are folded.
 
 caterwaul.js_all()(function ($) {
-  $.havoc.parse(s, options) = s /!code_paragraphs /!remove_line_comments /-cartesian_transform/ [0, 0] -where [
+  $.havoc.parse(s, options) = s /!code_paragraphs /!remove_line_comments /!cartesian_transform /!fold -where [
 
 Paragraph lexing.
 This is fairly trivial; split() will do most of the work for us. This won't work on IE, but Havoc isn't a browser language per se. (And unlike Caterwaul, there is no defined compile-time
@@ -2586,7 +2596,7 @@ This isn't particularly challenging. Unlike Javascript, which is truly pathologi
 syntax for string literals (this is achieved by using structural quotation), so all lexemes can be detected by splitting on spaces and stripping parentheses.
 
   cartesian_transform(s) = s.split(/\n/) *~!y[y.split(/(\s+)/) *~![/^\S/.test(x) ? strip(x, cx, yi) : [], se [cx += x.length]] -seq -where [cx = 0]] -seq
-                   -where [strip(token, px, py) = token.split(/([\(\)\[\]\{\},])/) %[x.length] *[{t: x, p: [px, py]} -se [px += x.length]] -seq]],
+                   -where [strip(token, px, py) = token.split(/([\(\)\[\]\{\},])/) %[x.length] *[{t: x, p: [px, py]} -se [px += x.length]] -seq],
 
 Parsing.
 This is the most challenging part, though it isn't that bad. First we build a couple of indexes; one is a linked map of tokens, and the other is an index by operator type. For simplicity, this
@@ -2611,13 +2621,51 @@ In this example, the two function definitions are non-conflicting. g's definitio
 operator precedence works vertically as well as horizontally.
 
 Incidentally, you might reasonably be concerned about vertical folding in other ways. For example, what prevents f and g from being vertically combined? How about the two = signs? Or the first
-terms of the definition in each function? This is a perfectly reasonable concern to which I need, but don't yet have, an answer.
+terms of the definition in each function? For now I'm deferring on this point by having only the ← and ↤ operators support vertical folding (they do this after folding horizontally).
 
+  fold(ts) = create_links(map) -re- fold_operators(map, map /!operator_index) -re- nodes_in(map)
+     -where [map                        = ts *[['#{x.p[0]},#{x.p[1]}', new $.havoc.tree(x.t, x.p)]] /object -seq,
+             nodes_in(m)                = m /values %[x instanceof $.havoc.tree] -seq,
+
+             create_links(m)            = create_vertical_links(m) -se- create_horizontal_links(m),
+             create_vertical_links(m)   = nodes_in(m) *![m['#{x.position[0]},#{x.position[1] + 1}'] -se [it.u = x, x.d = it, when.it]] -seq,
+             create_horizontal_links(m) = rows *!~r[r *![x.l = r[xi - 1], r[xi - 1].r = x, when.xi]] -seq
+                                  -where [rows = nodes_in(m) *![(result[x.position[1]] || (result[x.position[1]] = [])).push(x)] -seq -re- result -where [result = []]],
+
+             operator_index(m)          = nodes_in(m) *![(index[x.last()] || (index[x.last()] = [])).push(x)] -seq -re- index -where [index = []],
+
+             fold_operators(m, index)   = index *!~[x *![x._fold_lr() -se- delete m['#{x[0].position[0]},#{x[0].position[1]}']
+                                                                      -se- delete m['#{x[1].position[0]},#{x[1].position[1]}']]] -seq]],
   using [caterwaul.linear.vector(2, 'v2')]})(caterwaul);
+
+__
+meta::sdoc('js::havoc.tree', <<'__');
+Havoc syntax trees | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module provides syntax trees for Havoc. It also has a little bit of interpreter-related support, but most of that is handled by the interpreter itself.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.tree = $.syntax_subclass(ctor, methods) /-$.merge/ statics
+         -where [ctor(data, p) = this instanceof $.havoc.tree ? this -se [it.data = data, it.position = p, it.length = 0] : new $.havoc.tree(data, p),
+
+                 methods       = capture [precedence()      = $.havoc.tree.precedence_table[this.last()] || 0,
+                                          is_vertical()     = $.havoc.tree.is_vertical[this.last()],
+                                          last()            = this.data.charAt(this.data.length - 1),
+
+                                          structure()       = '(#{this.data}@#{this.position}#{this.child_structure()})',
+                                          child_structure() = this.length ? +this *[' #{x.structure()}'] -seq -re- it.join('') : ''],
+
+                 statics       = capture [right_associative = '^ : $ → ↦ < > = ≠ ≡ ¬ ⋅'.qw *[[x, true]] /object -seq,
+                                          precedence_table  = ('^ 1 * 2 / 2 % 2 + 3 - 3 : 4 & 5 | 5 ∩ 6 ∪ 7 ∈ 8 ∋ 8 ⊂ 9 ⊃ 9 $ 10 → 11 ↦ 11 ← 12 ↤ 12 < 13 > 13 = 13 ≠ 13 ≡ 14'.qh /pairs +
+                                                               '∧ 15 ∨ 16 ∃ 17 ∀ 18 ⋅ 19'.qh /pairs) *[[x[0], +x[1]]] /object -seq,
+                                          is_vertical       = '← ↤'.qw *[[x, true]] /object -seq]]})(caterwaul);
 
 __
 meta::sdoc('js::modules', <<'__');
 - include js::havoc
+- include js::havoc.tree
 - include js::havoc.parser
 
 __
@@ -2638,7 +2686,14 @@ Unit tests.
 These are quick, visible assertions to make sure that the setup works properly. The test_case function is called automatically by t(), which is customized to work on whatever platform you're
 running under (e.g. node.js or a browser).
 
-test_case = function (x) {return caterwaul.parse(x).structure()};
+test_case = caterwaul.js_all()(function (x) {
+  return caterwaul.havoc.parse(x) *[x.structure()] -seq -re- it.join(' ; ')});
+
+t('foo bar');
+t('foo + bar');
+t('foo * bar');
+t('foo + bar * bif');
+t('foo * bif + bar');
 
 __
 meta::sdoc('js::test-setup', <<'__');

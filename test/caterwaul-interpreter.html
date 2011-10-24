@@ -1,0 +1,926 @@
+<!doctype html>
+<html >
+<head >
+<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js'>
+
+</script>
+
+<script >
+
+
+// Module dependencies.
+// Usually this is just Caterwaul and the standard extension. If you modify these, you should probably also run 'dependencies edit' to inform the script about where these files are downloaded
+// from.
+
+(function(a){return a(a)})(function(f,z,p){var af=function(an){return an.split(/\s+/)},C=function(an,ao){return ao&&ao.call(an,an)||an},o=function(an){throw new Error(an)},c=z||(function(){for(var an=[],ap="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$_",ao=21,aq;ao>=0;--ao){an.push(ap.charAt(Math.random()*64>>>0))}return an.join("")})(),W=(function(an){return function(ao){return[ao||"",(++an).toString(36),c].join("_")}})(0),V=function(an){return an.substr(an.length-22)===c},i=function(ao,an){return function(){return ao.apply(an,arguments)}},N=function(ar,ao){for(var ap=0,aq=[],an=ao.length;ap<an;++ap){aq.push(ar(ao[ap],ap))}return aq},w=function(ao,an){return N(function(ap){return ap instanceof Array?w(ao,ap):ao(ap)})},ad=function(aq){for(var ap=0,ao=af(aq),ar={},an=ao.length;ap<an;++ap){ar[ao[ap]]=true}return s(ar)},ab=(function(ao){for(var an in ao){if(ao.hasOwnProperty(an)){return true}}})({toString:true})?function(ar){for(var aq=1,an=arguments.length,ap;aq<an;++aq){if(ap=arguments[aq]){for(var ao in ap){if(g(ap,ao)){ar[ao]=ap[ao]}}}}return ar}:function(ar){for(var aq=1,an=arguments.length,ap;aq<an;++aq){if(ap=arguments[aq]){for(var ao in ap){if(g(ap,ao)){ar[ao]=ap[ao]}}if(ap.toString&&!/\[native code\]/.test(ap.toString.toString())){ar.toString=ap.toString}}}return ar},aa=W("hash"),s=function(ap){var an=0;for(var ao in ap){l.call(ap,ao)&&(an=ao.length>an?ao.length:an)}ap[aa]=an;return ap},g=function(ao,an){return an!=null&&!(an.length>ao[aa])&&l.call(ao,an)},l=Object.prototype.hasOwnProperty,ae=function(){var an=function(){return an.init.apply(an,arguments)};return an},ag=typeof caterwaul==="undefined"?p:caterwaul,am=C(ae(),function(){this.deglobalize=function(){caterwaul=ag;return am};ab(this,{merge:ab,map:N,rmap:w,gensym:W,is_gensym:V})}),al=ad(". new ++ -- u++ u-- u+ u- typeof u~ u! ! * / % + - << >> >>> < > <= >= instanceof in == != === !== & ^ | && || ? = += -= *= /= %= &= |= ^= <<= >>= >>>= : , return throw case var const break continue void else u; ;"),S=function(aq){for(var ap=0,ao=[false];ap<8;++ap){ao.push.apply(ao,ao)}for(var ap=0,an=aq.length;ap<an;++ap){ao[aq.charCodeAt(ap)]=true}return ao},aj=S(".0123456789"),U=S("0123456789"),y=S("0123456789abcdefABCDEFx"),L=S("eE"),j=S(" \n\r\t"),t=S("()[]{}?:"),r=S("([{?:"),x=S("+-*/%&|^!~=<>?:;.,"),J=S("\n\r"),k=S("gims"),O=S("'\"/"),n="/".charCodeAt(0),R="*".charCodeAt(0),m="\\".charCodeAt(0),Z="x".charCodeAt(0),M=".".charCodeAt(0),T="0".charCodeAt(0),ai=ad("++ --"),X=S("$_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),K=N(ad,["function","( [ . [] ()","new delete","u++ u-- ++ -- typeof u~ u! u+ u-","* / %","+ -","<< >> >>>","< > <= >= instanceof in","== != === !==","&","^","|","&&","||","case","?","= += -= *= /= %= &= |= ^= <<= >>= >>>=",":",",","return throw break continue void","var const","if else try catch finally for switch with while do",";"]),H=ad("= += -= *= /= %= &= ^= |= <<= >>= >>>= ~ ! new typeof u+ u- -- ++ u-- u++ ? if else function try catch finally for switch case with while do"),F=(function(ap){for(var ar={},aq=0,an=ap.length;aq<an;++aq){for(var ao in ap[aq]){g(ap[aq],ao)&&(ar[ao]=aq)}}return s(ar)})(K),v=(function(ap){for(var ar=[],at=0,an=ap.length,aq=null;aq=ap[at],ar[at]=true,at<an;++at){for(var ao in aq){if(g(aq,ao)&&(ar[at]=ar[at]&&!g(H,ao))){break}}}return ar})(K),B=ad("[] . () * / % + - << >> >>> < > <= >= instanceof in == != === !== & ^ | && || = += -= *= /= %= &= |= ^= <<= >>= >>>= , : ;"),Y=s({"function":2,"if":1,"do":1,"catch":1,"try":1,"for":1,"while":1,"with":1,"switch":1}),Q=s({"if":"else","do":"while","catch":"finally","try":"catch"}),D=ad("[] ()"),ah=ad("return throw break continue else"),E=ad("u+ u- u! u~ u++ u-- new typeof finally case var const void delete"),h=ad("; {"),ac=ad("i;"),I=ad("++ --"),q=s({"(":")","[":"]","{":"}","?":":"}),G=ad("[ ("),P=ad("?"),e=ad("function if for while catch void delete new typeof in instanceof"),A=ad("function"),u=am.syntax_common={_replace:function(an){return(an.l=this.l)&&(this.l.r=an),(an.r=this.r)&&(this.r.l=an),this},_append_to:function(an){return an&&an._append(this),this},_reparent:function(an){return this.p&&this.p[0]===this&&(this.p[0]=an),this},_fold_l:function(an){return this._append(this.l&&this.l._unlink(this)||a)},_append:function(an){return(this[this.length++]=an)&&(an.p=this),this},_fold_r:function(an){return this._append(this.r&&this.r._unlink(this)||a)},_sibling:function(an){return an.p=this.p,(this.r=an).l=this},_fold_lr:function(){return this._fold_l()._fold_r()},_fold_rr:function(){return this._fold_r()._fold_r()},_wrap:function(an){return an.p=this._replace(an).p,this._reparent(an),delete this.l,delete this.r,this._append_to(an)},_unlink:function(an){return this.l&&(this.l.r=this.r),this.r&&(this.r.l=this.l),delete this.l,delete this.r,this._reparent(an)},pop:function(){return --this.length,this},push:function(an){return this[this.length++]=an||a,this},id:function(){var an=W("id");return(this.id=function(){return an})()},is_caterwaul_syntax:true,each:function(ap){for(var ao=0,an=this.length;ao<an;++ao){ap(this[ao],ao)}return this},map:function(ap){for(var aq=new this.constructor(this),ao=0,an=this.length;ao<an;++ao){aq.push(ap(this[ao],ao)||this[ao])}return aq},reach:function(an){an(this);this.each(function(ao){ao.reach(an)});return this},rmap:function(ao){var an=ao(this);return !an||an===this?this.map(function(ap){return ap.rmap(ao)}):an.rmap===p?new this.constructor(an):an},peach:function(an){this.each(function(ao){ao.peach(an)});an(this);return this},pmap:function(ao){var an=this.map(function(ap){return ap.pmap(ao)});return ao(an)},clone:function(){return this.rmap(function(){return false})},collect:function(ao){var an=[];this.reach(function(ap){ao(ap)&&an.push(ap)});return an},replace:function(an){var ao;return l.call(an,this.data)&&(ao=an[this.data])?ao.constructor===String?C(this.map(function(ap){return ap.replace(an)}),function(){this.data=ao}):ao:this.map(function(ap){return ap.replace(an)})},repopulated_with:function(an){return new this.constructor(this.data,an)},with_data:function(an){return new this.constructor(an,Array.prototype.slice.call(this))},change:function(ao,an){return C(new this.constructor(this.data,Array.prototype.slice.call(this)),function(ap){ap[ao]=an})},compose_single:function(an,ao){return this.change(an,ao(this[an]))},slice:function(ao,an){return new this.constructor(this.data,Array.prototype.slice.call(this,ao,an))},traverse:function(an){an({entering:this});an({exiting:this.each(function(ao){ao.traverse(an)})});return this},flatten:function(an){an=an||this.data;return an!==this.data?this.as(an):!(g(B,an)&&this.length)?this:g(H,an)?C(new this.constructor(an),i(function(ap){for(var ao=this;ao&&ao.data===an;ao=ao[1]){ap.push(ao[0])}ap.push(ao)},this)):C(new this.constructor(an),i(function(aq){for(var ao=this,ap=[];ao.data===an;ao=ao[0]){ao[1]&&ap.push(ao[1])}ap.push(ao);for(ao=ap.length-1;ao>=0;--ao){aq.push(ap[ao])}},this))},unflatten:function(){var ao=this,an=g(H,this.data);return this.length<=2?this:C(new this.constructor(this.data),function(ar){if(an){for(var aq=0,ap=ao.length-1;aq<ap;++aq){ar=ar.push(ao[aq]).push(aq<ap-2?new ao.constructor(ao.data):ao[aq])[1]}}else{for(var aq=ao.length-1;aq>=1;--aq){ar=ar.push(aq>1?new ao.constructor(ao.data):ao[0]).push(ao[aq])[0]}}})},as:function(an){return this.data===an?this:new this.constructor(an).push(this)},bindings:function(ao){var an=ao||{};this.reach(function(ap){if(ap.binds_a_value){an[ap.data]=ap.value}});return an},contains:function(aq){var an=aq(this);if(an){return an}for(var ap=0,ao=this.length;ap<ao;++ap){if(an=this[ap].contains(aq)){return an}}},match:function(ap,aq){ap=ap.constructor===String?am.parse(ap):ap;aq||(aq={_:ap});if(this.is_wildcard()){return aq[this.data]=ap,aq}else{if(this.length===ap.length&&this.data===ap.data){for(var ao=0,an=this.length;ao<an;++ao){if(!this[ao].match(ap[ao],aq)){return null}}return aq}}},toString:function(){var an=[""];this.serialize(an);return an.join("")},structure:function(){if(this.length){return"("+['"'+this.data+'"'].concat(N(function(an){return an.structure()},this)).join(" ")+")"}else{return this.data}}};am.syntax_subclass=function(ap){var ao=Array.prototype.slice.call(arguments,1),an=function(){return ap.apply(this,arguments)};ab.apply(this,[an.prototype,u].concat(ao));an.prototype.constructor=an;return an};var b=am.parse_hex=function(aq){for(var an=0,ap=0,ao=aq.length,ar;ap<ao;++ap){an*=16,an+=(ar=aq.charCodeAt(ap))<=58?ar-48:(ar&95)-55}return an},ak=am.parse_octal=function(aq){for(var an=0,ap=0,ao=aq.length;ap<ao;++ap){an*=8,an+=aq.charCodeAt(ap)-48}return an},d=am.unescape_string=function(ar){for(var aq=0,at,ao=ar.length,an=[],ap=false;aq<ao;++aq){if(ap){ap=false,an.push((at=ar.charAt(aq))==="\\"?"\\":at==="n"?"\n":at==="r"?"\r":at==="b"?"\b":at==="f"?"\f":at==="0"?"\u0000":at==="t"?"\t":at==="v"?"\v":at==='"'||at==="'"?at:at==="x"?String.fromCharCode(b(ar.substring(aq,++aq+1))):at==="u"?String.fromCharCode(b(ar.substring(aq,(aq+=3)+1))):String.fromCharCode(ak(ar.substring(aq,(aq+=2)+1))))}else{if((at=ar.charAt(aq))==="\\"){ap=true}else{an.push(at)}}}return an.join("")};am.javascript_tree_type_methods={is_string:function(){return/['"]/.test(this.data.charAt(0))},as_escaped_string:function(){return this.data.substr(1,this.data.length-2)},is_number:function(){return/^-?(0x|\d|\.\d+)/.test(this.data)},as_number:function(){return Number(this.data)},is_boolean:function(){return this.data==="true"||this.data==="false"},as_boolean:function(){return this.data==="true"},is_regexp:function(){return/^\/./.test(this.data)},as_escaped_regexp:function(){return this.data.substring(1,this.data.lastIndexOf("/"))},is_array:function(){return this.data==="["},as_unescaped_string:function(){return d(this.as_escaped_string())},is_wildcard:function(){return this.data.charCodeAt(0)===95},is_identifier:function(){return this.length===0&&/^[A-Za-z_$]\w*$/.test(this.data)&&!this.is_boolean()&&!this.is_null_or_undefined()&&!g(al,this.data)},has_grouped_block:function(){return g(Y,this.data)},is_block:function(){return g(h,this.data)},is_blockless_keyword:function(){return g(ah,this.data)},is_null_or_undefined:function(){return this.data==="null"||this.data==="undefined"},is_constant:function(){return this.is_number()||this.is_string()||this.is_boolean()||this.is_regexp()||this.is_null_or_undefined()},left_is_lvalue:function(){return/=$/.test(this.data)||/\+\+$/.test(this.data)||/--$/.test(this.data)},is_empty:function(){return !this.length},has_parameter_list:function(){return this.data==="function"||this.data==="catch"},has_lvalue_list:function(){return this.data==="var"||this.data==="const"},is_dereference:function(){return this.data==="."||this.data==="[]"},is_invocation:function(){return this.data==="()"},is_contextualized_invocation:function(){return this.is_invocation()&&this[0].is_dereference()},is_invisible:function(){return g(ac,this.data)},is_binary_operator:function(){return g(B,this.data)},is_prefix_unary_operator:function(){return g(E,this.data)},is_postfix_unary_operator:function(){return g(I,this.data)},is_unary_operator:function(){return this.is_prefix_unary_operator()||this.is_postfix_unary_operator()},accepts:function(an){return g(Q,this.data)&&Q[this.data]===(an.data||an)}};am.javascript_tree_serialization_methods={ends_with_block:function(){var an=this[Y[this.data]];return this.data==="{"||g(Y,this.data)&&(this.data!=="function"||this.length===3)&&an&&an.ends_with_block()},serialize:function(aq){var ao=this.length,ar=this.data,an=";\n",ap=function(at){if(X[aq[aq.length-1].charCodeAt(0)]===X[at.charCodeAt(0)]){aq.push(" ",at)}else{aq.push(at)}};switch(ao){case 0:if(g(ah,ar)){return ap(ar.replace(/^u/,""))}else{if(g(q,ar)){return ap(ar),ap(q[ar])}else{return ap(ar)}}case 1:if(g(E,ar)||g(ah,ar)){return ap(ar.replace(/^u/,"")),this[0].serialize(aq)}else{if(g(q,ar)){return ap(ar),this[0].serialize(aq),ap(q[ar])}else{if(g(B,ar)){return ap("/* unary "+ar+" node */"),this[0].serialize(aq)}else{return this[0].serialize(aq),ap(ar)}}}case 2:if(g(D,ar)){return this[0].serialize(aq),ap(ar.charAt(0)),this[1].serialize(aq),ap(ar.charAt(1))}else{if(g(Y,ar)){return ap(ar),this[0].serialize(aq),this[1].serialize(aq)}else{if(g(ac,ar)){return this[0].serialize(aq),this[1].serialize(aq)}else{if(ar===";"){return this[0].serialize(aq),ap(an),this[1].serialize(aq)}else{return this[0].serialize(aq),ap(ar),this[1].serialize(aq)}}}}default:if(g(P,ar)){return this[0].serialize(aq),ap(ar),this[1].serialize(aq),ap(":"),this[2].serialize(aq)}else{if(g(Y,ar)){return this.accepts(this[2])&&!this[1].ends_with_block()?(ap(ar),this[0].serialize(aq),this[1].serialize(aq),ap(an),this[2].serialize(aq)):(ap(ar),this[0].serialize(aq),this[1].serialize(aq),this[2].serialize(aq))}else{return this.unflatten().serialize(aq)}}}}};am.ref=am.syntax_subclass(function(ao,an){if(ao instanceof this.constructor){this.value=ao.value,this.data=ao.data}else{this.value=ao,this.data=W(an&&an.constructor===String?an:"ref")}},am.javascript_tree_type_methods,am.javascript_tree_serialization_methods,{binds_a_value:true,length:0},{replace:function(an){var ao;return l.call(an,this.data)&&(ao=an[this.data])?ao.constructor===String?C(new this.constructor(this.value),function(){this.data=ao}):ao:this}});am.syntax=am.syntax_subclass(function(at){if(at instanceof this.constructor){this.data=at.data,this.length=0}else{this.data=at&&at.toString();this.length=0;for(var aq=1,an=arguments.length,ap;ap=arguments[aq],aq<an;++aq){for(var ao=0,av=ap.length,ar,au;ap instanceof Array?(ar=ap[ao],ao<av):(ar=ap,!ao);++ao){this._append((au=ar.constructor)===String||au===Number||au===Boolean?new this.constructor(ar):ar)}}}},am.javascript_tree_type_methods,am.javascript_tree_serialization_methods);var a=am.empty=new am.syntax("");am.parse=function(an){if(an.constructor===am.syntax){return an}var aJ=an.toString(),at=0,aV=0,aG=true,aF=false,aX=false,aW=false,aK=0,aH="",aS=0,aP=aJ.length,aA=function(aZ){return aJ.charCodeAt(aZ)},ay=[],aO=null,aw=null,au=null,ao=N(function(){return[]},K),av=[],aI=[a],aQ=function(aZ){return aI.push(aZ),aZ},aL=function(aZ){return aw?aw._sibling(aw=aZ):(aw=aZ._append_to(au)),aQ(aZ)},ap=this.syntax,ax=[];if(aP===0){return a}while((at=aS)<aP){while(j[aV=aA(aS)]&&aS<aP){at=++aS}aF=aW=aX=aH=false;if(t[aV]){aH=!!++aS;aG=r[aV]}else{if(aV===n&&aA(aS+1)===R&&(aS+=2)){while(++aS<aP&&aA(aS)!==n||aA(aS-1)!==R){}aH=!++aS}else{if(aV===n&&aA(aS+1)===n){while(++aS<aP&&!J[aA(aS)]){}aH=false}else{if(O[aV]&&(aK=aV)&&aG&&!(aG=!(aH=aJ.charAt(aS)))){while(++aS<aP&&(aV=aA(aS))!==aK||aF){aF=!aF&&aV===m}while(++aS<aP&&k[aA(aS)]){}aH=true}else{if(aV===T&&y[aA(aS+1)]){while(++aS<aP&&y[aA(aS)]){}aG=!(aH=true)}else{if(aj[aV]&&(aV!==M||U[aA(aS+1)])){while(++aS<aP&&(U[aV=aA(aS)]||(aX^(aX|=aV===M))||(aW^(aW|=L[aV]&&++aS)))){}while(aS<aP&&U[aA(aS)]){++aS}aG=!(aH=true)}else{if(x[aV]&&(aH=aG?"u":"",aG=true)){while(aS<aP&&x[aA(aS)]&&g(al,aH+aJ.charAt(aS))){aH+=aJ.charAt(aS++)}aG=!g(ai,aH)}else{while(++aS<aP&&(X[aV=aA(aS)]||aV>127)){}aG=g(al,aH=aJ.substring(at,aS))}}}}}}}if(aS===at){throw new Error('Caterwaul lex error at "'+aJ.substr(at,40)+'" with leading context "'+aJ.substr(at-40,40)+'" (probably a Caterwaul bug)')}if(aH===false){continue}aH=aH===true?aJ.substring(at,aS):aH==="u;"?";":aH;aH===aO?(ay.pop(),aO=ay[ay.length-1],aw=aw?aw.p:au,au=null):(g(q,aH)?(ay.push(aO=q[aH]),au=aL(aQ(new ap(aH))),aw=null):aL(aQ(new ap(aH))),g(F,aH)&&ao[F[aH]].push(aw||au));aG|=aH===")"&&aw.l&&g(Y,aw.l.data)}for(var aS=0,aP=ao.length,aE,aY;aY=ao[aS],aE=v[aS],aS<aP;++aS){for(var aR=aE?0:aY.length-1,aD=aY.length,aT=aE?1:-1,aB,aU,aC;aE?aR<aD:aR>=0;aR+=aT){if(g(B,aU=(aB=aY[aR]).data)){aB._fold_lr()}else{if(g(G,aU)&&aB.l&&!((aC=aB.l.l)&&g(Y,aC.data))&&(aB.l.data==="."||(aB.l.data==="function"&&aB.l.length===2)||!(g(al,aB.l.data)||g(e,aB.l.data)))){av.push(aB.l._wrap(aQ(new ap(aU+q[aU]))).p._fold_r())}else{if(g(I,aU)){aB._fold_l()}else{if(g(E,aU)){aB._fold_r()}else{if(g(P,aU)){aB._fold_lr(),ax.push(aB)}else{if(g(Y,aU)&&aB.r&&aB.r.data!==":"){for(var aM=0,az=Y[aU];aM<az&&aB.r&&!g(h,aB.r.data);++aM){aB._fold_r()}aB.r&&(aB.r.data===";"?aB.push(a):aB._fold_r());if(g(Q,aU)&&Q[aU]===(aB.r&&aB.r.r&&aB.r.r.data)){aB._fold_r().pop()._fold_r()}else{if(g(Q,aU)&&Q[aU]===(aB.r&&aB.r.data)){aB._fold_r()}}}else{if(g(ah,aU)){aB.r&&aB.r.data!==";"&&aB._fold_r()}}}}}}}}}for(var aS=aI.length-1,aY;aS>=0;--aS){(aY=aI[aS]).r&&aY._wrap(aQ(new ap("i;"))).p._fold_r()}for(var aS=0,aP=av.length,aY,aq;aS<aP;++aS){(aq=(aY=av[aS])[1]=aY[1][0]||a)&&(aq.p=aY)}for(var aS=0,aP=ax.length,aY,aN,ar;aS<aP;++aS){aN=(aY=ax[aS]).length,ar=aY[0],aY[0]=aY[aN-2],aY[1]=ar,aY[2]=aY[aN-1],aY.length=3}while(aw.p){aw=aw.p}for(var aS=aI.length-1,aY;aS>=0;--aS){delete (aY=aI[aS]).p,delete aY.l,delete aY.r}return aw};(function(){var an=am.parse("var _bindings; return(_expression)"),ap=am.parse("_variable = _base._variable"),ao=am.parse("undefined = void(0)");am.compile=function(aC,aw,aB){aB=ab({gensym_renaming:true},aB);var at=ab({},this._environment||{},aw||{},aC.bindings()),ay=[ao],aA=W("base");for(var av in at){if(l.call(at,av)&&av!=="this"){ay.push(ap.replace({_variable:av,_base:aA}))}}var az=new this.syntax(",",ay).unflatten(),aq=an.replace({_bindings:az,_expression:aC});if(aB.gensym_renaming){var au=this.gensym_rename_table(aq);for(var av in at){l.call(at,av)&&(at[au[av]||av]=at[av])}aq=aq.replace(au);aA=au[aA]}var ar=aq.toString();try{return(new Function(aA,ar)).call(at["this"],at)}catch(ax){throw new Error((ax.message||ax)+" while compiling "+ar)}};am.gensym_rename_table=function(az){var ay={},aw=[];az.reach(function(aA){var aB=aA.data;if(V(aB)){ay[aB]||aw.push(aB)}ay[aB]=aB.replace(/^(.*)_[a-z0-9]+_.{22}$/,"$1")||"anon"});var aq={},ax=function(aA){if(!(aA in ay)){return aA}var aB=aq[aA]||0;while(ay[aA+(++aB).toString(36)]){}return aA+(aq[aA]=aB).toString(36)};for(var ar={},au=0,at=aw.length,av;au<at;++au){ar[av=aw[au]]||(ay[ar[av]=ax(ay[av])]=true)}return ar}})();am.init=function(ao){var an=function(ar,ap,aq){return ar.constructor===Function||ar.constructor===String?am.compile(an.call(an,am.parse(ar)),ap,aq):ao?ar.rmap(function(at){return ao.call(an,at,ap,aq)}):ar};an.global=am;an.macroexpander=ao;return an};am.initializer=f;am.clone=function(){return C(f(f,c).deglobalize(),function(){for(var an in am){this[an]||(this[an]=am[an])}})};return caterwaul=am});
+(caterwaul.std_initializer=function(){(function(c){var b=function(g){var d=function(h){if(h.constructor===Array){for(var k=0,j=h.length,m=[];k<j;++k){m.push(d(h[k]))}return function(l){for(var o=m.length-1,q;o>=0;--o){if(q=m[o].call(this,l)){return q}}}}else{return h.constructor===String?d(c.parse(h)):h.constructor===c.syntax?g.call(this,h):h}};return d};c.pattern=b(function(d){return function(g){return d.match(g)}});c.expander=b(function(d){return function(g){return d.replace(g)}});c.alternatives=b(function(d){throw new Error("must use replacer functions with caterwaul.alternatives()")});c.reexpander=function(g){var d=c.expander(g);return function(h){var i=d.call(this,h);return i&&this(i)}};var a=function(d){return function(h,j){var i=c.pattern(h),g=d(j);return function(k){var l=i.call(this,k);return l&&g.call(this,l)}}};c.replacer=a(c.expander);c.rereplacer=a(c.reexpander);c.macroexpand=function(d){return c(c.alternatives(Array.prototype.slice.call(arguments,1)))(d)}})(caterwaul);(function(a){a.anonymizer=function(){for(var d={},c=0,b=arguments.length;c<b;++c){d[arguments[c]]=a.gensym(arguments[c])}return function(g){return a.parse(g).replace(d)}}})(caterwaul);(function(a){a.js=function(c){var h=function(Q){var Y=Q.data,N=Y.charAt(0),S=a.syntax;if(N!=="'"&&N!=='"'||!/#\{[^\}]+\}/.test(Y)){return false}for(var R=[],Z=[],U=1,T=Y.length-1,X=0,V=false,O=1,W;U<T;++U){if(X){if((W=Y.charAt(U))==="}"){--X||(R.push(Y.substring(O,U)),Z.push(true))&&(O=U+1),V=false}else{X+=W==="{"}}else{if((W=Y.charAt(U))==="#"){V=true}else{if(W==="{"&&V){R.push(Y.substring(O,U-1)),Z.push(false),O=U+1,++X}else{V=false}}}}R.push(Y.substring(O,T)),Z.push(false);for(var P=new RegExp("\\\\"+N,"g"),U=0,T=R.length;U<T;++U){R[U]=Z[U]?this(a.parse(R[U].replace(P,N)).as("(")):new S(N+R[U]+N)}return new S("+",R).unflatten().as("(")};var J=a.parse("var _x = _y"),M=a.parse("_x = _y"),G=a.parse("result"),L=a.parse("function (_formals) {_befores; var result = _result; _afters; return result}"),H=a.parse("function (_formals) {_befores; return _result}"),i=a.parse("_f = _x"),I=function(N){return N.is_empty()&&N.data==="result"},w=a.rereplacer("_f(_xs) = _y",function(W){for(var X=[],aa=[],ab=[],N=W._xs.flatten(","),V=0,T=N.length;V<T;++V){(ab.length||N[V].contains(I)?ab:aa.length||N[V].length?aa:X).push(N[V])}for(var S=[aa,ab],V=0,T=S.length;V<T;++V){for(var R=S[V],U=0,Z=R.length,Q;U<Z;++U){R[U]=(Q=M.match(R[U]))&&Q._x.is_empty()?J.replace(Q):R[U].as("(")}}var Y=X.length?new a.syntax(",",X).unflatten():a.empty,P=aa.length?new a.syntax(";",aa).unflatten():a.empty,O=ab.length?new a.syntax(";",ab).unflatten():a.empty;template=i.replace({_f:W._f,_x:ab.length?L:H});return template.replace({_formals:Y,_befores:P,_afters:O,_result:W._y})});var y=function(O){var Q=O.data,P,N;if((Q==="/"||Q==="|")&&(P=O[0]).data===Q&&P[1]&&P[1].data==="u-"&&(N=P[1][0])){return new a.syntax("()",N,this(O[0][0]).flatten(Q).push(this(O[1])).with_data(",").unflatten())}};var F=function(Q){var S=Q.data,R,P;if((S==="/"||S==="|")&&(R=Q[0]).data===S&&R[1]&&R[1].data==="u~"&&(P=R[1][0])){var O=[].slice.call(this(Q[0][0]).flatten(S)),N=O.shift();return new a.syntax("()",new a.syntax(".",new a.syntax("(",N),P),new a.syntax(",",O,this(Q[1])).unflatten())}};var o=a.parse("_f(_x)"),j=a.rereplacer("_x /!_f",function(N){return o.replace({_f:N._f,_x:this(N._x).flatten("/").with_data(",").unflatten()})});var l=a.pattern("_literal._modifier"),E=function(O,P,N){var Q=O.literal_modifiers[P];return Q.hasOwnProperty(N)&&Q[N]},u=function(P){var O=l.call(this,P),N,Q;if(O&&(N=O._literal)&&(Q=N.is_identifier()?E(this,"identifier",O._modifier.data):N.is_array()?E(this,"array",O._modifier.data):N.is_regexp()?E(this,"regexp",O._modifier.data):N.is_number()?E(this,"number",O._modifier.data):N.is_string()?E(this,"string",O._modifier.data):null)){return Q.call(this,N)}};var A=a.pattern("_modifier[_expression]"),k=a.pattern("_expression /_modifier"),C=a.pattern("_expression -_modifier"),K=a.pattern("_modifier in _expression"),z=a.pattern("_expression |_modifier"),B=a.pattern("_expression, _modifier"),v=a.pattern("_modifier._parameters"),m=a.pattern("_modifier[_parameters]"),D=a.pattern("_expression <_modifier> _parameters"),g=a.pattern("_expression -_modifier- _parameters"),b=function(S){var N=D.call(this,S)||g.call(this,S);if(N){for(var T=this.parameterized_modifiers,Q=T.length-1,R;Q>=0;--Q){if(R=T[Q].call(this,N)){return R}}}var P=A.call(this,S)||k.call(this,S)||C.call(this,S)||K.call(this,S)||z.call(this,S)||B.call(this,S);if(P){var O=v.call(this,P._modifier)||m.call(this,P._modifier);if(O){P._modifier=O._modifier;P._parameters=O._parameters;for(var T=this.parameterized_modifiers,Q=T.length-1,R;Q>=0;--Q){if(R=T[Q].call(this,P)){return R}}}else{for(var T=this.modifiers,Q=T.length-1,R;Q>=0;--Q){if(R=T[Q].call(this,P)){return R}}}}};var d=function(N){return h.call(this,N)||u.call(this,N)||N.length&&(b.call(this,N)||w.call(this,N)||y.call(this,N)||F.call(this,N)||j.call(this,N))},q=c?a(function(N){return c.call(this,N)||d.call(this,N)}):a(d);q.modifiers=[];q.parameterized_modifiers=[];q.literal_modifiers={regexp:{},array:{},string:{},number:{},identifier:{}};return q}})(caterwaul);(function(a){a.js_literals=function(c){var b=a.parse("function (_) {return _body}");(function(d){d.x=a.reexpander(function(h){return h.with_data(h.data.replace(/\s+/g,""))});var g=a.parse("_regexp.exec(_)");d.qf=function(h){return b.replace({_body:g.replace({_regexp:h})})}})(c.literal_modifiers.regexp);(function(d){d.qw=a.reexpander(function(o){for(var q=new a.syntax("["),g=new a.syntax(","),j=o.data.charAt(0),m=o.as_escaped_string().split(/\s+/),k=0,h=m.length;k<h;++k){g.push(new a.syntax(j+m[k]+j))}return q.push(g.unflatten())});d.qh=a.reexpander(function(o){for(var q=new a.syntax("{"),g=new a.syntax(","),j=o.data.charAt(0),m=o.as_escaped_string().split(/\s+/),k=0,h=m.length;k<h;k+=2){g.push(new a.syntax(":",new a.syntax(j+m[k]+j),new a.syntax(j+m[k+1]+j)))}return q.push(g.unflatten())});d.qr=a.reexpander(function(g){return g.with_data("/"+g.as_escaped_string().replace(/\//g,"\\/")+"/")});d.qs=function(g){return new a.ref(a.parse(g.as_unescaped_string()))};d.qf=a.reexpander(function(g){return b.replace({_body:a.parse(g.as_unescaped_string())})})})(c.literal_modifiers.string);return c}})(caterwaul);(function(a){a.words=function(d){var h=function(i,j){return function(k){return k._modifier.data===i&&j.call(this,k)}},b=function(i,j){d.modifiers.push(h(i,j))},g=function(i,j){d.parameterized_modifiers.push(h(i,j))};b("qs",function(i){return new a.ref(i._expression,"qs")});b("qse",function(i){return new a.ref(this(i._expression),"qse")});b("reexpand",function(i){return this(this(i._expression))});b("noexpand",function(i){return i._expression});b("raise",a.reexpander("(function () {throw _expression}).call(this)"));g("rescue",a.reexpander("(function () {try {return (_expression)} catch (e) {return (_parameters)}}).call(this)"));b("eval",function(i){return new a.ref(a.compile(this(i._expression)),"eval")});g("given",a.reexpander("(function (_parameters) {return _expression})"));g("bgiven",a.reexpander("(function (t, f) {return (function () {return f.apply(t, arguments)})})(this, (function (_parameters) {return _expression}))"));b("delay",a.reexpander("(function (t, f) {return (function () {return f.call(t)})})(this, (function () {return _expression}))"));b("lazy",a.reexpander("(function (t, f, v, vc) {return (function () {return vc ? v : (vc = true, v = f.call(t))})})(this, (function () {return _expression}))"));g("se",a.reexpander("(function (it) {return (_parameters), it}).call(this, (_expression))"));g("re",a.reexpander("(function (it) {return (_parameters)}).call(this, (_expression))"));g("where",a.reexpander("(function () {var _parameters; return (_expression)}).call(this)"));b("capture",function(m){for(var q=new a.syntax("{"),j=new a.syntax(","),u=m._expression.flatten(","),o=0,k=u.length;o<k;++o){j.push(this(u[o]).with_data(":"))}return q.push(j.unflatten())});var c=a.parse("(function () {var _variables; return _expression}).call(this)");g("using",a.reexpander(function(l){var m=a.compile(this(l._parameters)),i=new a.syntax(",");for(var j in m){if(Object.prototype.hasOwnProperty.call(m,j)){i.push(new a.syntax("=",j,new a.ref(m[j])))}}return c.replace({_variables:i.unflatten(),_expression:l._expression})}));g("when",a.reexpander("((_parameters) && (_expression))"));g("unless",a.reexpander("(! (_parameters) && (_expression))"));return d}})(caterwaul);caterwaul.words(caterwaul.js())(function(a){a.seq(caterwaul_function)=caterwaul_function-se-it.modifiers.push(given.match in seq_expand.call(seq_expand,anon_pattern.replace({_x:match._expression}))-re-this(it)/when.it-when[match._modifier.data==="seq"])-where[anon_pattern=anon("S[_x]"),seq_expand=a(a.alternatives(operator_macros.concat(word_macros)))],where[anon=a.anonymizer("S"),rule(p,e)=a.rereplacer(p.constructor===String?anon(p):p,e.constructor===String?anon(e):e),operator_macros=[rule("S[_x]","_x"),rule("S[_xs + _ys]",concat),rule("S[_xs ^ _ys]",zip),rule("S[_xs - _ys]",cross),rule("S[(_x)]","(S[_x])"),rule("S[_x[_y]]","S[_x][_y]"),rule("S[_xs(_ys)]","S[_xs](_ys)"),rule("S[[_x]]","[_x]"),rule("S[_x, _y]","S[_x], S[_y]"),rule("S[_xs._p]","S[_xs]._p"),rule("S[~[_x]]","[S[_x]]"),rule("S[_x ? _y : _z]","(S[_x]) ? (S[_y]) : (S[_z])"),rule("S[_x && _y]","(S[_x]) && (S[_y])"),rule("S[_x || _y]","(S[_x]) || (S[_y])"),rule("S[+_xs]","Array.prototype.slice.call((_xs))"),rule("S[_xs %_thing]",handle_filter_forms),rule("S[_xs *_thing]",handle_map_forms),rule("S[_xs /_thing]",handle_fold_forms),rule("S[_xs |_thing]",handle_exists_forms),rule("S[_xs %k*_thing]",handle_kmap_forms),rule("S[_xs %v*_thing]",handle_vmap_forms),rule("S[_xs %k%_thing]",handle_kfilter_forms),rule("S[_xs %v%_thing]",handle_vfilter_forms)]-where[unrecognized(reason)=raise[new Error(reason)],use_form(form,xs,body,init,vars)=form?form.replace({_f:body,_init:init}).replace(a.merge({_xs:xs},vars)):unrecognized("unsupported sequence operator or modifiers used on #{body}"),operator_case(forms)(match)=parse_modifiers(match._thing,use(forms.normal,forms.inormal),use(forms.bang,forms.ibang),use(forms.tbang,forms.itbang))-where[xs=match._xs,expander=this,form_function(form)(body,vars)=use_form(form,xs,body,null,vars),iform_function(form)(body,init,vars)=use_form(form,xs,body,init,vars),use(form,iform)(body)=parse_body(body,expander,form_function(form),iform_function(iform))],handle_map_forms=operator_case({normal:map,bang:each,tbang:flatmap}),handle_filter_forms=operator_case({normal:filter,bang:filter_not,tbang:map_filter}),handle_fold_forms=operator_case({normal:foldl,bang:foldr,tbang:unfold,inormal:ifoldl,ibang:ifoldr}),handle_kmap_forms=operator_case({normal:kmap,bang:keach}),handle_kfilter_forms=operator_case({normal:kfilter,bang:kfilter_not,tbang:kmap_filter}),handle_vmap_forms=operator_case({normal:vmap,bang:veach}),handle_vfilter_forms=operator_case({normal:vfilter,bang:vfilter_not,tbang:vmap_filter}),handle_exists_forms=operator_case({normal:exists}),block=anon("[_x]"),block_with_variable=anon("_var[_x]"),block_with_init=anon("[_init][_x]"),block_with_variable_and_init=anon("_var[_init][_x]"),block_with_closure=anon("+_x"),block_with_seq=anon("~_x"),standard_names={_x:"x",_x0:"x0",_xi:"xi",_xl:"xl"},prefixed_names(p)={_x:p,_x0:"#{p}0",_xi:"#{p}i",_xl:"#{p}l"},function_promotion=anon("_f(_x, _x0, _xi, _xl)"),promote_function(f)=function_promotion.replace({_f:f}),closure_wrapper=anon("(function (_x, _x0, _xi, _xl) {return _f}).call(this, _x, _x0, _xi, _xl)"),close_body(vars,f)=closure_wrapper.replace(vars).replace({_f:f}),seq_pattern=anon("S[_x]"),promote_seq(f)=seq_pattern.replace({_x:f}),parse_body(tree,expand,normal,init)=((r=block_with_seq.match(tree))?parse_body(r._x,expand,sequence_context_normal,sequence_context_init):(r=block_with_closure.match(tree))?parse_body(r._x,expand,wrapping_normal,wrapping_init):(r=block_with_variable_and_init.match(tree))?init(r._x,r._init,prefixed_names(r._var)):(r=block_with_init.match(tree))?init(r._x,r._init,standard_names):(r=block_with_variable.match(tree))?normal(r._x,prefixed_names(r._var)):(r=block.match(tree))?normal(r._x,standard_names):normal(promote_function(tree),standard_names))-where[in_sequence_context(f)=expand.call(expand,promote_seq(f)),sequence_context_normal(f,names)=normal(in_sequence_context(f),names),sequence_context_init(f,init_expression,names)=init(in_sequence_context(f),init_expression,names),wrapping_normal(f,names)=normal(close_body(names,f),names),wrapping_init(f,init_expression,names)=init(close_body(names,f),init_expression,names),r=null],tbang_modifier=anon("~!_x"),bang_modifier=anon("!_x"),parse_modifiers(tree,normal,bang,tbang)=((result=tbang_modifier.match(tree))?tbang(result._x):(result=bang_modifier.match(tree))?bang(result._x):normal(tree))-where[result=null]]-where[loop_anon=a.anonymizer("xs","ys","x","y","i","j","l","lj","r","o","k"),scope=anon("(function (xs) {var _x, _x0, _xi, _xl; _body}).call(this, S[_xs])"),scoped(t)=scope.replace({_body:t}),expand(s)=s.replace(/@/g,"Array.prototype.slice.call").replace(/#/g,"Object.prototype.hasOwnProperty.call"),form(x)=x/!expand/!anon/!scoped/!loop_anon,map=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length; _xi < _xl; ++_xi) _x = xs[_xi], ys.push((_f));              return ys"),each=form("for (var                            _xi = 0, _xl = xs.length; _xi < _xl; ++_xi) _x = xs[_xi], (_f);                       return xs"),flatmap=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length; _xi < _xl; ++_xi) _x = xs[_xi], ys.push.apply(ys, @((_f))); return ys"),filter=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length;     _xi < _xl; ++_xi) _x = xs[_xi], (_f) && ys.push(_x);        return ys"),filter_not=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length;     _xi < _xl; ++_xi) _x = xs[_xi], (_f) || ys.push(_x);        return ys"),map_filter=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length, _y; _xi < _xl; ++_xi) _x = xs[_xi], (_y = (_f)) && ys.push(_y); return ys"),foldl=form("for (var _x0 = xs[0], _xi = 1, _xl = xs.length;            _xi < _xl; ++_xi) _x = xs[_xi], _x0 = (_f); return _x0"),foldr=form("for (var _xl = xs.length, _xi = _xl - 2, _x0 = xs[_xl - 1]; _xi >= 0; --_xi) _x = xs[_xi], _x0 = (_f); return _x0"),unfold=form("for (var ys = [], _x = xs, _xi = 0;                     _x !== null; ++_xi) ys.push(_x), _x = (_f);    return ys"),ifoldl=form("for (var _x0 = (_init), _xi = 0, _xl = xs.length;      _xi < _xl; ++_xi) _x = xs[_xi], _x0 = (_f);     return _x0"),ifoldr=form("for (var _xl = xs.length - 1, _xi = _xl, _x0 = (_init); _xi >= 0; --_xi) _x = xs[_xi], _x0 = (_f);     return _x0"),exists=form("for (var _x = xs[0], _xi = 0, _xl = xs.length, x; _xi < _xl; ++_xi) {_x = xs[_xi]; if (x = (_f)) return x} return false"),concat=anon("(S[_xs]).concat((S[_ys]))"),zip=form("for (var ys = (S[_ys]), pairs = [], i = 0, l = xs.length; i < l; ++i) pairs.push([xs[i], ys[i]]); return pairs"),cross=form("for (var ys = (S[_ys]), pairs = [], i = 0, l = xs.length, lj = ys.length; i < l; ++i) for (var j = 0; j < lj; ++j) pairs.push([xs[i], ys[j]]);return pairs"),kmap=form("var r = new xs.constructor();    for (var _x in xs) if (#(xs, _x)) r[_f] = xs[_x]; return r"),keach=form("                                 for (var _x in xs) if (#(xs, _x)) _f;             return xs"),kfilter=form("var r = new xs.constructor();    for (var _x in xs) if (#(xs, _x) &&      (_f))  r[_x] = xs[_x]; return r"),kfilter_not=form("var r = new xs.constructor();    for (var _x in xs) if (#(xs, _x) &&    ! (_f))  r[_x] = xs[_x]; return r"),kmap_filter=form("var r = new xs.constructor(), x; for (var _x in xs) if (#(xs, _x) && (x = (_f))) r[x]  = xs[_x]; return r"),vmap=form("var r = new xs.constructor();    for (var  k in xs) if (#(xs, k)) _x = xs[k], r[k] = (_f); return r"),veach=form("                                 for (var  k in xs) if (#(xs, k)) _x = xs[k], _f;          return xs"),vfilter=form("var r = new xs.constructor();    for (var  k in xs) if (#(xs, k)) _x = xs[k],        (_f) && (r[k] = _x); return r"),vfilter_not=form("var r = new xs.constructor();    for (var  k in xs) if (#(xs, k)) _x = xs[k],        (_f) || (r[k] = _x); return r"),vmap_filter=form("var r = new xs.constructor(), x; for (var  k in xs) if (#(xs, k)) _x = xs[k], x = (_f), x && (r[k] =  x); return r")],word_macros=[rule("S[n[_upper]]",n),rule("S[ni[_upper]]",ni),rule("S[_o /keys]",keys),rule("S[_o |object]",object),rule("S[n[_lower, _upper]]",n),rule("S[ni[_lower, _upper]]",ni),rule("S[_o /values]",values),rule("S[_o -object]",object),rule("S[n[_lower, _upper, _step]]",n),rule("S[ni[_lower, _upper, _step]]",ni),rule("S[_o /pairs]",pairs),rule("S[_o /object]",object)]-where[n(match)=n_pattern.replace(a.merge({_lower:"0",_step:"1"},match)),ni(match)=ni_pattern.replace(a.merge({_lower:"0",_step:"1"},match)),n_pattern=anon("(function (i, u, s) {if ((u - i) * s <= 0) return [];for (var r = [], d = u - i; d > 0 ? i <  u : i >  u; i += s) r.push(i); return r})((_lower), (_upper), (_step))"),ni_pattern=anon("(function (i, u, s) {if ((u - i) * s <= 0) return [];for (var r = [], d = u - i; d > 0 ? i <= u : i >= u; i += s) r.push(i); return r})((_lower), (_upper), (_step))"),scope=anon("(function (o) {_body}).call(this, (S[_o]))"),scoped(t)=scope.replace({_body:t}),form(p)=tree.replace(match)-given.match-where[tree=scoped(anon(p))],keys=form("var ks = []; for (var k in o) Object.prototype.hasOwnProperty.call(o, k) && ks.push(k); return ks"),values=form("var vs = []; for (var k in o) Object.prototype.hasOwnProperty.call(o, k) && vs.push(o[k]); return vs"),pairs=form("var ps = []; for (var k in o) Object.prototype.hasOwnProperty.call(o, k) && ps.push([k, o[k]]); return ps"),object=form("for (var r = {}, i = 0, l = o.length, x; i < l; ++i) x = o[i], r[x[0]] = x[1]; return r")]]})(caterwaul);caterwaul.js_all=function(){return this.seq(this.words(this.js_literals(this.js())))}})();
+// Caterwaul regular expression parser | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This library parses regular expressions into syntax trees. The resulting trees not only describe the structure of the regular expression but also provide information about the strings that it
+// matches. It knows all of the standard Javascript regular expression constructs such as groups, backreferences, lookahead, etc.
+
+// Implementation.
+// Regular expressions support three binary operators. One is the dash, used for character ranges; another is the pipe, which is used for alternatives; and the third is the implicit join
+// operator, used wherever two constructs are adjacent. The pipe has lower precedence than implicit joining, and the dash has higher precedence (though it's not exactly comparable, since it's
+// special only inside a character class and implicit join does something different there).
+
+// This parser interprets regular expressions a little differently than their syntax might suggest. For example:
+
+// | caterwaul.regexp(/foo(?=bar)/).structure()    // -> '("," foo ("(?=" bar))'
+//   caterwaul.regexp(/foo(?:bar)+/).structure()   // -> '("," foo ("+" ("(?:" bar)))'
+//   caterwaul.regexp(/[a-z]/).structure()         // -> '("[" ("-" a z))'
+//   caterwaul.regexp(/[^a-z]/).structure()        // -> '("[^" ("-" a z))'
+//   caterwaul.regexp(/[a-zABC]/).structure()      // -> '("[" ("," ("-" a z) ("," A ("," B C))))
+//   caterwaul.regexp(/[-abc]/).structure()        // -> '("[" ("," - ("," a ("," b c))))
+
+// These syntax trees aren't instances of caterwaul.syntax. Rather, they're instances of caterwaul.regexp.syntax. Normally this isn't an important distinction, since they generally support the
+// same set of methods. (All tree nodes inherit methods from caterwaul.syntax_common.) The only case where it really matters is that you get regexp-specific methods for these trees:
+
+// | caterwaul.regexp(/foo/).minimum_length()      // -> 3
+//   caterwaul.regexp(/foo/).match_groups()        // -> []
+
+// Syntax trees generated by caterwaul.regexp() know some things about the environment in which they were evaluated. For example:
+
+// | caterwaul.regexp(/foo/i).i()                  // -> true
+//   caterwaul.regexp(/^foo/m).m()                 // -> true
+
+// Because these trees are still normal Caterwaul syntax trees, you can do all of the usual matching stuff (just with the caveat that if you want a wildcard you need to use it as a single word
+// inside a (?:) group):
+
+// | caterwaul.regexp(/(?:_a)*/).match(caterwaul.regexp(/a*/))        // -> {_a: a, _: a*}
+
+// Configuration options.
+// You can specify some options after the regexp that you're parsing. These impact how the parser works, sometimes doing things that are semantically incorrect but useful anyway. One such option
+// is 'atom', which can bet set to either 'character' or 'word'. By default it's set to 'character', meaning that each character is considered a separate atom. This is semantically correct, since
+// repetition operators such as + and * apply only to the preceding character.
+
+// However, sometimes you want to consider each word to be its own atom; this is especially useful when building patterns and matching against them. For example:
+
+// | caterwaul.regexp(/_foo _bar+/, {atom: 'word'}).match(caterwaul.regexp(/ab+/))         // -> {_foo: a, _bar: b, _: ab+}
+
+// Setting {atom: 'word'} implies that literal whitespace is removed from the regexp, since otherwise there would be no way to separate words. You can still match space characters by using \x20.
+
+// Supported syntax.
+// This library parses the following constructs (obtained from the Mozilla regular expression documentation: https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions):
+
+// | 1. Atoms                      e.g. /foo/, /bar./
+//   2. Zero-width assertions      e.g. /^/, /$/, /\b/, /\B/
+//   3. Repetition                 e.g. /a+/, /b*/, /a+?/, /b*?/, /c{10,20}/, /c{10}/, /c{10,}/, /c{10,20}?/, /c{10,}?/, /d?/
+//   4. Capturing                  e.g. /a(.)c/
+//   5. Non-capturing              e.g. /a(?:.)c/
+//   6. Lookahead                  e.g. /a(?=b)/, /a(?!b)/
+//   7. Disjunction                e.g. /a|b/
+//   8. Character classes          e.g. /[abc]/, /[^abc]/, /[a-df]/
+//   9. Special characters         e.g. /\w\W\s\S\d\D\f\n\r\t\v\0\xff\uffff/
+//  10. Backreferences             e.g. /(a)\1/
+
+// Backreferences have a peculiarity that I wasn't previously aware of. If there are more than ten match groups at the current parse point, then backreferences are parsed as potentially having
+// two digits. Presumably the engine is insightful enough to discard digits that would forms numbers larger than the number of seen match groups, and this parser does that.
+
+caterwaul.js_all()(function ($) {
+  $.regexp(r, options) = $.regexp.parse.apply(this, arguments),
+  $.regexp.syntax      = regexp_ctor /-$.syntax_subclass/ regexp_methods,
+  $.regexp.parse       = regexp_parse,
+  $.regexp.compile     = regexp_compile,
+
+  where [// Implementation note:
+         // Copy-constructor functionality is triggered by passing an instance of the tree into its own constructor. The goal is to obtain a new instance of the same kind of tree, but without
+         // any children. This is used by the rmap() method, which needs to build up a parallel tree but will add the children manually. That's what the 'data instanceof this.constructor'
+         // check is all about.
+
+         regexp_ctor(xs = arguments) = where [data = xs[0], context = xs[1]]
+                                             [data instanceof this.constructor ?
+                                                this -se [it.data = data.data, it.length = 0, it.context = data.context] :
+                                                this -se [it.data = data,      it.length = 0, it.context = context,      Array.prototype.slice.call(xs, 2) *![it.push(x)] -seq]],
+
+         regexp_methods              = capture [i()                     = this.context.flags.i,
+                                                m()                     = this.context.flags.m,
+                                                g()                     = this.context.flags.g,
+
+                                                concat(x)               = new this.constructor(',', this.context, this, x),
+
+                                                match_groups()          = this.context.groups,
+
+                                                is_zero_width()         = /^[\^\$]$|^\\[Bb]$/.test(this.data) || this.is_positive_lookahead() || this.is_negative_lookahead(),
+                                                is_one_or_more()        = /^\+\??$/.test(this.data),
+                                                is_zero_or_more()       = /^\*\??$/.test(this.data),
+                                                is_optional()           = /^\?$/.test(this.data),
+                                                is_non_greedy()         = /.\?$/.test(this.data),
+                                                is_repetition()         = /^[\+\*\{]\??$|^\?$/.test(this.data),
+
+                                                repeated_child()        = /^\{/.test(this.data) ? this[2] : this[0],
+
+                                                is_character_class()    = /^\[/.test(this.data),
+                                                is_single_escape()      = /^\\.+$/.test(this.data),
+
+                                                is_range()              = /^-$/.test(this.data) && this.length === 2,
+
+                                                is_atom()               = ! this.length,
+
+                                                is_any_group()          = /^\(/.test(this.data),
+                                                is_group()              = /^\($/.test(this.data),
+                                                is_forgetful()          = /^\(\?:$/.test(this.data),
+                                                is_positive_lookahead() = /^\(\?=$/.test(this.data),
+                                                is_negative_lookahead() = /^\(\?!$/.test(this.data),
+
+                                                is_backreference()      = /^\\$/.test(this.data),
+                                                is_disjunction()        = /^\|$/.test(this.data) && this.length === 2,
+                                                is_join()               = /^,$/.test(this.data)  && this.length === 2,
+
+                                                lower_limit()           = /^\+\??$/.test(this.data)      ? 1 :
+                                                                          /^\*\??$|^\?$/.test(this.data) ? 0 :
+                                                                          /^\{/.test(this.data)          ? this[0].data :
+                                                                                                           raise [new Error('lower limit is undefined for nonrepetitive node #{this}')],
+
+                                                upper_limit()           = /^[\*\+]\??$/.test(this.data) ? Infinity :
+                                                                          /^\?$/.test(this.data)        ? 1 :
+                                                                          /^\{/.test(this.data)         ? this[1].data :
+                                                                                                          raise [new Error('upper limit is undefined for nonrepetitive node #{this}')],
+
+                                                minimum_length()        = this.is_zero_width()                                 ? 0 :
+                                                                          this.is_single_escape() || this.is_character_class() ? 1 :
+                                                                          this.is_repetition()                                 ? this.lower_limit() * this.repeated_child().minimum_length() :
+                                                                          this.is_group() || this.is_forgetful()               ? this[0].minimum_length() :
+                                                                          this.is_backreference()                              ? this[1].minimum_length() :
+                                                                          this.is_disjunction()                                ? this[0].minimum_length() /-Math.min/ this[1].minimum_length() :
+                                                                          this.is_join()                                       ? this[0].minimum_length() + this[1].minimum_length() :
+                                                                                                                                 this.data.length,
+
+                                                toString()              = this.is_any_group()                                ? this.data + this[0].toString() + ')' :
+                                                                          this.is_character_class()                          ? this.data + this[0].toString() + ']' :
+                                                                          this.is_range()                                    ? '#{this[0].toString()}-#{this[1].toString()}' :
+                                                                          this.is_zero_or_more() || this.is_one_or_more() ||
+                                                                                                    this.is_optional()       ? this[0].toString() + this.data :
+                                                                          this.is_repetition()                               ? this[2].toString() +
+                                                                                                                               (this[0].data === this[1].data ? '{#{this[0].data}}' :
+                                                                                                                                this[1].data === Infinity     ? '{#{this[0].data},}' :
+                                                                                                                                                                '{#{this[0].data},#{this[1].data}}') :
+                                                                          this.is_zero_width()                               ? this.data :
+                                                                          this.is_backreference()                            ? '\\#{this[0].data}' :
+                                                                          this.is_disjunction()                              ? '#{this[0].toString()}|#{this[1].toString()}' :
+                                                                          this.is_join()                                     ? '#{this[0].toString()}#{this[1].toString()}' :
+                                                                          this.is_atom()                                     ? /^\w{2,}$/.test(this.data) ? '(?:#{this.data})' : this.data :
+                                                                                                                               this.data],
+
+         regexp_compile(r)          = new RegExp(r.toString(), [r.i() ? 'i' : '', r.m() ? 'm' : '', r.g() ? 'g' : ''].join('')),
+
+         regexp_parse(r, options)   = join(toplevel, end)({i: 0}) -re [it ? it.v[0] : raise [new Error('caterwaul.regexp(): failed to parse #{r.toString()}')]]
+
+                              -where [settings                = {atom: 'character'} /-$.merge/ options,
+
+                                      pieces                  = /^\/(.*)\/([gim]*)$/.exec(r.toString()) || /^(.*)$/.exec(r.toString()),
+                                      s                       = pieces[1],
+                                      flags                   = pieces[2] -re- {i: /i/.test(it), m: /m/.test(it), g: /g/.test(it)},
+                                      context                 = {groups: [], flags: flags},
+
+                                      add_group(node)         = context.groups.push(node),
+
+                                      node(xs = arguments)    = new $.regexp.syntax(xs[0], context) -se- Array.prototype.slice.call(xs, 1) *![it.push(x)] /seq,
+
+                                      // A very small parser combinator library without memoization.
+                                      char(c)(p)              = p.i <  s.length && c.indexOf(s.charAt(p.i)) !== -1 && {v: s.charAt(p.i),            i: p.i + 1},
+                                      string(cs)(p)           = p.i <  s.length && s.substr(p.i, cs.length) === cs && {v: s.substr(p.i, cs.length), i: p.i + cs.length},
+                                      not(n, f)(p)            = p.i >= s.length || f(p) ? false : {v: s.substr(p.i, n), i: p.i + n},
+                                      any(n)(p)               = p.i <  s.length && {v: s.substr(p.i, n), i: p.i + n},
+                                      alt(ps = arguments)(p)  = ps |[x(p)] |seq,
+                                      many(f)(p)              = p /~![f(x) || null] -seq -re- {v: it.slice(1) *[x.v] -seq, i: it[it.length - 1].i} /when [it.length > 1],
+                                      join(ps = arguments)(p) = ps /[p][x0 && x(x0) -se [it && ns.push(it.v)]] -seq -re- {v: ns, i: it.i} /when.it -where [ns = []],
+                                      zero(p)                 = p,
+
+                                      map(parser, f)(p)       = {v: f(result.v), i: result.i} -when.result -where [result = parser(p)],
+
+                                      ident                   = char('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'),
+                                      digit                   = char('0123456789'),
+                                      hex                     = char('0123456789ABCDEFabcdef'),
+                                      number                  = many(digit) /-map/ "+_.join('')".qf,
+
+                                      end(p)                  = p.i === s.length && p,
+
+                                      // Forward definition of recursive rules
+                                      toplevel(p)             = toplevel(p),
+                                      term(p)                 = term(p),
+                                      atom(p)                 = atom(p),
+
+                                      toplevel                = map(no_pipes /char('|') /-join/toplevel, "node('|', _[0], _[2])".qf) /-alt/ no_pipes
+                                                        -where [no_pipes(p) = no_pipes(p),
+                                                                no_pipes    = map(term /-join/ no_pipes, "node(',', _[0], _[1])".qf) /-alt/ term],
+
+                                      term                    = map(atom /-join/ modifiers, "_[1] -se- it.push(_[0])".qf) /-alt/ atom
+                                                        -where [star          = char('*') /-map/ node,
+                                                                plus          = char('+') /-map/ node,
+                                                                question_mark = char('?') /-map/ node,
+                                                                repetition    = map(char('{') /number /-join/char('}'),                    "node('{', node(_[1]), node(_[1]))".qf) /
+                                                                                map(char('{') /number /char(',') /-join/char('}'),         "node('{', node(_[1]), node(Infinity))".qf) /-alt/
+                                                                                map(char('{') /number /char(',') /number /-join/char('}'), "node('{', node(_[1]), node(_[3]))".qf),
+
+                                                                modifier      = star /plus /-alt/repetition,    // Deliberately omitting question mark, because it can't be non-greedy
+
+                                                                non_greedy    = char('?'),
+                                                                modifiers     = map(modifier /-join/ non_greedy, "_[0] -se [it.data += _[1]]".qf) /modifier /-alt/question_mark],
+
+                                      atom                    = base
+                                                        -where [positive_lookahead = map(string('(?=') /toplevel /-join/string(')'), "node('(?=', _[1])".qf),
+                                                                negative_lookahead = map(string('(?!') /toplevel /-join/string(')'), "node('(?!', _[1])".qf),
+                                                                forgetful_group    = map(string('(?:') /toplevel /-join/string(')'), "node('(?:', _[1])".qf),
+                                                                group              = map(string('(')   /toplevel /-join/string(')'), "node('(',   _[1]) -se- add_group(it)".qf),
+
+                                                                word               = map(many(ident),                                "node(_.join(''))".qf),
+                                                                word_term          = map(string('(?:') /word /-join/string(')'),     "node(_[1])".qf),
+
+                                                                character_class(p) = character_class(p),
+                                                                character_class    = map(each /-join/ character_class, "node(',', _[0], _[1])".qf) /-alt/ each
+
+                                                                             -where [each = map(any(1) /char('-') /-join/any(1), "node('-', node(_[0]), node(_[2]))".qf) /
+                                                                                            map(char('\\') /-join/ any(1),       "node(_.join(''))".qf) /-alt/
+                                                                                            map(not(1, char(']')),               node)],
+
+                                                                character_not_in   = map(string('[^') /character_class /-join/string(']'), "node('[^', _[1])".qf),
+                                                                character_in       = map(string('[')  /character_class /-join/string(']'), "node('[',  _[1])".qf),
+
+                                                                zero_width         = char('^$') /-map/ node,
+                                                                escaped            = map(char('\\') /-join/ char('BbWwSsDdfnrtv0*+.?|()[]{}\\$^'), "node(_.join(''))".qf),
+                                                                escaped_slash      = map(string('\\/'),                                            "node('/')".qf),
+
+                                                                control            = string('\\c') /-join/ any(1)            /-map/ "node(_.join(''))".qf,
+                                                                hex_code           = string('\\x') /hex /-join/hex           /-map/ "node(_.join(''))".qf,
+                                                                unicode            = string('\\u') /hex /hex /hex /-join/hex /-map/ "node(_.join(''))".qf,
+
+                                                                // Fun stuff: Is the backreference within bounds? If not, then reject the second digit. This requires direct style rather than
+                                                                // combinatory, since the parser's behavior changes as the parse is happening.
+                                                                backreference(p)   = map(char('\\') /digit /-join/digit, "+'#{_[1]}#{_[2]}'".qf)(p)
+                                                                                     -re [it && it.v <= context.groups.length ? {v: node('\\', node(it.v), context.groups[it.v]), i: it.i} :
+                                                                                                                                single_digit_backreference(p)]
+
+                                                                             -where [single_digit_backreference = map(char('\\') /-join/ digit,
+                                                                                                                      given.xs in node('\\', node(+xs[1]), context.groups[+xs[1]]))],
+
+                                                                dot                = char('.')              /-map/ node,
+                                                                other              = not(1, char(')|+*?{')) /-map/ node,
+
+                                                                maybe_word         = settings.atom === 'word' ? map(many(ident), "node(_.join(''))".qf) /-alt/ other :
+                                                                                                                other,
+
+                                                                maybe_munch_spaces = settings.atom === 'word' ? many(char(' ')) /-alt/ zero : zero,
+
+                                                                base               = map(maybe_munch_spaces /-join/ alt(positive_lookahead, negative_lookahead, forgetful_group, group,
+                                                                                                                        character_not_in, character_in, zero_width, escaped, escaped_slash,
+                                                                                                                        control, hex_code, unicode, backreference, dot, maybe_word),
+                                                                                         "_[1]".qf)]]]})(caterwaul);
+
+// Generated by SDoc 
+
+// Caterwaul nonlinear parser combinators | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This is a generalization of parser combinators onto nonlinear data structures such as trees or graphs (though it also works with strings). The idea is that a location within a data structure
+// doesn't have to be scalar, though it generally would be when parsing text. In order to define a combinatory parser over a structure, you need to do a few things:
+
+// | 1. Construct a memoization key. This is a function from the input position to a string. Not all parsers are memoized; returning null indicates that memoization shouldn't happen.
+//   2. Provide parser combinators that return new states. Most of the higher-order combinators are general in that they will work with low-level combinators.
+//   3. Provide a function that takes a distance and a value, and returns a list of forward states of that distance that have that value.
+
+// Because this parser combinator library implements a non-backtracking packrat parser, the usual nondeterminism caveats apply.
+
+// Linear paths.
+// Let's assume that we're parsing over a strictly hierarchical tree and that we start at the root (mainly for ease of thought; I think this example is fully general to all DAGs with exactly one
+// in-degree-zero node). We want to parse from the top to the bottom, accumulating all paths that are parseable as arithmetic expressions. So, for example, we might have a tree that looks like
+// this:
+
+// |         (3)
+//          /   \
+//        (+)   (4)
+//        /     / \
+//      (4)   (+) (6)
+//     /   \
+//   (*)   (5)
+//    |     |
+//   (4)   (+)
+
+// Since we're working with a tree, we know that the 'forward' function returns an array of a node's children. So each parse step is really a list of alternatives. Parsing the 'next character' or
+// 'next X' amounts to flat-mapping across forward motions. This will probably make more sense with an example:
+
+// | expression = term '+' expression | term
+//   term       = number '*' term | number
+
+// Starting with 'expression', we parse this way, starting with the roots (in this case, only one):
+
+// | expression(root) = expression( (3) ) -> term( (3) ) -> number( (3) ) -> 3           <- at this point, we've consumed (3) and should move to the next inputs.
+//                        '*'( (+) ) | '+'( (+) ) -> +                                   <- use disjunction to ascend to matching terminal; advance to next inputs.
+//                          expression( (4) ) -> term( (4) ) -> number( (4) ) -> 4       <- right-recursion into expression(), advance.
+//                            '*'( (*) ) -> *                                            <- matching within the term() expansion
+//                              term( (4) ) -> number( (4) ) -> 4                        <- second term() within the term() above
+//                            '*'( (5) ) | '+'( (5) ) -> fail                            <- no match here; reject this subtree
+//                        '*'( (4) ) | '+'( (4) ) -> fail                                <- no match here; reject this subtree
+
+// At the end we have an array of the only surviving alternative, (3 + (4 * 4)). (Presumably the parser combinators are configured to construct parse trees.) This is basically a linear parse that
+// removed alternatives as it went; the result was an array of valid parse trees.
+
+// Leveraging nonlinearity.
+// Nonlinearity comes in handy when you're asking about properties of highly structured data. For example, maybe we want to know whether a Caterwaul syntax tree contains a console.log() statement
+// that follows an assignment to a variable. However, those statements need to occur in the same control flow branch; we can't have them on opposite sides of a conditional. (If we did, then
+// console.log() wouldn't really follow the assignment.) To do this, we first need to define a traversal pattern that follows the evaluation order. This differs from a breadth-first traversal
+// because it needs to become nondeterministic when we hit a decision but be linear when we hit a side-effect like a semicolon.
+
+// We then write this rule to find what we're looking for:
+
+// | log = any* '_variable = _v1' non_decision* 'console.log(_v2)'
+
+// If we run this with nonlinear parsing, we'll get a list of all code paths that end up assigning a variable and then definitely call console.log (barring exceptions). As a nice perk, we'll also
+// get the side-effects leading up to those code paths as well as the statements that happened in between the assignment and the log statement.
+
+caterwaul.js_all()(function ($) {
+
+// Implementation specifics.
+// Unlike some parser combinator implementations, this one provides a way to specify detailed failure information. This gives the user an idea about why and where a parse failed. Also unlike many
+// Javascript parser combinator libraries, this one uses Caterwaul macros to make it easy to build up grammars. Each operator corresponds to a higher-order combinator provided by the Caterwaul
+// parsing library.
+
+// The definitions in the introduction require that the graph is directed, but it is allowed to be cyclic. Perhaps more interestingly, it can also be infinite provided that the parse rules have
+// appropriately-defined termination conditions. This means that you could theoretically use these parser combinators to identify properties of continuous vector fields or other non-discrete
+// directed structures.
+
+  $.parser = capture [
+
+  // Parser type annotation.
+//   This is useful for writing your own parsers or forward definitions. You need to annotate them in order for them to be usable with other combinators. So, for example, suppose we're parsing
+//   arithmetic expressions with parentheses and you need a forward definition for the recursive 'expression' rule. You'd need to annotate the shell function like this:
+
+  // | expression(states) = expression(states),
+//     paren_group        = bfs(linear_string('('), annotate(expression, 'expression', []), linear_string(')')),
+//     sum                = ...,
+//     term               = ...,
+//     expression         = alt(paren_group, sum)
+
+  // Along the same line of thought is the 'parsers' function, which takes an array-like thing of parsers and type-checks each one. It automatically throws an error if any of them doesn't look
+//   like a parser.
+
+    annotate = annotate,
+    parsers  = parsers,
+
+  // Traversal combinators.
+//   Linear parser combinator libraries generally implement a 'seq' or 'join' combinator that causes one parser to be activated and then followed by another one. Because there is only one path to
+//   follow, there isn't a distinction between breadth-first and depth-first searching. When you have multiple paths, though, the ordering becomes important. It may be the case that a path never
+//   ends; in this case breadth-first with eager termination is more useful.
+
+  // Taken outside of the traditional parsing context, traversal combinators can be seen as search strategies. Some searches explore all alternatives simultaneously while others optimistically
+//   search for a single solution and assume that none will devolve into infinite recursion. Some return all solutions, others abandon further searching after a single solution is found. As such,
+//   this parser library implements several different join combinators that embody these different behaviors.
+
+  // Different combinators do different things with the parse values. As a convention, combinators ending with 's' are searches that just return the final values. Combinators ending in 'c' are
+//   collectors that return all of the intermediate values as arrays.
+
+  // The construction of bfc() is a bit gnarly. Here's what's going on. We start off with an array of states, and we need to, in a breadth-first manner, follow each state and collect the
+//   intermediate values. The simplest way to do this is to create a state matrix, where rows are parse paths and columns are steps within each path. So we'd have something like this:
+
+  // | states[0]  ps[0](states[0])  ps[1](ps[0](states[0]))  ...
+//     states[1]  ps[0](states[1])  ps[1](ps[0](states[1]))  ...
+//     states[2]  ps[0](states[2])  ps[1](ps[0](states[2]))  ...
+//     ...
+
+  // The only trouble is that each parser might have multiple or no return states. We solve this by duplicating or removing whichever origin states are necessary to keep the matrix rectangular
+//   and dense. For instance, suppose that ps[0](states[1]) produced two values. Then we'd have this:
+
+  // | states[0]  ps[0](states[0])     ps[1](ps[0](states[0]))     ...
+//     states[1]  ps[0](states[1])[0]  ps[1](ps[0](states[1])[0])  ...
+//     states[1]  ps[0](states[1])[1]  ps[1](ps[0](states[1])[1])  ...
+//     states[2]  ps[0](states[2])     ps[1](ps[0](states[2]))     ...
+//     ...
+
+  // I'm modeling this by representing each row as an array and having the arrays grow rightward as more parsers are used. I was tempted to statefully update the initial arrays, but this is
+//   tricky given that we're potentially cloning them on every step. This logic is captured by step_matrix_mutable(), which optimizes linear cases. (step_matrix_immutable doesn't employ this
+//   optimization, which may be safer if you want to preserve intermediate matrices.)
+
+    bfs(ps = parsers('bfs', arguments), annotate(result, 'bfs', ps))(states) = ps /[states][x /-memo/ x0] -seq,
+    bfc(ps = parsers('bfc', arguments), annotate(result, 'bfc', ps))(states) = ps /[states /!$.parser.state_matrix][step(x)(x0)] /seq /!$.parser.row_composite_states_from
+                                                                               -where [step = $.parser.step_matrix_mutable],
+    state_matrix(states)         = states *[[x]] -seq,
+    step_matrix_mutable(p)(m)    = m *~!r[xs.length === 1 ? r.push(xs[0]) && [r] : xs *~[r + [x]] -seq, where [xs = p /-memo_single/ r[r.length - 1]]] -seq,
+    step_matrix_immutable(p)(m)  = m *~!~r[memo_single(p, r[r.length - 1]) *~[r + [x]]] -seq,
+    row_composite_states_from(m) = m *r[r[r.length - 1].map("r.slice(1, r.length) *[x.value()] -seq".qf)] -seq,
+
+  // Choice combinators.
+//   Nonlinearity provides choice among inputs, but we still need combinators to choose grammar productions. There are two such combinators provided by this library. One, alt(), returns the first
+//   possibility that has states. This is useful in linear parsing contexts where a full search is not needed. The other, all(), accumulates every possibility of every sub-parser. This is useful
+//   when it's necessary to search an entire structure.
+
+  // Put differently, alt() introduces a cut into the search, whereas all() does not.
+
+    alt(ps = parsers('alt', arguments), annotate(result, 'alt', ps))(states) = states *~! state[ps   |p[p /-memo_single/ state -re [it.length && it]] |seq || []] -seq,
+    all(ps = parsers('all', arguments), annotate(result, 'all', ps))(states) = states *~!~state[ps *~!p[p /-memo_single/ state]] -seq,
+
+  // Repetition combinators.
+//   Because there are multiple types of joining, repetition is not as simple as it is for a linear parser. However, repetition can be expressed as recursion and a join:
+
+  // | repeat(parser) = R -> parser R | parser
+
+  // This library's repetition combinator takes two parameters. One is the parser to be repeated, and the other is the join combinator that is used to connect it to the recursive step. Note that
+//   the output of many() is a right-folded set of binary joins. The funky f(states) = f(states) statement just sets up a temporary function that will proxy to the real 'f' when we redefine it.
+//   This way we have access to 'f' both before and after it exists (and it will do the same thing in either case).
+
+  // If you want to collect an array of many things, you're better off using the 'manyc' combinator -- this returns a flat array rather than a folded one, and knows to use breadth-first with
+//   collection. It's probably also more efficient than using many() if you want all of the intermediate results, especially if the parser behaves linearly and matches many times.
+
+  // Repeating a parser isn't quite as simple as breadth-first collection. The reason is that some states' paths might terminate before others' do. Going back to the matrix model above, this
+//   means that some rows have fewer columns than others. In order to deal with this in a breadth-first way, we need to keep track of which states have terminated and stop iterating those while
+//   simultaneously flat-mapping others. I'm doing this by appending a null entry to terminated arrays. The iteration is done when all rows end with null.
+
+    manyc(p, annotate(result, 'manyc', [p]))(states)   = $.parser.state_matrix(states) /~!step /seq /!$.parser.row_null_states_from
+                                                         -where [iterate = $.parser.step_matrix_mutable_null(p), step(m) = $.parser.has_non_null_states(m) ? iterate(m) : null],
+
+    many(p, join, annotate(result, 'many', [p, join])) = f -where [j = join || $.parser.bfs, f(states) = f(states), f = p /-j/ annotate(f, 'recursive', []) /-$.parser.alt/ p],
+
+    optional(p, annotate(result, 'optional', [p]))     = p /-$.parser.alt/ $.parser.zero(),
+
+    step_matrix_immutable_null(p)(m) = m *~!r[xs ? xs.length ? xs *~[r + [x]] -seq : [r + [null] -seq] : [r], where [xs = r[r.length - 1] -re [it && p /-memo_single/ it]]] -seq,
+    step_matrix_mutable_null(p)(m)   = m *~!r[xs ? l ? l === 1 ? r.push(xs[0]) && [r] : xs *~[r + [x]] -seq : r.push(null) && [r] : [r],
+                                              where [xs = r[r.length - 1] -re [it && p /-memo_single/ it], l = xs && xs.length]] -seq,
+
+    has_non_null_states(m)           = m |r[r[r.length - 1]] |seq,
+    row_null_states_from(ms)         = ms[ms.length - 1] *r[r[r.length - 2].map("r.slice(1, r.length - 1) *[x.value()] -seq".qf)] /seq,
+
+  // Trivial combinators.
+//   Most combinator libraries are modeled to have separate zero-or-more, one-or-more, and zero-or-one functions. This one is different in that it provides a universal zero combinator that
+//   consumes nothing and does nothing. You can use it with alternatives to form optional rules. Similarly uninteresting is the fail combinator, which always rejects its input.
+
+    zero(annotate(result, 'zero', []))(states) = states,
+    fail(annotate(result, 'fail', []))(states) = [],
+
+  // Zero-length combinators.
+//   These don't impact the parse state in any way, but they can cause a parse to fail by rejecting certain branches. They are more commonly known as lookahead combinators.
+
+    match(p,  annotate(result, 'match',  [p]))(states) = states % [memo_single(p, x).length] -seq,
+    reject(p, annotate(result, 'reject', [p]))(states) = states %![memo_single(p, x).length] -seq,
+
+  // Pluralization combinator.
+//   This is used to adapt linear terminal combinators to be used in a nonlinear context. It assumes that the linear combinator maps a truthy parse state into either another truthy parse state or
+//   a null/falsy value.
+
+    pluralize(p, annotate(result, 'pluralize', [p]))(states) = states %~!p -seq,
+
+  // Mapping combinators.
+//   This lets you remain in combinator-space (as opposed to state-space) while mapping over values. There are two such mapping combinators; one is a flat-map and the other is a componentwise
+//   map. Variants exist in case you want access to the state in its entirety.
+
+  // The iv() function is provided as a special case, and stands for 'input -> value'. It lets you apply some function to the current input (and optionally position) to generate a parse value,
+//   without consuming any input. The idea is to mark the current location without actually consuming anything.
+
+    iv(f,                annotate(result, 'iv',                [f]))(states) = states *[x.change({value: f(x.input(), x.position())})] -seq,
+
+    map(p, f,            annotate(result, 'map',            [p, f]))(states) = p(states) *[x.map(f)] -seq,
+    flat_map(p, f,       annotate(result, 'flat_map',       [p, f]))(states) = p(states) *~!~[f(x.value()) *y[x.map(delay in y)]] -seq,
+
+    map_state(p, f,      annotate(result, 'map_state',      [p, f]))(states) = p(states) *  [f(x)] -seq,
+    flat_map_state(p, f, annotate(result, 'flat_map_state', [p, f]))(states) = p(states) *~![f(x)] -seq],
+
+// Data type drivers.
+// This is where we tie the parsers to actual data types. Each data type driver should provide these methods:
+
+// | 1. id()               returns an optional memoization key, which is a string -- should be unique for each input position
+//   2. input()            returns the input structure, which the combinators must know how to use
+//   3. position()         returns the current position within the input structure, which the combinators must know how to use
+//   4. value()            returns the current result value
+//   5. next(n, v)         returns an array containing forward steps, each of which has the value 'v'
+//   6. map(f(x))          returns an identical state whose result value is mapped through f
+//   7. memo_table()       returns a consistent reference to the memo table for this parse (the table is just a regular object)
+
+  // Driver generator.
+//   Most driver functions are repetitive enough that it's worth factoring out the common logic. This function takes a few parameters and returns a constructor. The 'options' parameter should be
+//   a hash that looks like this:
+
+  // | {step:     function (position, value) -> [state],
+//      id:       function () -> number
+//      defaults: {position: X, value: Y}}
+
+  // The only mandatory option is 'step', since this has no sensible default. Be sure to remember that step() needs to produce an array! It will cause all kinds of problems if you return a state
+//   that isn't encapsulated in an array.
+
+    $.parser.logical_state(options) = ctor -se- it.prototype /-$.merge/ methods_for(options.step)
+      -where [defaults                  = options.defaults || {},
+
+              default_position          = defaults.position,
+              default_value             = defaults.value,
+              id_function               = defaults.id || "++memo_id".qf,
+
+              ctor(i, p, v, memo_table) = arguments.length > 1 ? this -se [it.i = i, it.p = p,                it.v = v,             it.table = memo_table] :
+                                                                 this -se [it.i = i, it.p = default_position, it.v = default_value, it.table = {}],
+
+              methods_for(step)         = capture [id()           = this.cached_id || (this.cached_id = id_function.call(this)),
+                                                   input()        = this.i,  next(n, v)   = n === 1 ? step.call(this, this.p, v) : this.next(n - 1, v) *~![x.next(1, v)] -seq,
+                                                   position()     = this.p,  map(f)       = new this.constructor(this.i, this.p, this.v /!f, this.table),
+                                                   value()        = this.v,  memo_table() = this.table,
+                                                   toString()     = '#{this.i} @ #{this.p} : #{this.v}',
+                                                   change(values) = new this.constructor('input' in values ? values.input : this.i, 'position' in values ? values.position : this.p,
+                                                                                         'value' in values ? values.value : this.v, this.table)]],
+
+  // String driver.
+//   This is a probably-linear parser. I say probably because it's simple enough to implement a subclass of it that jumps around within the string. However, we don't assume that initially; for
+//   our purposes we just define a linear, forward string traversal pattern.
+
+    $.parser.linear_string_state = capture [step(p, v) = [this.change({position: p + 1, value: v})],
+                                            id()       = this.position(),
+                                            defaults   = {position: 0}] /!$.parser.logical_state
+
+                        /-$.merge/ capture [end(annotate(result, 'end', []))(states) = states %[x.position() === x.input().length] -seq],
+
+  // String combinators.
+//   Whether you're using linear or nonlinear parsing, you'll probably want some terminal string combinators to work with. These are all regexp-based, hence the dependency on Caterwaul's regexp
+//   parsing extension. Note that this parser is plural, not singular; you won't need to use the pluralize() function with it.
+
+  // Note that regexp() works only in a sequential linear context. If you're doing things like jumping around a string within a single parse step, then you'll need to precompute the jumps by
+//   generating a new string and then parsing against that. (I'm doing it this way for performance in the most common case.) Alternatively, you can write a new regexp() parser combinator that is
+//   aware of jumping.
+
+  // Regular expression matching has worst-case O(n log n) time complexity, where n is the match length. This is done by bisecting the match region until we identify the longest possible match.
+//   It's possible to do this because we know up-front the minimum match length; Caterwaul's regexp library provides this. We then double this until the match fails or we run off the end of the
+//   string. Then we bisect between the minimum and the failure length until we find the point at which the match fails.
+
+    $.merge($.parser, capture [anchor_regexp(r) = new RegExp('^#{body}$', flags) -where [pieces = /^\/(.*)\/(\w*)$/.exec(r.toString()), body = pieces[1], flags = pieces[2]],
+
+                               linear_string(s, annotate(result, 'linear_string', [s]))(states) = states *~![x.input().substr(x.position(), s.length) === s ? x.next(s.length, s) : []] -seq,
+                               linear_regexp(r, annotate(result, 'linear_regexp', [r]))         = matcher
+                                                                                          -where [minimum_length   = $.regexp(r).minimum_length() || 1,
+                                                                                                  anchored         = r /!$.parser.anchor_regexp,
+                                                                                                  matcher(states)  = states *~!match_one -seq,
+                                                                                                  match_one(state) = new_states
+                                                                                                             -where [s              = state.input(),
+                                                                                                                     offset         = state.position(),
+                                                                                                                     maximum_length = s.length - offset,
+
+                                                                                                                     match(l)       = l <= maximum_length && anchored.test(s.substr(offset, l)),
+                                                                                                                     longest(l)     = l /!match ? longest(l << 1) : l,
+                                                                                                                     valid(l, m, u) = l < u - 1 ? m /!match ? valid(m, m + u >> 1, u) :
+                                                                                                                                                              valid(l, l + m >> 1, m) : m,
+
+                                                                                                                     new_states     = minimum_length /!match ?
+                                                                                                                                        state.next(match_length,
+                                                                                                                                                   anchored.exec(s.substr(offset, match_length)))
+                                                                                                                                        -where [max          = minimum_length /!longest,
+                                                                                                                                                match_length = valid(minimum_length,
+                                                                                                                                                                     minimum_length + max >> 1,
+                                                                                                                                                                     max)] :
+                                                                                                                                        []]]]),
+
+  // Structure driver.
+//   This is used when you have a set of objects and/or arrays. The idea is to traverse the structure from the top down in some way, optionally collecting path-related information. Atoms, then,
+//   are the keys that dereference elements in the structure.
+
+    $.parser.structure_state = capture [step(p, v) = this.input() /pairs *[this.change({value: v, input: x[1], position: x[0]})] -seq] /!$.parser.logical_state,
+
+  // Array-like driver.
+//   This is used when you know that you've got objects that will support array-like traversal patterns. Caterwaul syntax trees fall into this category. This is distinct from the structure driver
+//   above because it doesn't iterate through properties, just from 0 to the last element as determined by the 'length' property.
+
+    $.parser.array_state     = capture [step(p, v) = +this.input() *[this.change({value: v, input: x, position: xi})] -seq] /!$.parser.logical_state,
+
+  // Structure combinators.
+//   Unlike string combinators, some of these are based on position and others are based on value predicates. This is due to the common use case for structural parsing: we want to traverse some
+//   structure and manipulate values based on some property of their paths. Terminal combinators, then, accept or reject paths based on their current position. What we actually need is a
+//   higher-order combinator that maps the current state's position into value-space. More generally, we need a proxy for a state that can map any aspect of that state into its value space.
+
+    ($.parser.proxy_state(s, value_function) = this -se [it.state = s, it.value_function = value_function]).prototype
+
+    /-$.merge/ capture [id()       = this.cached_id || (this.cached_id = ++memo_id),
+                        input()    = this.value_function.call(this),  next(n, v)   = this.state.next(n, v),
+                        position() = this.state.position(),           map(f)       = this.state.map(f),
+                        value()    = this.state.value(),              memo_table() = this.state.memo_table()],
+
+    $.parser /-$.merge/ capture [position_state(s)   = new $.parser.proxy_state(s, "this.position()".qf),
+                                 position(p)(states) = p(states *$.parser.position_state -seq)],
+
+// Memoization.
+// This happens at the combinator level. Each combinator generated by the parser is assigned a unique identifier (this happens automatically), and that identifier is then used to track the
+// memoization partition.
+
+  where [memoization_key       = $.gensym('memo'),
+         memo_id               = 0,
+
+         memo_single(f, state) = value -where [f_key = f[memoization_key] || (f[memoization_key] = ++memo_id),
+                                               s_key = state.id(),
+                                               table = state.memo_table(),
+                                               key   = '@#{s_key}_#{f_key}',            // Prefix with @ to eliminate the possibility of collisions with other properties
+                                               value = f_key && s_key && table.hasOwnProperty(key) ? table[key] : (table[key] = f([state]))],
+
+         memo(f, states)       = states *~![f /-memo_single/ x] -seq,
+
+// Argument conversion.
+// These functions are used both to verify incoming arguments and to annotate results. Caterwaul parser combinators are marked with the 'caterwaul_parser' attribute; this indicates that the
+// function can be used with other Caterwaul parsers.
+
+         parsers(name, xs)     = +xs *! [x                  || raise [new Error('#{name}: undefined parser given as parameter #{xi}')]]
+                                     *~![x instanceof Array ? x : [x]]
+                                     *! [x.caterwaul_parser || raise [new Error('#{name}: #{x} is not marked with the .caterwaul_parser attribute')]] -seq,
+
+         annotate(f, name, xs) = f -se [it.toString()       = '#{name}(#{xs *[x.toString()] -seq -re- it.join(", ")})',
+                                        it.caterwaul_parser = true]]})(caterwaul);
+
+// Generated by SDoc 
+
+// Linear algebra library | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This module provides various functions for doing vector and matrix algebra. It is more oriented towards generating new values than it is towards solving equations. It represents all matrices
+// and vectors as arrays that can be manipulated with the sequence macro library. This representation is not particularly fast when used directly, but the accompanying numerical compiler can
+// reduce memory allocation to improve performance significantly. All operations in this library are nondestructive.
+
+// Matrices are represented as nested arrays in row-major order. This means that x[1][2] returns the entry in the second row, third column. All matrices have the invariant that they are properly
+// rectangular; that is, all row arrays are the same length.
+
+  // Interface.
+//   This vector library generalizes to an arbitrary number of coordinates, but the compiled code contains no loops. Instead, you instantiate an N-dimensional copy of the library and it compiles
+//   specialized functions. So, for example, the compiled function for componentwise addition in three-dimensional space is vplus(a, b) = [a[0] + b[0], a[1] + b[1], a[2] + b[2]]. Generally you'd
+//   combine this with a using[] macro to eliminate duplicate compilation:
+
+  // | reflect(a, normal) = a /-vproj/ normal /-vscale/ -2 /-vplus/ a,
+//     using [caterwaul.linear.vector(3, 'v')]
+
+  // If you're using multiple dimensions at once, you can customize the prefix to distinguish the functions:
+
+  // | using [caterwaul.merge({}, caterwaul.linear.vector(3, 'v3'), caterwaul.linear.vector(4, 'v4'))]
+
+caterwaul.js_all()(function ($) {
+  $.linear = capture [vector = generator(base_v, composite_v), matrix = generator(base_m, composite_m), scalar_field = scalar_field, complex_field = complex_field],
+
+  where [generator(base, composite)(n, prefix, field) = {} /compiled_base /-$.merge/ composite(compiled_base, f) /-rename/ prefix -where [f             = field || scalar_field,
+                                                                                                                                          compiled_base = base(n, f)],
+         rename(o, prefix)        = o %k*['#{prefix || ""}#{x}'] -seq,
+
+         scalar_field             = {zero: '0'.qs, one: '1'.qs, '+': '_x + _y'.qs, '-': '_x - _y'.qs, '*': '_x * _y'.qs, '/': '_x / _y'.qs, 'u~': 'Math.sqrt(_x)'.qs},
+         complex_field            = {zero:  '{r: 0, i: 0}'.qs, one: '{r: 1, i: 0}'.qs,
+                                     '+':  '{r: _x.r + _y.r,                                              i: _x.i + _y.i}'.qs,
+                                     '-':  '{r: _x.r - _y.r,                                              i: _x.i - _y.i}'.qs,
+                                     '*':  '{r: _x.r * _x.r - _x.i * _y.i,                                i: 2 * _x.i * _y.i}'.qs,
+                                     '/':  '{r: (_x.r*_y.r + _x.i*_y.i) / (_y.r*_y.r + _y.i*_y.i),        i: (_x.i*_y.r - _x.r*_y.i) / (_y.r*_y.r + _y.i*_y.i)}'.qs,
+                                     'u~': '{r: Math.sqrt((Math.sqrt(_x.r*_x.r + _x.i*_x.i) + _x.r) / 2), i: Math.sqrt((Math.sqrt(_x.r*_x.r + _x.i*_x.i) - _x.r) / 2)}'.qs},
+
+         field_rewrite(e, field)  = e /~pmap/ visit -where [pattern_for(s) = /^\w+$/.test(s) ? $.parse(s) : /^u/.test(s) ? $.parse('#{s /~substr/ 1}_x') : $.parse('_x #{s} _y'),
+                                                            patterns       = field /pairs *[[x[0], pattern_for(x[0])]] /object -seq,
+                                                            visit(node)    = field /~hasOwnProperty/ node.data ? replace(node, patterns[node.data]) : node,
+                                                            replace(n, p)  = template /~replace/ match -where [template = field[n.data], match = p /~match/ n]],
+
+// Vector functions.
+// Each function is implemented in terms of its structure. Simple componentwise functions are specified by providing an expression to use for each component, where a wildcard 'i' will be replaced
+// by the index of that coordinate. This expression is then used in a reduction, which is some structure that combines components into a single value. For example, this is the reduction for
+// 'plus':
+
+// | plus = reduction(3,                   // <- number of dimensions
+//                    'a, b'.qs,           // <- formal parameters, quoted as syntax
+//                    '[x]'.qs,            // <- result expression
+//                    'x, y'.qs,           // <- binary combination of intermediate values
+//                    'a[i] + b[i]'.qs)    // <- componentwise combination
+
+// Most simple vector functions can be defined this way. Others, however, are better defined in terms of each other; for instance, the 'proj' and 'orth' functions never access the vectors
+// directly since they are defined in terms of the dot product and vector-scalar multiplication. The obvious solution is to first create the reduction functions and then define things like 'proj'
+// and 'orth' to close over them; however, this is problematic from a compilation perspective since we would need the closure state to know the dimension of 'proj' and 'orth'. To compensate, the
+// syntax tree is stored as an attribute of the compiled function, and the syntax tree contains refs which bind all closure dependencies.
+
+// Note that cross products aren't handled by the vector library; these are considered to be matrix functions, and the determinant formula is computed specifically for a given matrix size rather
+// than being explicitly generalized.
+
+  // Defining alternative componentwise semantics.
+//   An extra parameter, 'field', lets you redefine algebraic field operations. This can be useful if you want to build vectors or matrices over non-scalar data structures. In particular, if you
+//   specify this parameter you'll need to provide replacements for +, -, *, /, and optionally a square root function, which is counterintuitively denoted as a unary one's complement. Your field
+//   must also define zero and one. Here's an example for working with complex numbers:
+
+  // | my_field = {zero: '{r: 0, i: 0}'.qs,
+//                 one:  '{r: 1, i: 0}'.qs,
+//                 '+':  '{r: _x.r + _y.r, i: _x.i + _y.i}'.qs,
+//                 '-':  '{r: _x.r - _y.r, i: _x.i - _y.i}'.qs,
+//                 '*':  '{r: _x.r * _x.r - _x.i * _y.i, i: 2 * _x.i * _y.i}'.qs,
+//                 '/':  '{r: (_x.r*_y.r + _x.i*_y.i) / (_y.r*_y.r + _y.i*_y.i), i: (_x.i*_y.r - _x.r*_y.i) / (_y.r*_y.r + _y.i*_y.i)}'.qs,
+//                 'u~': '{r: Math.sqrt((Math.sqrt(_x.r*_x.r + _x.i*_x.i) + _x.r) / 2), i: Math.sqrt((Math.sqrt(_x.r*_x.r + _x.i*_x.i) - _x.r) / 2)}'.qs}
+
+  // These expressions will then replace the real-number field used by default. Note here that the complex conjugate operation has duplicated subexpressions; _y.r*_y.r + _y.i*_y.i is computed
+//   twice. This won't be a problem in the compiled function because all of the expressions are subject to common subexpression elimination prior to being compiled. (This is the mechanism used to
+//   optimize matrix array access as well.) Because of this optimization, it's very important that any side-effects of each subexpression be idempotent and commutative.
+
+  // You can reuse existing functions as well as defining them on the fly. You should do this using syntax refs:
+
+  // | my_field = {'+': 'f(_x, _y)'.qs.replace({f: new caterwaul.ref(my_function)}), ...}
+
+  // If you want your functions to be optimized, then you should define them with a '.tree' attribute that points to the syntax tree of their return value. This lets optimization stages access
+//   their closure state and potentially eliminate the function call altogether.
+
+         base_v(n, field)         = capture [plus  = r(n, 'a, b'.qs, '[x]'.qs, 'x, y'.qs, 'a[i] + b[i]'.qs),  times = r(n, 'a, b'.qs, '[x]'.qs, 'x, y'.qs, 'a[i] * b[i]'.qs),
+                                             minus = r(n, 'a, b'.qs, '[x]'.qs, 'x, y'.qs, 'a[i] - b[i]'.qs),  scale = r(n, 'a, b'.qs, '[x]'.qs, 'x, y'.qs, 'a[i] * b'.qs),
+                                             dot   = r(n, 'a, b'.qs, 'x'.qs, 'x + y'.qs, 'a[i] * b[i]'.qs),   norm  = r(n, 'a'.qs, '~(x)'.qs, 'x + y'.qs, 'a[i] * a[i]'.qs),
+
+                                             macv  = r(n, 'a, b, c'.qs, '[x]'.qs, '[x, y]'.qs, 'a[i] + b[i] * c[i]'.qs),
+                                             macs  = r(n, 'a, b, c'.qs, '[x]'.qs, '[x, y]'.qs, 'a[i] + b * c[i]'.qs)]
+
+                            -where [r(n, formals, wrap, fold, each) = '(function (_formals) {return _e})'.qs /~replace/ {_formals: formals, _e: specialized} /!$.compile
+                                                                      -se [it.tree = specialized]
+                                                              -where [body        = wrap /~replace/ {x: n[n] *[each /~replace/ {i: '#{x}'}] /[fold /~replace/ {x: x0, y: x}] -seq},
+                                                                      specialized = body /-field_rewrite/ field]],
+
+         composite_v(base, field) = capture [unit = ref_compile(base, 'a'.qs,    'scale(a, one / norm(a))'.qs),
+                                             proj = ref_compile(base, 'a, b'.qs, 'scale(b, dot(a, b) / dot(b, b))'.qs),
+                                             orth = ref_compile(base, 'a, b'.qs, 'minus(a, scale(b, dot(a, b) / dot(b, b)))'.qs)]
+
+                            -where [ref_compile(functions, formals, body) = '(function (_formals) {return _e})'.qs /~replace/ {_formals: formals, _e: new_body} /!$.compile
+                                                                            -se [it.tree = new_body]
+                                                                    -where [specialized = body /-field_rewrite/ field,
+                                                                            new_body    = specialized |~replace| functions %v*[new $.ref(x)] -seq]],
+
+// Matrix functions.
+// Most of these are standard textbook functions, though there some of them are peculiar to this data representation. In particular, all matrix coordinates are unrolled; this means that some
+// weird optimizations can happen. Vector functions were essentially flat; there was very little repetitive access to sub-arrays. This isn't true of matrices, however. Consider a simple
+// coordinate-wise addition function over 2x2 matrices:
+
+// | plus(a, b) = [[a[0][0] + b[0][0], a[0][1] + b[0][1]],
+//                 [a[1][0] + b[1][0], a[1][1] + b[1][1]]]
+
+// Each top-level sub-array in a and b is accessed twice (that is, a[0], a[1], b[0], and b[1]), and unless the Javascript runtime is clever enough to prove their invariance, these loads will
+// happen twice. Rather than explicitly loading the sub-arrays twice, better is to perform common subexpression elimination and allocate local variables to cache the lookups:
+
+// | plus = function (a, b) {
+//     var a0 = a[0], a1 = a[1], b0 = b[0], b1 = b[1];
+//     return [[a0[0] + b0[0], a0[1] + b0[1]],
+//             [a1[0] + b1[0], a1[1] + b1[1]]];
+//   };
+
+// Matrix functions are structured roughly the same way as vector functions from a compilation perspective. It's a bit more complicated here because there are two levels of reduction instead of
+// one. Some things are also complexified by conditions on the matrix size; for instance, the determinant only exists for square matrices. (Fortunately, this library only provides functions for
+// square matrices.)
+
+// There are some compromises made for performance. In particular, matrix and vector functions are untyped, so it doesn't make sense to compute a cross product in the usual vector way. (That is,
+// set the top row of the matrix to contain vectors instead of scalars.) Instead, the cross product is a special form of the determinant; this preserves the untyped representation. In addition to
+// things like this, various safety rules are ignored; for instance, there is no size-checking despite the fact that every function operates only on matrices of specific dimensions.
+
+         base_m(n, field)          = capture [plus  = componentwise(n, 'a, b'.qs, 'a[i][j] + b[i][j]'.qs),  scale     = componentwise(n, 'a, b'.qs, 'a[i][j] * b'.qs),
+                                              minus = componentwise(n, 'a, b'.qs, 'a[i][j] - b[i][j]'.qs),  transpose = componentwise(n, 'a'.qs, 'a[j][i]'.qs),
+
+                                              times = r3(n, 'a, b'.qs, '[x]'.qs, 'x, y'.qs, '[x]'.qs, 'x, y'.qs, 'x'.qs, 'x + y'.qs, 'a[i][k] * b[k][j]'.qs)]
+
+                             -where [componentwise() = null, r3() = null],
+
+         composite_m(base, field)  = capture [transpose = null]]})(caterwaul);
+
+// Generated by SDoc 
+
+
+// Generated by SDoc 
+
+
+
+
+
+// Havoc function | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This binds the global 'havoc' function to Caterwaul. Pieces are defined in other modules.
+
+caterwaul.havoc = function (s, options) {return caterwaul.havoc.compile(caterwaul.havoc.parse(s, options), options)};
+
+// Generated by SDoc 
+
+// Havoc syntax trees | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This module provides syntax trees for Havoc. It also has a little bit of interpreter-related support, but most of that is handled by the interpreter itself.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.tree = $.syntax_subclass(ctor, methods) /-$.merge/ statics
+         -where [ctor(data, p) = this instanceof $.havoc.tree ? this -se [it.data = data, it.position = p, it.length = 0] : new $.havoc.tree(data, p),
+
+                 methods       = capture [precedence()      = $.havoc.tree.precedence_table[this.last()] || 0,
+                                          is_vertical()     = $.havoc.tree.is_vertical[this.last()],
+                                          last()            = this.data.charAt(this.data.length - 1),
+
+                                          structure()       = '(#{this.data}@#{this.position}#{this.child_structure()})',
+                                          child_structure() = this.length ? +this *[' #{x.structure()}'] -seq -re- it.join('') : ''],
+
+                 statics       = capture [right_associative = '^ : $ → ↦ < > = ≠ ≡ ¬ ⋅'.qw *[[x, true]] /object -seq,
+                                          precedence_table  = ('^ 1 * 2 / 2 % 2 + 3 - 3 : 4 & 5 | 5 ∩ 6 ∪ 7 ∈ 8 ∋ 8 ⊂ 9 ⊃ 9 $ 10 → 11 ↦ 11 ← 12 ↤ 12 < 13 > 13 = 13 ≠ 13 ≡ 14'.qh /pairs +
+                                                               '∧ 15 ∨ 16 ∃ 17 ∀ 18 ⋅ 19'.qh /pairs) *[[x[0], +x[1]]] /object -seq,
+                                          is_vertical       = '← ↤'.qw *[[x, true]] /object -seq]]})(caterwaul);
+
+// Generated by SDoc 
+
+// Havoc parser | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This module parses Havoc into Caterwaul source trees. It's a lossy transformation; comments and detailed positional information are lost. Havoc needs some positional information in order to
+// interpret the code in nonlinear ways; this can be seen in the following definition:
+
+// | abs x = x     ← x >= 0 ∀ x
+//           0 - x ↤
+
+// In this case, nonlinear parsing results in the top ← and bottom ↤ being vertically joined, which has higher precedence than = but lower precedence than either kind of arrow. In order to deal
+// with this, the source is transformed in these ways:
+
+// | 1. Text is lexed into paragraphs; comment paragraphs are converted to newlines.
+//   2. Line comments are removed.
+//   3. Tokens are lexed and mapped into the Cartesian plane.
+//   4. Code is folded by operator precedence, top to bottom and left to right. Nodes are removed from the Cartesian plane as they are folded.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.parse(s, options) = s /!code_paragraphs /!remove_line_comments /!cartesian_transform /!fold -where [
+
+// Paragraph lexing.
+// This is fairly trivial; split() will do most of the work for us. This won't work on IE, but Havoc isn't a browser language per se. (And unlike Caterwaul, there is no defined compile-time
+// environment, so Havoc can be precompiled whereas Caterwaul can't in the general case.)
+
+  code_paragraphs(s) = s.split(/(\n(?:\s*\n)+)/) *[/^[A-Z\|]/.test(x) ? x.split(/\n/) *[''] -seq -re- it.join('\n') : x] -seq -re- it.join(''),
+
+// Line comment lexing.
+// Line comments start with a capital letter or hash sign. There's an exception, however. Either of these starting tokens must be preceded by at least two spaces if there is code before it.
+
+  remove_line_comments(s) = s.replace(/(^\s*|\s\s+)[#A-Z].*$/mg, ''),
+
+// Token mapping.
+// This isn't particularly challenging. Unlike Javascript, which is truly pathological, Havoc has a relatively straightforward syntax in that its literals are very forgiving. It doesn't have a
+// syntax for string literals (this is achieved by using structural quotation), so all lexemes can be detected by splitting on spaces and stripping parentheses.
+
+  cartesian_transform(s) = s.split(/\n/) *~!y[y.split(/(\s+)/) *~![/^\S/.test(x) ? strip(x, cx, yi) : [], se [cx += x.length]] -seq -where [cx = 0]] -seq
+                   -where [strip(token, px, py) = token.split(/([\(\)\[\]\{\},])/) %[x.length] *[{t: x, p: [px, py]} -se [px += x.length]] -seq],
+
+// Parsing.
+// This is the most challenging part, though it isn't that bad. First we build a couple of indexes; one is a linked map of tokens, and the other is an index by operator type. For simplicity, this
+// index isn't restricted to operators; it collects the last character of every token. The linked map works about the same way it does in Caterwaul's Javascript parser, but tokens have up-down
+// links in addition to left-right links. In order for tokens to be vertically linked, they need to share a Y-coordinate; this means that they must start at the same column. Further, they must
+// not have a blank line between them; that is, they must be vertically adjacent.
+
+// Grouping within space doesn't work quite like you might think. Rather than imposing local linearity on the parse, which would be a reasonable thing to do, it slices block-wise. That is,
+// parentheses and other groupers form blocks around text:
+
+// | (one   two   (five  six               <- [one two three four] [five six seven eight]
+//    three four)  seven eight)
+
+// There is no way to make Havoc's parser behave in a linear way; it is fundamentally planar. Generally this isn't a problem, and sometimes it can be a nice help. For example:
+
+// | f x = a long definition involving cases: x + 5 ← x < 10
+//   g x = 5     ← x > 10                     x     ↤
+//         x     ← x + y + z > 1 + 2 + 3 + 4 + 5 + 6 + 7
+//         0 - x ↤
+
+// In this example, the two function definitions are non-conflicting. g's definition will ignore everything after 'x > 10' and f's definition will grab the 'x ↤' line. This happens because
+// operator precedence works vertically as well as horizontally.
+
+// Incidentally, you might reasonably be concerned about vertical folding in other ways. For example, what prevents f and g from being vertically combined? How about the two = signs? Or the first
+// terms of the definition in each function? For now I'm deferring on this point by having only the ← and ↤ operators support vertical folding (they do this after folding horizontally).
+
+  fold(ts) = create_links(map) -re- fold_operators(map, map /!operator_index) -re- nodes_in(map)
+     -where [map                        = ts *[['#{x.p[0]},#{x.p[1]}', new $.havoc.tree(x.t, x.p)]] /object -seq,
+             nodes_in(m)                = m /values %[x instanceof $.havoc.tree] -seq,
+
+             create_links(m)            = create_vertical_links(m) -se- create_horizontal_links(m),
+             create_vertical_links(m)   = nodes_in(m) *![m['#{x.position[0]},#{x.position[1] + 1}'] -se [it.u = x, x.d = it, when.it]] -seq,
+             create_horizontal_links(m) = rows *!~r[r *![x.l = r[xi - 1], r[xi - 1].r = x, when.xi]] -seq
+                                  -where [rows = nodes_in(m) *![(result[x.position[1]] || (result[x.position[1]] = [])).push(x)] -seq -re- result -where [result = []]],
+
+             operator_index(m)          = nodes_in(m) *![(index[x.last()] || (index[x.last()] = [])).push(x)] -seq -re- index -where [index = []],
+
+             fold_operators(m, index)   = index *!~[x *![x._fold_lr() -se- delete m['#{x[0].position[0]},#{x[0].position[1]}']
+                                                                      -se- delete m['#{x[1].position[0]},#{x[1].position[1]}']]] -seq]],
+  using [caterwaul.linear.vector(2, 'v2')]})(caterwaul);
+
+// Generated by SDoc 
+
+
+// Generated by SDoc 
+
+
+
+
+var t = function () {$('body').append($('<div>').text(Array.prototype.join.call(arguments, ', ') + ' -> ' + test_case.apply(this, arguments)))};
+
+$(function () {
+
+
+// Unit tests.
+// These are quick, visible assertions to make sure that the setup works properly. The test_case function is called automatically by t(), which is customized to work on whatever platform you're
+// running under (e.g. node.js or a browser).
+
+test_case = caterwaul.js_all()(function (x) {
+  return caterwaul.havoc.parse(x) *[x.structure()] -seq -re- it.join(' ; ')});
+
+t('foo bar');
+t('foo + bar');
+t('foo * bar');
+t('foo + bar * bif');
+t('foo * bif + bar');
+
+// Generated by SDoc 
+
+
+
+});
+</script>
+
+<style >
+body > div {font-family: monospace}
+</style>
+</head>
+<body >
+
+</body>
+</html>
+
+# Generated by SDoc 
