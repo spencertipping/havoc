@@ -2574,7 +2574,7 @@ Paragraph lexing.
 This is fairly trivial; split() will do most of the work for us. This won't work on IE, but Havoc isn't a browser language per se. (And unlike Caterwaul, there is no defined compile-time
 environment, so Havoc can be precompiled whereas Caterwaul can't in the general case.)
 
-  code_paragraphs(s) = s.split(/\n(\s*\n)+/) *[/^[A-Z\|]/.test(x) ? x.split(/\n/) *[''] -seq -re- it.join('\n') : x] -seq -re- it.join('\n\n'),
+  code_paragraphs(s) = s.split(/(\n(?:\s*\n)+)/) *[/^[A-Z\|]/.test(x) ? x.split(/\n/) *[''] -seq -re- it.join('\n') : x] -seq -re- it.join(''),
 
 Line comment lexing.
 Line comments start with a capital letter or hash sign. There's an exception, however. Either of these starting tokens must be preceded by at least two spaces if there is code before it.
@@ -2585,8 +2585,33 @@ Token mapping.
 This isn't particularly challenging. Unlike Javascript, which is truly pathological, Havoc has a relatively straightforward syntax in that its literals are very forgiving. It doesn't have a
 syntax for string literals (this is achieved by using structural quotation), so all lexemes can be detected by splitting on spaces and stripping parentheses.
 
-  cartesian_transform(s, origin) = s.split(/\n/) *~!y[y.split(/(\s+)/) *~![/^\S/.test(x) ? strip(x, cx, yi) : [], se [cx += x.length]] -seq -where [cx = 0]] -seq
-                           -where [strip(token, px, py) = token.split(/([\(\)\[\]\{\},])/) %[x.length] *[{t: x, p: [px, py]} -se [px += x.length]] -seq]],
+  cartesian_transform(s) = s.split(/\n/) *~!y[y.split(/(\s+)/) *~![/^\S/.test(x) ? strip(x, cx, yi) : [], se [cx += x.length]] -seq -where [cx = 0]] -seq
+                   -where [strip(token, px, py) = token.split(/([\(\)\[\]\{\},])/) %[x.length] *[{t: x, p: [px, py]} -se [px += x.length]] -seq]],
+
+Parsing.
+This is the most challenging part, though it isn't that bad. First we build a couple of indexes; one is a linked map of tokens, and the other is an index by operator type. For simplicity, this
+index isn't restricted to operators; it collects the last character of every token. The linked map works about the same way it does in Caterwaul's Javascript parser, but tokens have up-down
+links in addition to left-right links. In order for tokens to be vertically linked, they need to share a Y-coordinate; this means that they must start at the same column. Further, they must
+not have a blank line between them; that is, they must be vertically adjacent.
+
+Grouping within space doesn't work quite like you might think. Rather than imposing local linearity on the parse, which would be a reasonable thing to do, it slices block-wise. That is,
+parentheses and other groupers form blocks around text:
+
+| (one   two   (five  six               <- [one two three four] [five six seven eight]
+   three four)  seven eight)
+
+There is no way to make Havoc's parser behave in a linear way; it is fundamentally planar. Generally this isn't a problem, and sometimes it can be a nice help. For example:
+
+| f x = a long definition involving cases: x + 5 ← x < 10
+  g x = 5     ← x > 10                     x     ↤
+        x     ← x + y + z > 1 + 2 + 3 + 4 + 5 + 6 + 7
+        0 - x ↤
+
+In this example, the two function definitions are non-conflicting. g's definition will ignore everything after 'x > 10' and f's definition will grab the 'x ↤' line. This happens because
+operator precedence works vertically as well as horizontally.
+
+Incidentally, you might reasonably be concerned about vertical folding in other ways. For example, what prevents f and g from being vertically combined? How about the two = signs? Or the first
+terms of the definition in each function? This is a perfectly reasonable concern to which I need, but don't yet have, an answer.
 
   using [caterwaul.linear.vector(2, 'v2')]})(caterwaul);
 
