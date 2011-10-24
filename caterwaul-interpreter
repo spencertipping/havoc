@@ -278,6 +278,7 @@ meta::define_form 'template', sub {
 };
 __
 meta::alias('ed', 'edit sdoc::js::dependencies');
+meta::alias('ehp', 'havoc.parser');
 meta::alias('em', 'edit sdoc::js::modules');
 meta::alias('er', <<'__');
 edit sdoc::js::repl -f
@@ -287,6 +288,8 @@ meta::alias('et', <<'__');
 edit sdoc::js::test -f
 
 __
+meta::alias('havoc', 'edit sdoc::js::havoc');
+meta::alias('havoc.parser', 'edit sdoc::js::havoc.parser');
 meta::bootstrap('html', <<'__');
 <html>
   <head>
@@ -503,6 +506,102 @@ MST_9[_Q1`%^#RH0M4CM=\`$EI[7CX8:^PWJ"<RQ<!V:!C13T?/,!H8_V7(!(
 M"Q<.CUDD6$9%Q)[6N[BBL%S+L]X*[SE(:$)A(%ROA<<)R`:1%B,BV/B0&IL:
 M62W^[&#$>NKOR[=>>7;R^;!.-Z\/*KBJ*.ZOU4L28Q!):=3KI4.E-'J3H_\7
 )<D4X4)#UQ[N\
+
+__
+meta::bzip2('cached_dependency::caterwaul.numeric.js', <<'__');
+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
+?:2J$\AO'SM$=$[8X?1UHO8@&)A_XNY(IPH2"(2;22```
 
 __
 meta::bzip2('cached_dependency::caterwaul.parser.js', <<'__');
@@ -955,8 +1054,9 @@ meta::configuration('dependencies', <<'__');
 bzip2::cached_dependency::caterwaul.js:     bzip2::http://caterwauljs.org/build/caterwaul.min.js
 bzip2::cached_dependency::caterwaul.std.js: bzip2::http://caterwauljs.org/build/caterwaul.std.min.js
 
-bzip2::cached_dependency::caterwaul.regexp.js: bzip2::http://spencertipping.com/caterwaul-regexp/regexp.js
-bzip2::cached_dependency::caterwaul.parser.js: bzip2::http://spencertipping.com/caterwaul-parser/parser.js
+bzip2::cached_dependency::caterwaul.regexp.js:  bzip2::http://spencertipping.com/caterwaul-regexp/regexp.js
+bzip2::cached_dependency::caterwaul.parser.js:  bzip2::http://spencertipping.com/caterwaul-parser/parser.js
+bzip2::cached_dependency::caterwaul.numeric.js: bzip2::http://spencertipping.com/caterwaul-numeric/numeric.js
 
 __
 meta::data('author', 'Spencer Tipping');
@@ -2435,13 +2535,65 @@ from.
 - include cached_dependency::caterwaul.std.js
 - include cached_dependency::caterwaul.regexp.js
 - include cached_dependency::caterwaul.parser.js
+- include cached_dependency::caterwaul.numeric.js
+
+__
+meta::sdoc('js::havoc', <<'__');
+Havoc function | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This binds the global 'havoc' function to Caterwaul. Pieces are defined in other modules.
+
+caterwaul.havoc = function (s, options) {return caterwaul.havoc.compile(caterwaul.havoc.parse(s, options), options)};
+
+__
+meta::sdoc('js::havoc.parser', <<'__');
+Havoc parser | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module parses Havoc into Caterwaul source trees. It's a lossy transformation; comments and detailed positional information are lost. Havoc needs some positional information in order to
+interpret the code in nonlinear ways; this can be seen in the following definition:
+
+| abs x = x     ← x >= 0 ∀ x
+          0 - x ↤
+
+In this case, nonlinear parsing results in the top ← and bottom ↤ being vertically joined, which has higher precedence than = but lower precedence than either kind of arrow. In order to deal
+with this, the source is transformed in these ways:
+
+| 1. Text is lexed into paragraphs; comment paragraphs are converted to newlines.
+  2. Line comments are removed.
+  3. Tokens are lexed and mapped into the Cartesian plane.
+  4. Code is folded by operator precedence, top to bottom and left to right. Nodes are removed from the Cartesian plane as they are folded.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.parse(s, options) = s /!code_paragraphs /!remove_line_comments /-cartesian_transform/ [0, 0] -where [
+
+Paragraph lexing.
+This is fairly trivial; split() will do most of the work for us. This won't work on IE, but Havoc isn't a browser language per se. (And unlike Caterwaul, there is no defined compile-time
+environment, so Havoc can be precompiled whereas Caterwaul can't in the general case.)
+
+  code_paragraphs(s) = s.split(/\n(\s*\n)+/) *[/^[A-Z\|]/.test(x) ? x.split(/\n/) *[''] -seq -re- it.join('\n') : x] -seq -re- it.join('\n\n'),
+
+Line comment lexing.
+Line comments start with a capital letter or hash sign. There's an exception, however. Either of these starting tokens must be preceded by at least two spaces if there is code before it.
+
+  remove_line_comments(s) = s.replace(/(^\s*|\s\s+)[#A-Z].*$/mg, ''),
+
+Token mapping.
+This isn't particularly challenging. Unlike Javascript, which is truly pathological, Havoc has a relatively straightforward syntax in that its literals are very forgiving. It doesn't have a
+syntax for string literals (this is achieved by using structural quotation), so all lexemes can be detected by splitting on spaces and stripping parentheses.
+
+  cartesian_transform(s, origin) = s.split(/\n/) *~!y[y.split(/(\s+)/) *~![/^\S/.test(x) ? strip(x, cx, yi) : [], se [cx += x.length]] -seq -where [cx = 0]] -seq
+                           -where [strip(token, px, py) = token.split(/([\(\)\[\]\{\},])/) %[x.length] *[{t: x, p: [px, py]} -se [px += x.length]] -seq]],
+
+  using [caterwaul.linear.vector(2, 'v2')]})(caterwaul);
 
 __
 meta::sdoc('js::modules', <<'__');
-Module loading code.
-This is where your modules get loaded into the REPL. This script is included by sdoc::js::repl and is used to render into HTML for cross-browser testing.
-
-// modules go here
+- include js::havoc
+- include js::havoc.parser
 
 __
 meta::sdoc('js::repl', <<'__');

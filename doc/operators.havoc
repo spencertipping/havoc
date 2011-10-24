@@ -20,7 +20,8 @@ precedence:
   $              right  f $ x y
   → ↦            right  x > 0 → y
   ← ↤            left   y ← x > 0
-  < > = ≠        right  2 < 3
+  (vertical)     top                            <- vertical joins, such as | f x = x + 1 ← x > 0
+  < > = ≠        right  2 < 3                                              |       x - 1 ↤
   ≡              right  x ≡ y
   ¬              right  ¬ x
   ∧              left   x ∧ y
