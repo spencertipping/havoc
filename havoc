@@ -153,7 +153,7 @@ meta::define_form 'function', sub {
 };
 __
 meta::meta('type::havoc', <<'__');
-meta::functor::editable 'havoc', inherit => 0, extension => '.havoc';
+meta::functor::editable 'havoc', inherit => 0, extension => '.havoc', default => 'edit';
 
 __
 meta::meta('type::hook', <<'__');
@@ -380,6 +380,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 __
+meta::data('permanent-identity', '50d3315058cb6d0b30bfd37ca66f8ee8');
 meta::data('watching', '1');
 meta::function('ad', <<'__');
 return @{$transient{path}} = () unless @_;
@@ -1376,10 +1377,10 @@ parent::/home/spencertipping/bin/object  d53d1f464e12d065394298dd96d22301
 
 __
 meta::parent('havoc-core', <<'__');
-meta::type::havoc                        b5110f92dbb9a6c314ec9a5833d3233e
+meta::type::havoc                        1d2579f377ff02d75631ec989241c0bc
 parent::/home/spencertipping/bin/object  d53d1f464e12d065394298dd96d22301
 parent::vim-highlighters                 1f933c20697efa693fe0e0e6257df086
-vim_highlighter::havoc                   24323450bd11745c0f0299421c1afa6d
+vim_highlighter::havoc                   ef16e2509b52c28f8a9652b1a9a3a60d
 
 __
 meta::parent('object', <<'__');
@@ -1603,6 +1604,8 @@ setlocal iskeyword=33-39,42-43,45-127
 
 " High-level lexer concerns:
 syn match   havoc_line_comment  /\/ *[A-Z\|].*$/
+syn match   havoc_line_comment  /\s\s\+[A-Z].*$/
+syn match   havoc_line_comment  /^\s*[A-Z].*$/
 
 hi link havoc_line_comment      Comment
 
