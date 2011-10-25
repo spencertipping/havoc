@@ -278,6 +278,7 @@ meta::define_form 'template', sub {
 };
 __
 meta::alias('ed', 'edit sdoc::js::dependencies');
+meta::alias('eh', 'havoc');
 meta::alias('ehp', 'havoc.parser');
 meta::alias('eht', 'havoc.tree');
 meta::alias('em', 'edit sdoc::js::modules');
@@ -291,6 +292,7 @@ edit sdoc::js::test -f
 __
 meta::alias('havoc', 'edit sdoc::js::havoc');
 meta::alias('havoc.parser', 'edit sdoc::js::havoc.parser');
+meta::alias('havoc.rewrite', 'edit sdoc::js::havoc.rewrite');
 meta::alias('havoc.tree', 'edit sdoc::js::havoc.tree');
 meta::bootstrap('html', <<'__');
 <html>
@@ -1322,7 +1324,7 @@ Introduction.
 This module is called $name.
 end
 
-associate('sdoc::js::modules', strip(retrieve('sdoc::js::modules')) . "\n- include js::$name\n");
+associate('sdoc::js::modules', retrieve('sdoc::js::modules') . "\n- include js::$name\n");
 
 terminal::info("created module $name, which is automatically loaded into REPL sessions.",
                'some relevant commands:',
@@ -2130,7 +2132,7 @@ There are two aspects of the interpreter that are less than obvious. First is ho
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
-function::module                                            8c2f325d2e3625ac7f61d1bd7c7a60d2
+function::module                                            7db3d18993430d321819a29fbf871bf9
 function::modules                                           04d632a899502efcd0e67f9438f058a4
 function::render                                            736771d0a0ec24a21510cad388370098
 function::repl                                              878e54fa550b881619f987a9d676038b
@@ -2634,8 +2636,10 @@ terms of the definition in each function? For now I'm deferring on this point by
 
              operator_index(m)          = nodes_in(m) *![(index[x.precedence()] || (index[x.precedence()] = [])).push(x)] -seq -re- index -where [index = []],
 
-             fold_operators(m, index)   = index %[x] *!~[x *![x._fold_lr() -se- delete m['#{x[0].position[0]},#{x[0].position[1]}']
-                                                                           -se- delete m['#{x[1].position[0]},#{x[1].position[1]}']]] -seq]],
+             nuke(m, n)                 = delete m['#{n.position[0]},#{n.position[1]}'],
+
+             fold_operators(m, index)   = index[0] *![x._fold_r(), nuke(m, x[0]), when [x.r && x.r.precedence() === x.precedence()]] -seq
+                                     -se- index %[x && xi] *!~[x *![x._fold_lr() -se- nuke(m, x[0]) -se- nuke(m, x[1])]] /seq]],
   using [caterwaul.linear.vector(2, 'v2')]})(caterwaul);
 
 __
@@ -2650,7 +2654,7 @@ caterwaul.js_all()(function ($) {
   $.havoc.tree = $.syntax_subclass(ctor, methods) /-$.merge/ statics
          -where [ctor(data, p) = this instanceof $.havoc.tree ? this -se [it.data = data, it.position = p, it.length = 0] : new $.havoc.tree(data, p),
 
-                 methods       = capture [precedence()      = $.havoc.tree.precedence_table[this.last()] || -1,
+                 methods       = capture [precedence()      = $.havoc.tree.precedence_table[this.last()] || 0,
                                           is_vertical()     = $.havoc.tree.is_vertical[this.last()],
                                           last()            = this.data.charAt(this.data.length - 1),
 
