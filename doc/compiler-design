@@ -855,13 +855,24 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
-meta::havoc('challenges', <<'__');
-Implementation challenges | Spencer Tipping
+meta::havoc('implementation-constraints', <<'__');
+Implementation constraints | Spencer Tipping
 Licensed under the terms of the MIT source code license
 
 Introduction.
-Havoc is fairly simple at its core, but there are some subtle aspects of implementing a Havoc compiler. The most significant ones are enumerated here.
+It's challenging to determine the appropriate representation to run Havoc programs because of the characteristics of equation rewriting. As I see it, here are the main issues:
 
+| 1. Equations can be lazily generated from other equations, and this can happen at runtime (though if it does, it's acceptable for Havoc's performance to degrade).
+  2. Rewrites can produce high-complexity forms that must then be detected by other equations. That is, small rewrites can converge into large patterns.
+
+Caveats.
+I'm willing to make the following implementation caveats in order to have something that's performant:
+
+| 1. Invariant specifications must not be dependent on any runtime expressions. That is, they must themselves be invariant.
+  2. Runtime-generated rewrite rules can be disallowed for initial implementations, as long as compile-time constant folding is complete.
+
+__
+meta::havoc('mutually-recursive-ambiguity-sets', <<'__');
 Mutually recursive ambiguity sets.
 Here's one that's kind of interesting. Suppose you have two toplevel functions that depend on one another:
 
@@ -883,28 +894,6 @@ even = e ⋅ e x = true      ← x == 0 ∀ x
 odd = o          o (x - 1) ↤
            o x = true      ← x == 1 ∀ x
                  e (x - 1) ↤
-
-At this point there is no ambiguity.
-
-Scope invariant analysis.
-
-
-__
-meta::havoc('implementation-constraints', <<'__');
-Implementation constraints | Spencer Tipping
-Licensed under the terms of the MIT source code license
-
-Introduction.
-It's challenging to determine the appropriate representation to run Havoc programs because of the characteristics of equation rewriting. As I see it, here are the main issues:
-
-| 1. Equations can be lazily generated from other equations, and this can happen at runtime (though if it does, it's acceptable for Havoc's performance to degrade).
-  2. Rewrites can produce high-complexity forms that must then be detected by other equations. That is, small rewrites can converge into large patterns.
-
-Caveats.
-I'm willing to make the following implementation caveats in order to have something that's performant:
-
-| 1. Invariant specifications must not be dependent on any runtime expressions. That is, they must themselves be invariant.
-  2. Runtime-generated rewrite rules can be disallowed for initial implementations, as long as compile-time constant folding is complete.
 
 __
 meta::hook('before-shell::ad-havoc', <<'__');
