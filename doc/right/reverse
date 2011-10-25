@@ -1,3 +1,0 @@
-#!/usr/bin/perl
-use Encode qw/encode decode/;
-chomp and print join('', encode('utf8', pack "W*", reverse unpack("W*", decode('utf8', $_)))), "\n" while <>;
