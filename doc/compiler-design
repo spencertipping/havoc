@@ -879,7 +879,7 @@ empirical verification to do this. For instance:
   g x = f x ∀ x ⋅ ∃f x = x + 2 ∀ x
 
 Havoc should not interpret '∃f x = x + 2 ∀ x' as an empirical statement used to disambiguate f; doing this would cause a contradiction. Instead, it should observe that ∃f is provably unique
-and realize that this cannot contradict any other statement.
+and realize that this cannot contradict any other statement. (Though this is a simplistic way of looking at it, since the right-hand '+' obviously has global meaning.)
 
 __
 meta::havoc('implementation-constraints', <<'__');

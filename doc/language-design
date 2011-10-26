@@ -1153,6 +1153,15 @@ To fix this, Havoc introduces gensym masking. If you prepend a variable with ∃
 The 'f' inside the map function body refers to the rewritten gensym.
 
 __
+meta::havoc('transitivity-of-ambiguity', <<'__');
+Transitivity of ambiguity.
+Ambiguity propagates upwards. For example:
+
+| f x = x + 1 ∀ x               The + is ambiguous here, since it is overloaded; therefore this single definition of f is ambiguous.
+  f x = x + 2 ∀ x               This one is also ambiguous.
+  g x = f x ∀ x ⋅ f 5 = 6       Resolves ambiguity in f and also happens to disambiguate +.
+
+__
 meta::havoc('unquantified-relations', <<'__');
 Introduction.
 Haskell programmers get a nice notational advantage by not having to quantify the arguments to their functions. The reason this works is that the left-hand side of each equation has only a few
