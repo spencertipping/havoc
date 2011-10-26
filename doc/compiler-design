@@ -872,6 +872,10 @@ I'm willing to make the following implementation caveats in order to have someth
   2. Runtime-generated rewrite rules can be disallowed for initial implementations, as long as compile-time constant folding is complete.
 
 __
+meta::havoc('local-scope-invariant-analysis', <<'__');
+Local scope invariant analysis.
+
+__
 meta::havoc('mutually-recursive-ambiguity-sets', <<'__');
 Mutually recursive ambiguity sets.
 Here's one that's kind of interesting. Suppose you have two toplevel functions that depend on one another:
@@ -1265,11 +1269,12 @@ meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
 meta::parent('../havoc', <<'__');
-parent::/home/spencertipping/bin/preprocessor  09a56657d0fde76fcf3fa664d2c6b4ca
-parent::git-integration                        1df9628e0bc752070022cd85f579b118
-parent::havoc-core                             5fb4928afae7b050a65c9ea9aacef6c0
-parent::repository                             5b2a3158563910cc089b10ca719b56f5
-parent::todo                                   56c4f422f182f006e760fdd2b75bf4a2
+parent::/home/spencertipping/bin/preprocessor              09a56657d0fde76fcf3fa664d2c6b4ca
+parent::/home/spencertipping/conjectures/havoc/havoc-core  5fb4928afae7b050a65c9ea9aacef6c0
+parent::git-integration                                    1df9628e0bc752070022cd85f579b118
+parent::havoc-core                                         5fb4928afae7b050a65c9ea9aacef6c0
+parent::repository                                         5b2a3158563910cc089b10ca719b56f5
+parent::todo                                               56c4f422f182f006e760fdd2b75bf4a2
 
 __
 meta::parent('../havoc-core', <<'__');
@@ -1424,6 +1429,13 @@ template::include              47b5552d609d97fe7f2522d5c1027014
 template::pinclude             c07ff79bf8d642cceaa9ef844bfcb189
 template::script-include       76be051ad116449ddebd10e7c3729afd
 template::style-include        8e5a06b70e1b00379765f319bf6c8066
+
+__
+meta::parent('/home/spencertipping/conjectures/havoc/havoc-core', <<'__');
+meta::type::havoc                        1d2579f377ff02d75631ec989241c0bc
+parent::/home/spencertipping/bin/object  d53d1f464e12d065394298dd96d22301
+parent::vim-highlighters                 1f933c20697efa693fe0e0e6257df086
+vim_highlighter::havoc                   ef16e2509b52c28f8a9652b1a9a3a60d
 
 __
 meta::parent('git-integration', <<'__');

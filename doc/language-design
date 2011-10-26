@@ -153,7 +153,7 @@ meta::define_form 'function', sub {
 };
 __
 meta::meta('type::havoc', <<'__');
-meta::functor::editable 'havoc', inherit => 0, extension => '.havoc';
+meta::functor::editable 'havoc', inherit => 0, extension => '.havoc', default => 'edit';
 
 __
 meta::meta('type::hook', <<'__');
@@ -346,6 +346,7 @@ run this script with the 'usage' argument.
 __
 meta::cache('parent-identification', <<'__');
 ../havoc 50d3315058cb6d0b30bfd37ca66f8ee8
+../havoc-core 11aee6b32590542a6e88aba874fb6d73
 ./sdoc 
 /home/spencertipping/bin/configuration aa772900bb5b925cb84346bd72a4249d
 /home/spencertipping/bin/object 99aeabc9ec7fe80b1b39f5e53dc7e49e
@@ -1549,11 +1550,19 @@ meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
 meta::parent('../havoc', <<'__');
-parent::/home/spencertipping/bin/preprocessor  09a56657d0fde76fcf3fa664d2c6b4ca
-parent::git-integration                        1df9628e0bc752070022cd85f579b118
-parent::havoc-core                             5fb4928afae7b050a65c9ea9aacef6c0
-parent::repository                             5b2a3158563910cc089b10ca719b56f5
-parent::todo                                   56c4f422f182f006e760fdd2b75bf4a2
+parent::/home/spencertipping/bin/preprocessor              09a56657d0fde76fcf3fa664d2c6b4ca
+parent::/home/spencertipping/conjectures/havoc/havoc-core  5fb4928afae7b050a65c9ea9aacef6c0
+parent::git-integration                                    1df9628e0bc752070022cd85f579b118
+parent::havoc-core                                         5fb4928afae7b050a65c9ea9aacef6c0
+parent::repository                                         5b2a3158563910cc089b10ca719b56f5
+parent::todo                                               56c4f422f182f006e760fdd2b75bf4a2
+
+__
+meta::parent('../havoc-core', <<'__');
+meta::type::havoc                        1d2579f377ff02d75631ec989241c0bc
+parent::/home/spencertipping/bin/object  d53d1f464e12d065394298dd96d22301
+parent::vim-highlighters                 1f933c20697efa693fe0e0e6257df086
+vim_highlighter::havoc                   ef16e2509b52c28f8a9652b1a9a3a60d
 
 __
 meta::parent('./sdoc', <<'__');
@@ -1701,6 +1710,13 @@ template::include              47b5552d609d97fe7f2522d5c1027014
 template::pinclude             c07ff79bf8d642cceaa9ef844bfcb189
 template::script-include       76be051ad116449ddebd10e7c3729afd
 template::style-include        8e5a06b70e1b00379765f319bf6c8066
+
+__
+meta::parent('/home/spencertipping/conjectures/havoc/havoc-core', <<'__');
+meta::type::havoc                        1d2579f377ff02d75631ec989241c0bc
+parent::/home/spencertipping/bin/object  d53d1f464e12d065394298dd96d22301
+parent::vim-highlighters                 1f933c20697efa693fe0e0e6257df086
+vim_highlighter::havoc                   ef16e2509b52c28f8a9652b1a9a3a60d
 
 __
 meta::parent('git-integration', <<'__');
