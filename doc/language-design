@@ -973,6 +973,22 @@ The important things about complex patterns are:
   2. Patterns on each side of an equality can be arbitrarily complex.
 
 __
+meta::havoc('definition-vs-observation', <<'__');
+Definition vs. observation.
+It isn't possible for Havoc to differentiate between you making these statements:
+
+| 1. Within this scope, define f x to be x + 1 for all x.
+  2. Within this scope, choose f such that f x is x + 1 for all x.
+
+The difference between these two is subtle. The first allows Havoc to create a new function that augments the original definition, causing further ambiguity. The second requires Havoc to
+disambiguate the existing global function, failing with a compile-time error if this is not possible.
+
+As such, there are two separate operators, the definition equivalence (written =), and the observation equivalence, written ==. These two can be converted by using this abstraction:
+
+| observe (x = y) = (x == y) ∀ x and y
+  define (x == y) = (x = y) ∀ x and y
+
+__
 meta::havoc('operators', <<'__');
 Introduction.
 Havoc has customizable operator precedence, but not in the usual way. Operator precedence initially is well-defined, but because of the nature of rewriting expressions you have the ability to
