@@ -867,19 +867,7 @@ __
 meta::havoc('evaluation-is-associative', <<'__');
 Sketchy proof of associativity of evaluation.
 Here's my thought. If f x = y ∀ x and g $ f x = z ∀ x, then we can reverse-apply f x = y to say that g y = z. Therefore, the order in which equivalences are expanded has no impact on the
-meaning of the program, since equality is a true equivalence relation.
-
-__
-meta::havoc('identifying-contradictions', <<'__');
-Identifying contradictions.
-This is hard. Basically, because of the dual nature of equations both as definitions as disambiguators, the compiler has to determine what each equation is used for. It's allowed to use
-empirical verification to do this. For instance:
-
-| f x = x + 1 ∀ x
-  g x = f x ∀ x ⋅ ∃f x = x + 2 ∀ x
-
-Havoc should not interpret '∃f x = x + 2 ∀ x' as an empirical statement used to disambiguate f; doing this would cause a contradiction. Instead, it should observe that ∃f is provably unique
-and realize that this cannot contradict any other statement. (Though this is a simplistic way of looking at it, since the right-hand '+' obviously has global meaning.)
+meaning of the program, since equality is a true equivalence relation. (It simply remains for the Havoc runtime to find the fastest path from point A to point B using this degree of freedom.)
 
 __
 meta::havoc('implementation-constraints', <<'__');
