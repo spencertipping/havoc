@@ -1120,11 +1120,11 @@ Like before, this will loop indefinitely or assign arbitrary values to quantifie
 Redefining scoping.
 Finally, you can redefine the scoping operator at your peril:
 
-| (x ⋅ y) = (x + 1 ⋅ y)
+| (x ⋅ y) = (x + 1 ⋅ y) ∀ x and y
 
 If you want to do it safely:
 
-| (x +1⋅ y) = (x + 1 ⋅ y)
+| (x +1⋅ y) = (x + 1 ⋅ y) ∀ x and y
 
 __
 meta::havoc('scoping', <<'__');
