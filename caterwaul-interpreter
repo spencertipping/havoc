@@ -2596,9 +2596,10 @@ environment, so Havoc can be precompiled whereas Caterwaul can't in the general 
   code_paragraphs(s) = s.split(/(\n(?:\s*\n)+)/) *[/^[A-Z\|]/.test(x) ? x.split(/\n/) *[''] -seq -re- it.join('\n') : x] -seq -re- it.join(''),
 
 Line comment lexing.
-Line comments start with a capital letter or hash sign. There's an exception, however. Either of these starting tokens must be preceded by at least two spaces if there is code before it.
+Line comments start with a capital letter, #, or - or / when one of these is followed by a capital letter. There's an exception, however. Any of these starting tokens must be preceded by at
+least two spaces if there is code before it.
 
-  remove_line_comments(s) = s.replace(/(^\s*|\s\s+)[#A-Z].*$/mg, ''),
+  remove_line_comments(s) = s.replace(/(^\s*|\s\s+)([-\/]\s+)?[A-Z].*$/mg, '').replace(/(^\s*|\s\s+)#\s.*$/mg, ''),
 
 Token mapping.
 This isn't particularly challenging. Unlike Javascript, which is truly pathological, Havoc has a relatively straightforward syntax in that its literals are very forgiving. It doesn't have a

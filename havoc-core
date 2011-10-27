@@ -1307,9 +1307,8 @@ syn case match
 setlocal iskeyword=33-39,42-43,45-127
 
 " High-level lexer concerns:
-syn match   havoc_line_comment  /[-\/#] *[A-Z\|].*$/
-syn match   havoc_line_comment  /\s\s\+[A-Z].*$/
-syn match   havoc_line_comment  /^\s*[A-Z].*$/
+syn match   havoc_line_comment  /\(^\s*\|\s\s\+\)\([-\/]\s\+\)\?[A-Z].*$/
+syn match   havoc_line_comment  /\(^\s*\|\s\s\+\)#\s.*$/
 
 hi link havoc_line_comment      Comment
 

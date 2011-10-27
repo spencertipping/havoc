@@ -1374,9 +1374,9 @@ template::style-include        8e5a06b70e1b00379765f319bf6c8066
 __
 meta::parent('/home/spencertipping/conjectures/havoc/havoc-core', <<'__');
 meta::type::havoc                        1d2579f377ff02d75631ec989241c0bc
-parent::/home/spencertipping/bin/object  d53d1f464e12d065394298dd96d22301
+parent::/home/spencertipping/bin/object  ec7af576e2ae8e42248b7458f0502253
 parent::vim-highlighters                 1f933c20697efa693fe0e0e6257df086
-vim_highlighter::havoc                   ef16e2509b52c28f8a9652b1a9a3a60d
+vim_highlighter::havoc                   d33a3ee05d5cc42101a0885de5ccf2ce
 
 __
 meta::parent('git-integration', <<'__');
@@ -1617,9 +1617,8 @@ syn case match
 setlocal iskeyword=33-39,42-43,45-127
 
 " High-level lexer concerns:
-syn match   havoc_line_comment  /\/ *[A-Z\|].*$/
-syn match   havoc_line_comment  /\s\s\+[A-Z].*$/
-syn match   havoc_line_comment  /^\s*[A-Z].*$/
+syn match   havoc_line_comment  /\(^\s*\|\s\s\+\)\([-\/]\s\+\)\?[A-Z].*$/
+syn match   havoc_line_comment  /\(^\s*\|\s\s\+\)#\s.*$/
 
 hi link havoc_line_comment      Comment
 
