@@ -876,7 +876,7 @@ this to save typing. For example:
 Higher-order abstraction.
 You can write equations that generate equation generators too. Because equation quantities are abstract, this means that you can disassemble expressions before they are evaluated. For example:
 
-| f x = f x         ← f = debug g  ∀ f and x
+| f x = f x         ← f == debug g  ∀ f and x
         debug f $ x ↤
 
 This rewrites regular function applications into debugging ones. This works because Havoc will always take a matching equivalence.
@@ -990,6 +990,12 @@ As such, there are two separate operators, the definition equivalence (written =
   define (x == y) = (x = y) ∀ x and y
 
 __
+meta::havoc('notational-abstraction', <<'__');
+Notational abstraction.
+Havoc tries to let you eliminate all kinds of repetition, so it establishes the rule that any value can be used as soon as it is known. This, combined with universal abstraction, makes it so
+that you can factor anything that isn't fundamental syntax into a rewrite rule of some sort.
+
+__
 meta::havoc('operators', <<'__');
 Introduction.
 Havoc has customizable operator precedence, but not in the usual way. Operator precedence initially is well-defined, but because of the nature of rewriting expressions you have the ability to
@@ -1076,6 +1082,22 @@ The other way involves using associativity to create a constant-space expansion:
          =                       120
 
 When presented with both options, Havoc implementations should choose the second because it is more space-efficient and more performant.
+
+__
+meta::havoc('quotation-ambiguity', <<'__');
+Quotation ambiguity.
+This is ultimately the problem that Gnarly faced, and I wonder whether this language has the same one. Consider an equation like this:
+
+| f conditions = x ⋅ conditions ∀ conditions
+
+Here, the role of 'conditions' is to serve as a custom right-hand side for ∀. This follows because we've quantified it; therefore it has no value otherwise. Therefore, any quotation ambiguity
+is resolved by quantification; all quantified things are variables, and all unquantified things are literals. What about captured variables?
+
+| f conditions = map g ⋅ g x = _ x ∀ x and  ∀ conditions
+                         conditions
+
+This also works. We expect 'conditions' to be a variable, and we expand all instances of it, while leaving other things static. The only difficulty here is determining whether 'conditions'
+impacts the way that 'g' is defined -- that is, whether Havoc can use transitivity to optimize away g's right-hand side.
 
 __
 meta::havoc('quoting', <<'__');
@@ -1176,7 +1198,7 @@ Ambiguity propagates upwards. For example:
 
 | f x = x + 1 ∀ x               The + is ambiguous here, since it is overloaded; therefore this single definition of f is ambiguous.
   f x = x + 2 ∀ x               This one is also ambiguous.
-  g x = f x ∀ x ⋅ f 5 = 6       Resolves ambiguity in f and also happens to disambiguate +.
+  g x = f x ∀ x ⋅ f 5 == 6      Resolves ambiguity in f and also happens to disambiguate +.
 
 __
 meta::havoc('unquantified-relations', <<'__');
