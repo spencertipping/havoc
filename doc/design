@@ -261,10 +261,6 @@ meta::define_form 'todo', sub {
 
 __
 meta::meta('type::vim_highlighter', 'meta::functor::editable \'vim_highlighter\', extension => \'.vim\', inherit => 1, default => \'edit\';');
-meta::alias('c', <<'__');
-sh compiler-design shell --repl-prefix=[sub]
-
-__
 meta::bootstrap('html', <<'__');
 <html>
   <head>
@@ -350,7 +346,6 @@ run this script with the 'usage' argument.
 __
 meta::cache('parent-identification', <<'__');
 ../havoc 50d3315058cb6d0b30bfd37ca66f8ee8
-../havoc-core 11aee6b32590542a6e88aba874fb6d73
 ./sdoc 
 /home/spencertipping/bin/configuration aa772900bb5b925cb84346bd72a4249d
 /home/spencertipping/bin/object 99aeabc9ec7fe80b1b39f5e53dc7e49e
@@ -387,7 +382,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 __
-meta::data('permanent-identity', '59a2746ff9a6bc839e2ed118ca4cf168');
 meta::data('watching', '1');
 meta::function('ad', <<'__');
 return @{$transient{path}} = () unless @_;
@@ -866,373 +860,39 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
-meta::havoc('abstraction-over-equations', <<'__');
-Introduction.
-Havoc supports universal abstraction; that is, basically anything can be generated from an equation. As such, you can create equations that imply or equate to other equations in Havoc, and use
-this to save typing. For example:
+meta::havoc('meta/priorities', <<'__');
+Design priorities.
+Havoc should have the following properties in roughly this order of importance:
 
-| symmetric f = (f x y = f y x ∀ x and y) ∀ f
-  symmetric (+)                                 / <- equivalent to writing the symmetry equation
+| 1. Ergonomic editing; that is, minimal seeking while editing code and simple keystrokes for common tasks.
+  2. Ergonomic documentation.
+  3. Ergonomic testing; verification should be as orthogonal as possible to the functionality of the code, and should capture the most common kinds of programming errors. The programmer should
+     write verification along with the code to keep everything in context.
+  4. Harmless nonlocality. Nonlocality is powerful, but it is a liability unless the programmer fully understands the consequences of a nonlocal edit. An interactive compiler would be useful
+     here.
+  5. Universal abstraction. I would argue that this is part of ergonomic editing, but the idea is that the programmer should never be required to repeat anything; any repetition should be
+     factorable into reusable abstractions.
 
-Higher-order abstraction.
-You can write equations that generate equation generators too. Because equation quantities are abstract, this means that you can disassemble expressions before they are evaluated. For example:
+Ergonomic editing.
+The most obvious way to do this is to make all operators infix and give them variable precedence. This way, no grouping constructs are required and every tree restructuring of n nodes involves
+n seeks. (Lisp, on the other hand, requires at least 2n seeks.) This problem is lessened by using a structural editor.
 
-| f x = f x         ← f == debug g  ∀ f and x
-        debug f $ x ↤
+Ergonomic documentation.
+SDoc goes a long way towards solving this problem, and a flexible line comment syntax completes the picture. The heuristic of using capital letters to start documentation is a useful one. I
+don't think Havoc needs any work here.
 
-This rewrites regular function applications into debugging ones. This works because Havoc will always take a matching equivalence.
+Ergonomic testing.
+It's worth mentioning that specific examples can be difficult and overfitting. For instance, suppose you have a vector dot product function. You might not want to start listing off specific
+dot products as unit tests, since functions like this are rarely specified by example. Rather, you want a dot product operator that has a certain kind of behavior, and this is generally
+specified in an abstract, QuickCheck-style way. For example:
 
-Anonymous equivalence.
-Sometimes you want to specify a symbol or function without naming it. In a lot of languages you'd create an anonymous function and pass that in, but those languages often have trouble with
-piecewise function definition in this context. In Havoc, the only anonymous equations are those which quantify all of their variables (such as the debugging equation above). The usual protocol
-for working around this is to pass in an equation that binds the underscore. For example:
+| length v = v dot* v ∀ v ⋅ length $ vector 1 1 1 == sqrt 3                                                     Less useful than it could be
+  length v = v dot* v ∀ v ⋅ sqr $ length $ v1 + v2 == sqr length v1 + sqr length v2 ∀ v1 and v2                 # a^2 + b^2 == c^2, a required property of length
 
-| map (_ x = x + 1 ∀ x) xs
 
-The map function could be written this way:
-
-| map f xs = _ h : map f t ← h : t = xs  ⋅ f  ∀ f and xs
-             xs            ↤
-
-__
-meta::havoc('ambiguity-sets', <<'__');
-Introduction.
-Havoc's semantics allow for deliberately ambiguous programs, and in general you should leverage this if possible. The reason is that it gives you a specification advantage in exchange for you
-writing unit tests. That is, you specify criteria of a working implementation, and Havoc will give you an implementation that is known to conform to your specifications (or give you an error
-if it can't find one). In fact, you could probably have Havoc write your whole program for you if you were willing to wait for it to uninsightfully explore all of your equations and quite
-possibly overfit the result to your specs.
-
-Anyway, to facilitate the definition of ambiguous functions Havoc does some strange things with equations. Anytime you have an equation that removes degrees of freedom from a quoted name,
-Havoc considers this to be an instantiation of something that constrains the name. This is important despite being nebulous. For example:
-
-| f x = x + 1 ∀ x
-  f x = x + 2 ∀ x
-
-These two 'f's, despite being the same name, are not in fact the same internally. The first equation quotes 'f' and internalizes it as 'the first alternative for f', and the second equation
-internalizes it as 'the second alternative for f'. Thus ambiguity sets are created; 'f 5' will invoke its return continuation multiple times until constrained. (The first time would be with 6,
-then with 7, though this order is officially unspecified.)
-
-It's worth noting that any given equation is closed under ambiguity sets. This should make sense; a factorial equation shouldn't have to worry about the existence of other factorial functions.
-Therefore, alternative functions of the same name are shadowed by the prematurely disambiguated form being defined. (I consider this a significant feature.)
 
 __
-meta::havoc('basic-rewriting', <<'__');
-Introduction.
-Havoc is a generalization of lambda calculus to terms of arbitrary form. That is, it performs algebraic pattern-matching on values and uses relations as transformation rules. This is a
-generalization of lambda calculus because it permits alternative evaluation orders depending on external constraints. For example, suppose we introduce these equivalences:
-
-| f $ number x = number x + 1 ⋅ f 5 = 6
-  string x = parse_number $ string x ⋅ "45" = 45 and f "45" = 46
-
-If we then say 'f "48"', we'll get 49 because of the equivalence between strings and numbers. The reason for this is that 49 is more concrete than 'f "48"'. There's a bigger philosophical
-problem with what's going on here, though, and that's that the order of function application is generally well-defined from inside to outside (unless you're in Haskell). What is the order of
-evaluation in Havoc?
-
-The answer is that it's whatever satisfies the programmer's constraints. These constraints are specified using the 'wh' operator (short for 'where'), which is also written '⋅'. This operator
-reduces the set of possible behaviors of a construct by specifying a local invariant.
-
-Complex patterns.
-The patterns in the example above are fairly trivial, but patterns in general don't have to be. Here's a case where you can use Havoc to solve simple equations:
-
-| op x y = op y x ∀ op ∈ {(+), (*)}                                                     / Commutativity
-  op x (op y z) = op (op x y) z ∀ op ∈ {(+), (*)}                                       / Associativity
-  x * (y + z) = x * y + x * z                                                           / Distributivity
-  x - (y - z) = x - y + z                                                               / Help with negation
-  x + 0 = x                                                                             / Additive identity
-  x * 1 = x                                                                             / Multiplicative identity
-  x ^ number n = x * x ^ (number n - 1)                                                 / Definition of exponentiation
-  x ^ 1 = x
-  x ^ 0 = 1
-  (x = y) = (x - y = 0)                                                                 / Identity of addition
-  (a * x ^ 2 + b * x + c = 0) = (x = (0 - b + sqrt (b ^ 2 + 4 * a * c)) / 2 * a or      / Quadratic formula
-                                 x = (0 - b - sqrt (b ^ 2 + 4 * a * c)) / 2 * a)
-
-Havoc already gives you enough to make = into a mathematical equivalence relation:
-
-| x = x                                                                                 / Reflexivity of =, already assumed by Havoc
-  (x = y) = (y = x)                                                                     / Symmetry of =, already assumed by Havoc
-  (x = y and y = z) → (x = z)                                                           / Transitivity of =, already assumed by Havoc
-
-At this point you can constrain the value of 'z' by doing this:
-
-| 5 * z ^ 2 - 10 * z = 400
-
-Havoc will rewrite the equation to subtract 400 from both sides, then use the quadratic formula to end up with two possibilities from which to proceed. If you further constrain the value of z,
-then possibilities will be eliminated. Even more interesting is what happens when you do something like this:
-
-| 5 * (z + 1) ^ 2 - 10 * z = 400
-
-Havoc can use the distributive property in reverse (with your suggestion; the compiler would take forever to figure this out on its own) to construct these intermediate equations:
-
-| 5 * (z + 1) ^ 2 - (10 * z + 10 * 1 - 10 * 1) = 400
-  5 * (z + 1) ^ 2 - (10 * (z + 1) - 10) = 400
-  5 * (z + 1) ^ 2 - 10 * (z + 1) + 10 = 400
-  5 * (z + 1) ^ 2 - 10 * (z + 1) - 390 = 0              / Quadratic formula can happen here
-
-The important things about complex patterns are:
-
-| 1. You can do algebraic unification by reusing a variable, as we did above with the quadratic formula.
-  2. Patterns on each side of an equality can be arbitrarily complex.
-
-__
-meta::havoc('definition-vs-observation', <<'__');
-Definition vs. observation.
-It isn't possible for Havoc to differentiate between you making these statements:
-
-| 1. Within this scope, define f x to be x + 1 for all x.
-  2. Within this scope, choose f such that f x is x + 1 for all x.
-
-The difference between these two is subtle. The first allows Havoc to create a new function that augments the original definition, causing further ambiguity. The second requires Havoc to
-disambiguate the existing global function, failing with a compile-time error if this is not possible.
-
-As such, there are two separate operators, the definition equivalence (written =), and the observation equivalence, written ==. These two can be converted by using this abstraction:
-
-| observe (x = y) = (x == y) ∀ x and y
-  define (x == y) = (x = y) ∀ x and y
-
-__
-meta::havoc('notational-abstraction', <<'__');
-Notational abstraction.
-Havoc tries to let you eliminate all kinds of repetition, so it establishes the rule that any value can be used as soon as it is known. This, combined with universal abstraction, makes it so
-that you can factor anything that isn't fundamental syntax into a rewrite rule of some sort.
-
-__
-meta::havoc('operators', <<'__');
-Introduction.
-Havoc has customizable operator precedence, but not in the usual way. Operator precedence initially is well-defined, but because of the nature of rewriting expressions you have the ability to
-change how expressions are interpreted. The precedence and associativity of each operator are determined by its last character. Here is a table of characters, going from highest to lowest
-precedence:
-
-| (application)  left   f x                     <- function application is the only instance of this operator
-  ^              right  2 ^ 3
-  * / %          left   2 * 3
-  + -            left   2 - 3
-  :              right  2 : []
-  &              left   2 & 3
-  |              left   2 | 3
-  ∩              left   xs ∩ ys
-  ∪              left   xs ∪ ys
-  ∈ ∋            left   x ∈ xs
-  ⊂ ⊃            left   x ⊂ y
-  $              right  f $ x y
-  → ↦            right  x > 0 → y
-  ← ↤            left   y ← x > 0
-  (vertical)     top                            <- vertical joins, such as | f x = x + 1 ← x > 0
-  < > = ≠        right  2 < 3                                              |       x - 1 ↤
-  ≡              right  x ≡ y
-  ¬              right  ¬ x
-  ∧              left   x ∧ y
-  ∨              left   x ∨ y
-  ∃              left   x ∃ y
-  ∀              left   x ∀ y
-  ⋅              right  x ⋅ y
-
-Modifying operator precedence.
-It's very easy to modify operator precedence for specific kinds of expressions. For example, suppose you find yourself writing (x + y) * z very frequently and want a variant plus operator with
-much higher precedence. You can write this:
-
-| x .+ y * z = (x + y) * z ∀ x, y, ∧ z          <- Oxford comma is required for disambiguation
-
-Now the .+ operator has higher precedence than multiplication because it will be rewritten to group first, though only when used on the left. To fully generalize this pattern, you'd want to do
-something like this:
-
-| high-precedence op =  op x (mop y z) = mop (op x y) z ∧  ∀ mop ∈ ((*), (/), (%)), x, y, ∧ z ∀ op
-                        op (mop x y) z = mop x (op y z)
-  high-precedence (.+)
-
-__
-meta::havoc('optimization', <<'__');
-Introduction.
-It is acceptable for your equations to leave things unspecified. In particular, suppose you're writing the factorial function recursively and specify that multiplication is associative (which
-it is):
-
-| fact n = n * fact (n - 1) ← n > 0  ∀ n        / Definition of factorial
-           1                ↤
-  x * (y * z) = (x * y) * z ∀ x, y, and z       / Definition of associativity
-
-There are two ways for Havoc to evaluate an expansion of factorial:
-
-| fact 5 = 5 * fact (4)                         / This is the expansion process; you wouldn't write this
-         = 5 * (4 * fact (3))
-         = 5 * (4 * (3 * fact (2)))
-         = 5 * (4 * (3 * (2 * fact (1))))
-         = 5 * (4 * (3 * (2 * (1 * fact (0)))))
-         = 5 * (4 * (3 * (2 * (1 * 1))))
-         = 5 * (4 * (3 * (2 * 1)))
-         = 5 * (4 * (3 * 2))
-         = 5 * (4 * 6)
-         = 5 * 24
-         = 120
-
-The other way involves using associativity to create a constant-space expansion:
-
-| fact 5 = 5 * fact (4)
-         = 5 * (4 * fact (3))
-         = (5 * 4) * fact (3)
-         =      20 * fact (3)
-         =      20 * (3 * fact (2))
-         =      (20 * 3) * fact (2)
-         =            60 * fact (2)
-         =            60 * (2 * fact (1))
-         =            (60 * 2) * fact (1)
-         =                 120 * fact (1)
-         =                 120 * (1 * fact (0))
-         =                 (120 * 1) * fact (0)
-         =                       120 * fact (0)
-         =                       120 * 1
-         =                       120
-
-When presented with both options, Havoc implementations should choose the second because it is more space-efficient and more performant.
-
-__
-meta::havoc('quotation-ambiguity', <<'__');
-Quotation ambiguity.
-This is ultimately the problem that Gnarly faced, and I wonder whether this language has the same one. Consider an equation like this:
-
-| f conditions = x ⋅ conditions ∀ conditions
-
-Here, the role of 'conditions' is to serve as a custom right-hand side for ∀. This follows because we've quantified it; therefore it has no value otherwise. Therefore, any quotation ambiguity
-is resolved by quantification; all quantified things are variables, and all unquantified things are literals. What about captured variables?
-
-| f conditions = map g ⋅ g x = _ x ∀ x and  ∀ conditions
-                         conditions
-
-This also works. We expect 'conditions' to be a variable, and we expand all instances of it, while leaving other things static. The only difficulty here is determining whether 'conditions'
-impacts the way that 'g' is defined -- that is, whether Havoc can use transitivity to optimize away g's right-hand side.
-
-__
-meta::havoc('quoting', <<'__');
-Introduction.
-Explicit quoting is generally unnecessary in Havoc. The reason for this is that each operator has its own quoting semantics. Here are some examples, where implicitly-quoted variables are
-written with explicit quotes:
-
-| f x y = x + y ∀ x and y                               / Becomes: 'f x y = x + y ∀ 'x and 'y
-  fib n = n                         ← n < 2  ∀ n        / Becomes: 'fib n = n                           ← n < 2  ∀ 'n
-          fib (n - 1) + fib (n - 2) ↤                   / Becomes:          'fib (n - 1) + 'fib (n - 2) ↤
-
-__
-meta::havoc('redefining-primitives', <<'__');
-Introduction.
-Don't do this. Don't do any of it. Everything mentioned here will break Havoc in significant ways, and your programs will either fail to do what you want or will cause Havoc's compiler to
-infinite-loop.
-
-Redefining equality.
-The = operator is first-class, so you can create alternatives for it. For example:
-
-| (x = y) = (x + 1 = y + 1) ∀ x and y
-
-This causes Havoc to add one to each side of an equation. The trouble is that Havoc will do this indefinitely because it has no reason to stop. Worse, it may recognize the divergent nature of
-'=' and assign arbitrary values to your equations. So don't do this.
-
-If you want to create alternative equality relations, you can define custom operators that end in =. For example:
-
-| (x == y) = (x + 1 = y + 1) ∀ x and y
-
-This will do what you want. == has the same precedence and associativity as =, since they both end with the same thing. However, there is now no ambiguity about the meaning of =; this still
-unambiguously refers to Havoc's = primitive.
-
-Redefining quantifiers.
-This is another thing you can do but shouldn't:
-
-| (x ∀ y) = (x + 1 ∀ y) ∀ x and y
-
-Like before, this will loop indefinitely or assign arbitrary values to quantified expressions. You can create your own quantifiers, however, by ending an operator with ∀ or ∃:
-
-| (x +1∀ y) = (x + 1 ∀ y) ∀ x and y
-
-Redefining scoping.
-Finally, you can redefine the scoping operator at your peril:
-
-| (x ⋅ y) = (x + 1 ⋅ y) ∀ x and y
-
-If you want to do it safely:
-
-| (x +1⋅ y) = (x + 1 ⋅ y) ∀ x and y
-
-__
-meta::havoc('scoping', <<'__');
-Introduction.
-You can imagine the problem that would arise if all equivalences lived at the toplevel. You'd write something that made local sense, like 'x = x + 0', and notice that all of your strings had
-"0" appended to them (or something similarly inconvenient). To fix this, Havoc has scoping operators that limit the visibility of some equations.
-
-A scoping operation is generally of the form 'equation wh equations' (here 'wh' is short for 'where'). For example:
-
-| integrate (x ^ n) dx = factor * x ^ (n + 1) + C wh factor = 1.0 / (n + 1)
-
-If you have Unicode enabled, you can write it even more concisely by replacing 'wh' with '⋅', as in 'x = y ⋅ y = 10'. ⋅ and wh behave exactly the same way and have equal precedence.
-
-In addition to introducing new equivalences, 'wh' lets you restrict when your equivalence is valid. For example, here's a more correct definition of the integrate function above:
-
-| integrate (x ^ n /integer) dx = factor * x ^ (n + 1) + C wh ¬ n < 0 and factor = 1.0 / (n + 1)
-
-This definition both requires that n be an integer in order for the match to happen, and it further requires that n is nonnegative. The statement '¬ n < 0' is called a forcing expression, and
-it is covered in more detail in forcing-expressions.havoc.
-
-Implementation of scoping.
-Scoping cannot be a first-class idea as far as I know. This is obvious from a theoretical point of view; it isn't first-class even in the lambda calculus. So the language itself implements
-scoping, and this happens in a predefined way.
-
-__
-meta::havoc('scoping/caveat-scope-vulnerability', <<'__');
-Scope vulnerability.
-In most lexically-scoped languages, local variables shadow global ones. In Havoc, however, local rewrites augment global ones, and this can cause some problems. For example:
-
-| f x = 10 ∀ x
-  g xs = map (_ x = f x ∀ x) xs ⋅ f x = x + 1 ∀ x
-
-What is the second line doing? There are two possibilities. One is that the local 'f' is unambiguous and shadowing the global 'f'. This is a fairly sensible thing for Havoc to do. The other
-possibility, however, is more interesting: f x = x + 1 ∀ x is in fact some kind of rewriting rule that should constrain the global 'f'. Upon observing that the global 'f' doesn't behave this
-way, Havoc can conclude that your program contains a contradiction and fail at compile-time.
-
-Gensym masking.
-To fix this, Havoc introduces gensym masking. If you prepend a variable with ∃, it and all references to it will be transformed with a gensym within its outermost scope. For example:
-
-| f x = 10 ∀ x
-  g xs = map (_ x = f x ∀ x) xs ⋅ ∃f x = x + 1 ∀ x
-
-The 'f' inside the map function body refers to the rewritten gensym.
-
-__
-meta::havoc('transitivity-of-ambiguity', <<'__');
-Transitivity of ambiguity.
-Ambiguity propagates upwards. For example:
-
-| f x = x + 1 ∀ x               The + is ambiguous here, since it is overloaded; therefore this single definition of f is ambiguous.
-  f x = x + 2 ∀ x               This one is also ambiguous.
-  g x = f x ∀ x ⋅ f 5 == 6      Resolves ambiguity in f and also happens to disambiguate +.
-
-__
-meta::havoc('unquantified-relations', <<'__');
-Introduction.
-Haskell programmers get a nice notational advantage by not having to quantify the arguments to their functions. The reason this works is that the left-hand side of each equation has only a few
-forms, and each of these forms has well-defined quantification semantics. Haskell also has the limitation that each equation specifies the behavior of exactly one element, and no equation
-produces another equation. Havoc lacks these limitations and requires more specification.
-
-Generally speaking, strange things happen if you omit quantifiers on equations. For example:
-
-| fact n = n * fact (n - 1) ← n > 0
-           1                ↤
-
-This is the mathematical definition of factorial, but it will not behave as you expect. In particular, using it later on will most likely fail because the left-hand side of the equation won't
-match. Here's an example:
-
-| print $ fact 5                / <- prints 'fact 5' because 5 can't be unified to 'n'
-
-Hopefully what's going on makes some degree of sense; the original equation exposes the name 'n' as well as the name 'fact', and it considers each of these to be equally important. Put
-differently, here's the quotation in the original factorial definition:
-
-| 'fact 'n = 'n * 'fact ('n - 1) ← 'n > 0
-             1                   ↤
-
-The reason Havoc won't fix this for you is that you might very well want to write something like this at some point. For instance, suppose you want to have Havoc simplify trigonometric terms
-for optimization purposes. Then this is an equation you might want to have:
-
-| (sin x) ^ 2 + (cos x) ^ 2 = 1 ∀ x
-
-Doing this allows Havoc to rewrite things rather than computing the actual sine and cosine in situations where only the sum of squares is needed.
-
-__
-meta::hook('before-shell::ad-havoc', <<'__');
+meta::hook('before-shell::context', <<'__');
 ad('^havoc');
 
 __
@@ -1603,19 +1263,12 @@ meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
 meta::parent('../havoc', <<'__');
-parent::/home/spencertipping/bin/preprocessor              09a56657d0fde76fcf3fa664d2c6b4ca
+parent::/home/spencertipping/bin/preprocessor              7172206e753310217b5f67ac8366c8bf
 parent::/home/spencertipping/conjectures/havoc/havoc-core  8ce5b3902f9001d34d072e9f50ae97bf
-parent::git-integration                                    1df9628e0bc752070022cd85f579b118
+parent::git-integration                                    bf542a410bc752070022cd85f579b118
 parent::havoc-core                                         5fb4928afae7b050a65c9ea9aacef6c0
-parent::repository                                         5b2a3158563910cc089b10ca719b56f5
-parent::todo                                               56c4f422f182f006e760fdd2b75bf4a2
-
-__
-meta::parent('../havoc-core', <<'__');
-meta::type::havoc                        1d2579f377ff02d75631ec989241c0bc
-parent::/home/spencertipping/bin/object  ec7af576e2ae8e42248b7458f0502253
-parent::vim-highlighters                 1f933c20697efa693fe0e0e6257df086
-vim_highlighter::havoc                   d33a3ee05d5cc42101a0885de5ccf2ce
+parent::repository                                         c9d4572a563910ccc4e3defd9fa638f8
+parent::todo                                               cae177f8f182f006379c9c67b476076d
 
 __
 meta::parent('./sdoc', <<'__');
