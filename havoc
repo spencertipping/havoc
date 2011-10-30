@@ -1328,10 +1328,14 @@ these toplevel expressions.
 
 package havoc;
 
+use Storable qw(thaw nfreeze);
+
+sub thaw {my ($frozen) = @_; thaw(join '', unpack 'u*', $frozen)}
+
 sub define_node {
   my ($name, %methods) = @_;
   @{"::havoc::${name}::ISA"} = 'havoc::node';
-  ${"::havoc::${name}::$_"} = $methods{$_} for keys %methods}
+  *{"::havoc::${name}::$_"} = $methods{$_} for keys %methods}
 
 Generic tree structure.
 Havoc's editor uses a binary tree structure to represent expressions, and it uses a flat n-ary array to represent each module.
@@ -1357,6 +1361,8 @@ As such, a module is really a list of documentation paragraphs and toplevel expr
 
 package havoc::module;
 
+sub freeze {my ($self) = @_; pack 'u*', havoc::nfreeze($self)}
+
 sub new {my ($class, @elements) = @_; bless [@elements], $class}
 
 sub transform {my ($self, $f)  = @_; bless [&$f(@$self)], ref $self}
@@ -1371,6 +1377,25 @@ Documentation.
 This is fairly straightforward. Documentation doesn't have much structure beyond just being text. SDoc provides the processing required to turn it into something useful.
 
 havoc::define_node 'documentation';
+
+Symbols.
+Havoc makes liberal use of symbols both in variable and in constant contexts. As such, there are two different kinds of symbols: one for literal, or quoted, values, and one for variables.
+
+havoc::define_node 'variable', s => sub {my ($self) = @_; "⋅$self->{data}"};
+havoc::define_node 'literal';
+
+Equations and quantifiers.
+These are closely related. Each equation is quantified over some set of variables.
+
+__
+meta::slibrary('havoc::zipper', <<'__');
+Zippers for editing | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+An edit session involves manipulating a cursor that changes tree nodes around it. There are a few differences between Havoc's editor and most text editors, however. First, zippers make
+coherent edits; that is, at no point will a zipper produce a program that is syntactically invalid. Second, zippers consider identifiers to be link points, not text; that is, editing one
+identifier will cause all linked copies to change with it.
 
 __
 internal::main();
