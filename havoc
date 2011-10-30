@@ -1334,14 +1334,13 @@ sub define_node {
   ${"::havoc::${name}::$_"} = $methods{$_} for keys %methods}
 
 Generic tree structure.
-Havoc's editor uses a binary tree structure to represent expressions, and it uses 
+Havoc's editor uses a binary tree structure to represent expressions, and it uses a flat n-ary array to represent each module.
 
 package havoc::node;
 
 sub promote {my ($x) = @_; ref $x eq ref '' ? havoc::node->new($x) : $x}
 
-sub new   {my ($class, $data, @children) = @_; bless {data => $data, children => [map promote($_), @children]}, $class}
-sub child {my ($self, $data, @children) = @_; my $result = ref($self)->new($data, @children); $result->{parent} = $self; $self->push($result); $result}
+sub new {my ($class, $data, @children) = @_; bless {data => $data, children => [map promote($_), @children]}, $class}
 
 sub with_data     {my ($self, $data)     = @_; bless {data => $data,         children => $self->{children}}, ref $self}
 sub with_children {my ($self, @children) = @_; bless {data => $self->{data}, children => \@children},        ref $self}
@@ -1350,7 +1349,7 @@ sub push          {my ($self, @xs)       = @_; push @{$self->{children}}, map pr
 sub map           {my ($self, $f)        = @_; my @xs = map &$f($_), @{$self->{children}}; $self->with_children(@xs)}
 sub rmap          {my ($self, $f)        = @_; my $y = &$f($self); $y eq $self ? $self->map(sub {$_[0]->rmap($f)}) : $y}
 
-sub s             {my ($self)            = @_; "($self->{data}" . map(" $_->s", @{$self->{children}}) . ")"}
+sub s             {my ($self)            = @_; "($self->{data}" . join('', map " " . $_->s, @{$self->{children}}) . ")"}
 
 Module definition.
 A module, as mentioned before, is a list of toplevel expressions. This isn't quite the whole picture, though. Modules also contain documentation that serves to conceptually linearize the code.
@@ -1367,6 +1366,11 @@ sub map       {my ($self, $f)  = @_; bless [map &$f($_), @$self], ref $self}
 sub rmap      {my ($self, $f)  = @_; bless [map $_->map(sub {$_[0]->rmap($f)}), @$self], ref $self}
 
 sub s         {my ($self)      = @_; join "\n", map $_->s, @$self}
+
+Documentation.
+This is fairly straightforward. Documentation doesn't have much structure beyond just being text. SDoc provides the processing required to turn it into something useful.
+
+havoc::define_node 'documentation';
 
 __
 internal::main();
