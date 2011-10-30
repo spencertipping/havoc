@@ -1317,6 +1317,47 @@ meta::retriever('sdocp', <<'__');
 my $attribute = attribute($_[0]);
 exists $data{"sdoc::$attribute"} ? sdocp("sdoc::$attribute") : undef;
 __
+meta::slibrary('havoc::interpreter', <<'__');
+Havoc graph rewriting interpreter | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module adds rewriting methods to Havoc's core data structures.
+
+package havoc;
+
+Pattern matching.
+This method attempts to match a pattern (the receiver) against an instance of that pattern (the argument). If a match is found, then the method returns a hash reference that maps each variable
+to its binding. This hash may be empty if the pattern has no variables. If a match is not found, then the method returns 0.
+
+sub havoc::node::match {
+  my ($self, $specific, $result) = @_;
+  $result ||= {};
+  $result->{$self->{data}} = $specific and return $result if ref $self eq ::havoc::variable;
+
+  return 0 unless $self->{data} eq $specific->{data} && $self->arity == $specific->arity;
+
+  $self->at($_)->match($specific->at($_), $result) or return 0 for 0 .. $self->arity - 1;
+  return $result}
+
+Replacement.
+This is the opposite of pattern matching; given a pattern of some sort, this method will replace variables with nodes.
+
+sub havoc::node::replace {
+  my ($self, $variables) = @_;
+  my %variables = %$variables;
+
+  $self->rmap(sub {ref $_[0] eq havoc::variable && exists $variables{$_[0]->{data}} ? $variables{$_[0]->{data}} : $_[0]})}
+
+Equation rewriting.
+Each equation has the ability to rewrite a value. This method rewrites matching values and leaves non-matching values untransformed.
+
+sub havoc::equation::rewrite {
+  my ($self, $v) = @_;
+  my $match = $self->lhs->match($v) or return $v;
+  $self->rhs->replace($match)}
+
+__
 meta::slibrary('havoc::model', <<'__');
 Havoc data model | Spencer Tipping
 Licensed under the terms of the MIT source code license
@@ -1334,7 +1375,7 @@ sub thaw {my ($frozen) = @_; thaw(join '', unpack 'u*', $frozen)}
 
 sub define_node {
   my ($name, %methods) = @_;
-  @{"::havoc::${name}::ISA"} = 'havoc::node';
+  @{"::havoc::${name}::ISA"} = '::havoc::node';
   *{"::havoc::${name}::$_"} = $methods{$_} for keys %methods}
 
 Generic tree structure.
@@ -1346,6 +1387,8 @@ sub promote {my ($x) = @_; ref $x eq ref '' ? havoc::node->new($x) : $x}
 
 sub new {my ($class, $data, @children) = @_; bless {data => $data, children => [map promote($_), @children]}, $class}
 
+sub at            {my ($self, $i)        = @_; ${$self->{children}}[$i]}
+sub arity         {my ($self)            = @_; scalar @{$self->{children}}}
 sub with_data     {my ($self, $data)     = @_; bless {data => $data,         children => $self->{children}}, ref $self}
 sub with_children {my ($self, @children) = @_; bless {data => $self->{data}, children => \@children},        ref $self}
 sub push          {my ($self, @xs)       = @_; push @{$self->{children}}, map promote($_), @xs; $self}
@@ -1382,10 +1425,20 @@ Symbols.
 Havoc makes liberal use of symbols both in variable and in constant contexts. As such, there are two different kinds of symbols: one for literal, or quoted, values, and one for variables.
 
 havoc::define_node 'variable', s => sub {my ($self) = @_; "⋅$self->{data}"};
-havoc::define_node 'literal';
+havoc::define_node 'literal',  s => sub {$_[0]->{data}};
 
-Equations and quantifiers.
-These are closely related. Each equation is quantified over some set of variables.
+havoc::define_node 'equation',
+  new => sub {my ($class, $lhs, $rhs) = @_; bless {data => '=', children => [$lhs, $rhs]}, $class},
+  lhs => sub {${$_[0]->{children}}[0]},
+  rhs => sub {${$_[0]->{children}}[1]};
+
+Scoping.
+Scoping adds local equivalences to an equation.
+
+havoc::define_node 'scope',
+  new          => sub {my ($class, $body, @equivalences) = @_; bless {data => '⋅', children => [$body, @equivalences]}, $class},
+  body         => sub {${$_[0]->{children}}[0]},
+  equivalences => sub {my @children = @{$_[0]->{children}}; @children[1 .. $#children]};
 
 __
 meta::slibrary('havoc::zipper', <<'__');
