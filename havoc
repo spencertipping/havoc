@@ -443,6 +443,14 @@ unless ($$options{'-C'}) {
 table_display([@m_attributes], [@m_line_numbers], [@m_lines]);
 __
 meta::function('hash', 'fast_hash(@_);');
+meta::function('havoc-repl', <<'__');
+# ASCII-protocol Havoc REPL interface
+shell::repl(
+  parse   => sub {havoc->read(@_)},
+  command => sub {print STDERR "\033[1;32mresult\033[1;30m :: \033[1;34m" . $_[0]->write, "\n"},
+  prompt  => sub {"\033[1;32m" . ::name() . "\033[1;30m >> \033[0;0m"});
+
+__
 meta::function('hook', <<'__');
 my ($hook, @args) = @_;
 $transient{active_hooks}{$hook} = 1;
@@ -1375,15 +1383,15 @@ sub havoc::read {
   sub parse {
     my ($parent, $tokens) = @_;
     my $t = shift @$tokens or return $parent;
-    return $parent                                                   if $t =~ /^\)/;
-    return parse(new_node(substr($t, 1), $parent, $tokens), $tokens) if $t =~ /^\(/;
+    return $parent                                                               if $t =~ /^\)/;
+    return parse(new_node("havoc::" . substr($t, 1), $parent, $tokens), $tokens) if $t =~ /^\(/;
     die "unreachable: $t"}
 
-  parse(havoc::node->new, [grep /\S/, split /(\(havoc::\w+|\)|\h)/, $s])->at(0)}
+  parse(havoc::node->new, [grep /\S/, split /(\(\w+|\)|\s+)/, $s])->at(0)}
 
 sub havoc::node::write {
   my ($self) = @_;
-  "(" . ref($self) . " $self->{data}" . join('', map " " . $_->write, @{$self->{children}}) . ")"}
+  "(" . substr(ref($self), 7) . " $self->{data}" . join('', map " " . $_->write, @{$self->{children}}) . ")"}
 
 __
 meta::slibrary('havoc::model', <<'__');
@@ -1400,7 +1408,7 @@ package havoc;
 sub define_node {
   my ($name, %methods) = @_;
   @{"havoc::${name}::ISA"} = 'havoc::node';
-  *{"havoc::${name}::$_"} = $methods{$_} for keys %methods}
+  *{"havoc::${name}::$_"}  = $methods{$_} for keys %methods}
 
 Generic tree structure.
 Havoc's editor uses a binary tree structure to represent expressions, and it uses a flat n-ary array to represent each module.
