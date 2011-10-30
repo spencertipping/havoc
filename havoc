@@ -443,13 +443,6 @@ unless ($$options{'-C'}) {
 table_display([@m_attributes], [@m_line_numbers], [@m_lines]);
 __
 meta::function('hash', 'fast_hash(@_);');
-meta::function('havoc', <<'__');
-# Creates a new Havoc module.
-my ($name) = @_;
-touch("havoc::$name");
-havoc_editor("havoc::$name");
-
-__
 meta::function('hook', <<'__');
 my ($hook, @args) = @_;
 $transient{active_hooks}{$hook} = 1;
@@ -1324,8 +1317,6 @@ Licensed under the terms of the MIT source code license
 Introduction.
 This module adds rewriting methods to Havoc's core data structures.
 
-package havoc;
-
 Pattern matching.
 This method attempts to match a pattern (the receiver) against an instance of that pattern (the argument). If a match is found, then the method returns a hash reference that maps each variable
 to its binding. This hash may be empty if the pattern has no variables. If a match is not found, then the method returns 0.
@@ -1352,10 +1343,47 @@ sub havoc::node::replace {
 Equation rewriting.
 Each equation has the ability to rewrite a value. This method rewrites matching values and leaves non-matching values untransformed.
 
+sub havoc::scope::rewrite {
+  my ($self, $v) = @_;
+  $self->each(sub {$v = $_[0]->rewrite($v)})}
+
 sub havoc::equation::rewrite {
   my ($self, $v) = @_;
   my $match = $self->lhs->match($v) or return $v;
   $self->rhs->replace($match)}
+
+__
+meta::slibrary('havoc::io', <<'__');
+Input/output of Havoc programs | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This is a trivial ASCII layer for Havoc programs. You wouldn't normally use this to edit code because Havoc removes all redundant whitespace and otherwise mangles it. But it is useful for
+debugging as well as storing code inside self-modifying Perl.
+
+ASCII format.
+Havoc is written into S-expressions, much like Lisp. The only real difference is that each S-expression is prefixed with its node type as a qualified Perl package name.
+
+sub havoc::read {
+  my ($class, $s) = @_;
+
+  sub new_node {
+    my ($class, $parent, $tokens) = @_;
+    my $node = $class->new(shift @$tokens);
+    $parent->push(parse($node, $tokens))}
+
+  sub parse {
+    my ($parent, $tokens) = @_;
+    my $t = shift @$tokens or return $parent;
+    return $parent                                                   if $t =~ /^\)/;
+    return parse(new_node(substr($t, 1), $parent, $tokens), $tokens) if $t =~ /^\(/;
+    die "unreachable: $t"}
+
+  parse(havoc::node->new, [grep /\S/, split /(\(havoc::\w+|\)|\h)/, $s])->at(0)}
+
+sub havoc::node::write {
+  my ($self) = @_;
+  "(" . ref($self) . " $self->{data}" . join('', map " " . $_->write, @{$self->{children}}) . ")"}
 
 __
 meta::slibrary('havoc::model', <<'__');
@@ -1369,14 +1397,10 @@ these toplevel expressions.
 
 package havoc;
 
-use Storable qw(thaw nfreeze);
-
-sub thaw {my ($frozen) = @_; thaw(join '', unpack 'u*', $frozen)}
-
 sub define_node {
   my ($name, %methods) = @_;
-  @{"::havoc::${name}::ISA"} = '::havoc::node';
-  *{"::havoc::${name}::$_"} = $methods{$_} for keys %methods}
+  @{"havoc::${name}::ISA"} = 'havoc::node';
+  *{"havoc::${name}::$_"} = $methods{$_} for keys %methods}
 
 Generic tree structure.
 Havoc's editor uses a binary tree structure to represent expressions, and it uses a flat n-ary array to represent each module.
@@ -1393,33 +1417,9 @@ sub with_data     {my ($self, $data)     = @_; bless {data => $data,         chi
 sub with_children {my ($self, @children) = @_; bless {data => $self->{data}, children => \@children},        ref $self}
 sub push          {my ($self, @xs)       = @_; push @{$self->{children}}, map promote($_), @xs; $self}
 
+sub each          {my ($self, $f)        = @_; &$f($_) for @{$self->{children}}; $self}
 sub map           {my ($self, $f)        = @_; my @xs = map &$f($_), @{$self->{children}}; $self->with_children(@xs)}
 sub rmap          {my ($self, $f)        = @_; my $y = &$f($self); $y eq $self ? $self->map(sub {$_[0]->rmap($f)}) : $y}
-
-sub s             {my ($self)            = @_; "($self->{data}" . join('', map " " . $_->s, @{$self->{children}}) . ")"}
-
-Module definition.
-A module, as mentioned before, is a list of toplevel expressions. This isn't quite the whole picture, though. Modules also contain documentation that serves to conceptually linearize the code.
-As such, a module is really a list of documentation paragraphs and toplevel expressions.
-
-package havoc::module;
-
-sub freeze {my ($self) = @_; pack 'u*', havoc::nfreeze($self)}
-
-sub new {my ($class, @elements) = @_; bless [@elements], $class}
-
-sub transform {my ($self, $f)  = @_; bless [&$f(@$self)], ref $self}
-
-sub push      {my ($self, @xs) = @_; push @$self, map havoc::node::promote($_), @xs; $self}
-sub map       {my ($self, $f)  = @_; bless [map &$f($_), @$self], ref $self}
-sub rmap      {my ($self, $f)  = @_; bless [map $_->map(sub {$_[0]->rmap($f)}), @$self], ref $self}
-
-sub s         {my ($self)      = @_; join "\n", map $_->s, @$self}
-
-Documentation.
-This is fairly straightforward. Documentation doesn't have much structure beyond just being text. SDoc provides the processing required to turn it into something useful.
-
-havoc::define_node 'documentation';
 
 Symbols.
 Havoc makes liberal use of symbols both in variable and in constant contexts. As such, there are two different kinds of symbols: one for literal, or quoted, values, and one for variables.
@@ -1428,27 +1428,15 @@ havoc::define_node 'variable', s => sub {my ($self) = @_; "⋅$self->{data}"};
 havoc::define_node 'literal',  s => sub {$_[0]->{data}};
 
 havoc::define_node 'equation',
-  new => sub {my ($class, $lhs, $rhs) = @_; bless {data => '=', children => [$lhs, $rhs]}, $class},
-  lhs => sub {${$_[0]->{children}}[0]},
-  rhs => sub {${$_[0]->{children}}[1]};
+  new => sub {my ($class, $lhs, $rhs, $scope) = @_; bless {data => '=', children => [$lhs, $rhs, $scope]}, $class},
+  lhs => sub {$self->at(0)}, rhs => sub {$self->at(1)}, scope => sub {$self->at(2)};
 
 Scoping.
 Scoping adds local equivalences to an equation.
 
 havoc::define_node 'scope',
-  new          => sub {my ($class, $body, @equivalences) = @_; bless {data => '⋅', children => [$body, @equivalences]}, $class},
-  body         => sub {${$_[0]->{children}}[0]},
-  equivalences => sub {my @children = @{$_[0]->{children}}; @children[1 .. $#children]};
-
-__
-meta::slibrary('havoc::zipper', <<'__');
-Zippers for editing | Spencer Tipping
-Licensed under the terms of the MIT source code license
-
-Introduction.
-An edit session involves manipulating a cursor that changes tree nodes around it. There are a few differences between Havoc's editor and most text editors, however. First, zippers make
-coherent edits; that is, at no point will a zipper produce a program that is syntactically invalid. Second, zippers consider identifiers to be link points, not text; that is, editing one
-identifier will cause all linked copies to change with it.
+  new          => sub {my ($class, @equivalences) = @_; bless {data => 'where', children => \@equivalences}, $class},
+  equivalences => sub {@{$self->{children}}};
 
 __
 internal::main();
