@@ -48,12 +48,3 @@ Suppose we have these three equations:
   x * x + 1 = c ∀ x
 
 Havoc needs to realize that if f and g are applied in the right order, the third equation's left-hand side will match. This is solvable provided that all rules are known at compile-time.
-
-Recursive inference rules.
-Let's suppose we add some compile-time inference rule such as '(x = y) = (x + 1 = y + 1) ∀ x and y'. This is a problem because this rule is triggered for every single equation and is
-divergent, yet it represents a valid logical conclusion and could be useful. I'm not sufficiently imaginative to figure out how to make this work, so I'm compromising by adding a tag to the
-equation to prevent divergence:
-
-| 1+ (x = y) = (x + 1 = y + 1) ∀ x and y
-
-This makes it possible to direct Havoc's equation expander and thus indirectly work with recursive inference rules.
