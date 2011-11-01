@@ -1,0 +1,10 @@
+Havoc intrinsic rewrites | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc is tied down to reality by some intrinsic rewriting rules that ship with each compiler backend. These are polymorphic and are compiled into monomorphic operations at compile-time. For
+example, the expression '3 * 4' is internally represented as 'int64 3 * int64 4', which matches a rewrite rule that produces 'int64 12'. Thus each literal node is annotated with a type tag
+that wraps its data, which is considered to be opaque.
+
+Numeric rewrites.
+Havoc supports the usual set of arithmetic operators you'd find in a language like C or Java, and it contains rewrite rules that upcast through the numeric stack (coercion to floating-point).

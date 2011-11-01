@@ -1,0 +1,26 @@
+Dynamic typing | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+There are cases when types can't be fully erased. One of these cases is when you produce recursive structures of indefinite extent; linked lists are a good example of this. Nothing prevents
+you from constructing a heterogeneous linked list:
+
+| f n    = n ? cons (item n) (f $ n - 1) : nil ∀ n
+  item n = n % 2 ? "foo" : 4
+
+The resulting data structure will look like this:
+
+| cons "foo" $ cons 4 $ cons "foo" $ cons 4 $ ... nil
+
+Recursive case detection.
+Havoc evaluates as much as possible at compile-time, so any constant-sized linked list will be considered to be a unique type and will have its type erased. The only case where anything
+dynamic needs to happen is for functions such as 'f' above if 'n' is not known until runtime. To illustrate the difference:
+
+| f 4 ⇒ 4 ? cons (item 4) (f $ 3) : nil ⇒ cons (item 4) (f 3)                           Compile-time rewrite
+      ⇒ cons 4 (3 ? cons (item 3) (f 2) : nil ⇒ cons (item 3) (f 2)
+                ⇒ cons "foo" (2 ? cons (item 2) (f 1) : nil ⇒ cons (item 2) (f 1)
+                              ⇒ cons 4 (1 ? cons (item 1) (f 0) : nil ⇒ cons (item 1) (f 0)
+                                        ⇒ cons "foo" (0 ? cons (item 0) (f -1) : nil ⇒ nil))))
+      = cons 4 $ cons "foo" $ cons 4 $ cons "foo" $ nil                                 Compile-time result (a unique term)
+
+| kernel read-integer >>= (_ n = f n ∀ n)                                               Runtime rewrite (n is unknown, so the first ? cannot be evaluated)
