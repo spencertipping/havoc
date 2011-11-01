@@ -49,14 +49,11 @@ Suppose we have these three equations:
 
 Havoc needs to realize that if f and g are applied in the right order, the third equation's left-hand side will match. This is solvable provided that all rules are known at compile-time.
 
-Lazily expanding compile-time rules.
-Let's suppose we encode some inference rule such as 'foo x y = (x = y) ∀ x'. We now have to detect instances of 'foo x y' and rewrite them into 'x = y', which is not very difficult. More
-challenging is the situation in which an inference rule is recursive; e.g:
+Recursive inference rules.
+Let's suppose we add some compile-time inference rule such as '(x = y) = (x + 1 = y + 1) ∀ x and y'. This is a problem because this rule is triggered for every single equation and is
+divergent, yet it represents a valid logical conclusion and could be useful. I'm not sufficiently imaginative to figure out how to make this work, so I'm compromising by adding a tag to the
+equation to prevent divergence:
 
-| foo x = (bar x = foo x) ∀ x
+| 1+ (x = y) = (x + 1 = y + 1) ∀ x and y
 
-This is a problem because depending on the order of rewriting it might never halt. For example, if we eagerly rewrite the right-hand side:
-
-| foo x = (bar x = (bar x = (bar x = ...)))
-
-Therefore, equivalences must be traversed lazily and expanded only when a candidate value is found.
+This makes it possible to direct Havoc's equation expander and thus indirectly work with recursive inference rules.
