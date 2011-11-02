@@ -8,3 +8,15 @@ that wraps its data, which is considered to be opaque.
 
 Numeric rewrites.
 Havoc supports the usual set of arithmetic operators you'd find in a language like C or Java, and it contains rewrite rules that upcast through the numeric stack (coercion to floating-point).
+As such you can use standard arithmetic notation and everything will work about like you'd expect.
+
+Decisionals.
+You can make decisions about runtime values by using boolean conditions along with the ?: operator. I'll segue briefly to redeem myself as a functional programmer by saying that while ?: is
+taken from the C language family, it is a very concise and useful functional construct and behaves in a reasonably sane way with respect to operator precedence. Boolean conditions are an
+intrinsic property of numbers; zero is false, other things are true. Anything with a path that converts to a number can be used as a boolean; if you do this, it will be converted along this
+path.
+
+Forcing semantics of conditionals are:
+
+| force (a ? b : c) = force b ← force a is nonzero
+                      force c ← force a is zero
