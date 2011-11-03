@@ -23,4 +23,5 @@ dynamic needs to happen is for functions such as 'f' above if 'n' is not known u
                                         ⇒ cons "foo" (0 ? cons (item 0) (f -1) : nil ⇒ nil))))
       = cons 4 $ cons "foo" $ cons 4 $ cons "foo" $ nil                                 Compile-time result (a unique term)
 
-| kernel read-integer >>= (_ n = f n ∀ n)                                               Runtime rewrite (n is unknown, so the first ? cannot be evaluated)
+| kernel read-integer >>= (λ n $ f n)                                                   Runtime rewrite (n is unknown, so the first ? cannot be evaluated)
+                                                                                        See lambda-encoding.sdoc for details about how this works

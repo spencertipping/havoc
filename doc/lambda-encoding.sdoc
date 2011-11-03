@@ -1,0 +1,16 @@
+Lambda function encoding | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+A rewriting language is operation-based, not value-based. That is, you as the programmer specify things that influence how the program works rather than introducing specific values into the
+program. So how to encode an anonymous function as a value is not entirely obvious. As such, there's more than one way to do it.
+
+Binding _ was my first attempt, and the simplest thing I could think of. For instance:
+
+| map (_ x = x + 1 ∀ x) xs
+
+This is verbose and clunky, not to mention difficult to work with from inside functions that use these lambdas. Better is to use the standard-library λ rewrite, which does what you'd expect:
+
+| λ x y z = y ⋅ x = z ∀ x y z
+
+Now consumers of lambda functions can simply apply them, and you can simply write them naturally.
