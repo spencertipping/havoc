@@ -10,7 +10,7 @@ Better is to do a couple of things to constrain the value space. First, we know 
 of equality to find a reasonably complete set of possibilities. The trouble with this comes in when we have functions that involve fixed points, especially divergent ones. An example of a
 divergent fixed point is this improperly-written Fibonacci function:
 
-| fib n = fib (n - 1) + fib (n - 2) ∀ n                 / Divergent because there is no base case; fixed point because its expansion references its left-hand side
+| fib n = fib (n - 1) + fib (n - 2) ∀ n                 Divergent because there is no base case; fixed point because its expansion references its left-hand side
 
 Differentiating between shape and value.
 Equation patterns contain enough information to discriminate on the shape of a value, but not necessarily the runtime properties of that value. In this sense, equations are mappings between
@@ -26,8 +26,7 @@ Here, 'f' and 'g' refer to type signatures more than they do values; in particul
 
 This isn't always possible. For instance, suppose we define an equation that conditionally expands into one of two values:
 
-| misbehaving x = foo x ← x > 0 ∀ x
-                  bar x ↤
+| misbehaving x = x > 0 ? foo : bar $ x ∀ x
   main argv kernel = exit $ kernel print $ misbehaving $ kernel read-integer
 
 Either 'foo x' or 'bar x' will be printed, where 'x' is the integer read from stdin. However, we don't know which it will be. This matters when we have other equations that will either match
