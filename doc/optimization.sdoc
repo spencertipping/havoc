@@ -9,4 +9,5 @@ consider this program:
   cons n $ cons (n - 1) $ cons (n - 2) x = cons 10 x ∀ n x
 
 Havoc is not required to optimize this at compile-time, since doing this kind of thing in general would be very time-consuming -- O(n^k), in fact, where n is the number of equations you have
-and k is the number of compositions you want to explore. That said, you can inform Havoc that you want this to be optimized by working with the compiler shell directly.
+and k is the number of compositions you want to explore. For the example above, n >= 2 and k >= 3 in order to discover the shortcut in the definition of 'list'. That said, you can inform Havoc
+that you want a specific case to be optimized by working with the compiler shell directly.
