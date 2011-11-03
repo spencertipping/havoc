@@ -1,0 +1,11 @@
+Operator structure | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc generally uses an operator-precedence parser, but there are a few cases where it assigns more structure to your programs. For example, f x = y ∀ x and f x == y ∀ x mean two completely
+different things; which version of equality you use changes the nature of the ∀ quantifier. So = and ∀ are linked for many purposes, and you can think of the two as forming a ternary =∀
+expression.
+
+Similarly, the ⋅ qualification operator changes the precedence of = to its right. For example:
+
+| f x = x + y ⋅ y = 10 ∀ x    ->    ((f x) = ((x + y) ⋅ (y = 10))) ∀ x
