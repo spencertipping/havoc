@@ -1,0 +1,36 @@
+Havoc solution searching | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc as a compiler implements an algorithm that searches for a way to rewrite every value into another value. In other words, it builds a directed graph (not strictly a tree, but close) with
+exactly one root node and arbitrarily many leaf nodes. It then attempts to move values along 'down', or 'progressive' links in the tree. This is represented by moving rightward across
+equality.
+
+Because equality is a real equivalence relation, there are cases where Havoc will need to move left. This is following a 'regressive' link, and Havoc tries not to do this. It's easy enough to
+see why: if Havoc had no preference at all, then it could simply continue rewriting a value by virtue of the symmetry of equality:
+
+| f x = x + 1 ∀ x
+  f 5 = 5 + 1 = f 5 = 5 + 1 = ⋯
+
+Non-uniqueness of solutions.
+Equality is assumed to be transitive, but it isn't always true that this yields consistent results. Rather than attempt to enforce its consistency and uniqueness, Havoc tolerates the ambiguity
+and allows the programmer to qualify expressions with requirements to indicate which possibility they want. Note also that this is different from ambiguity sets, which serve to overload a
+particular word; the ambiguity being discussed here arises from the order and choice of equivalence relations.
+
+Creating uniqueness.
+The simplest way to create uniqueness is to allow Havoc to observe a bunch of dead-ends with the wrong solutions. You can do this by creating leaves that are then not rewriteable:
+
+| f x = g x ∀ x                 Leave g undefined
+  x ++ 1 = f x ∀ x              This won't be taken ...
+  x ++ 1 = x + 1 ∀ x            Because 'x + 1' is rewriteable into a constant, whereas 'g x' is not.
+
+Even though the definition of ++ is ambiguous due to ambiguity sets, only one of these rewrites actually goes anywhere remotely productive. If 'g' is never mentioned anywhere else in the
+codebase (and you shouldn't rely on this; see below), then rewriting 'f x' into 'g x' doesn't help Havoc construct concrete values. As such, Havoc prefers x + 1 to 'f x'.
+
+Safely marking expressions as leaf nodes.
+The example above was fragile because 'g x' could be defined later on to make 'x' concrete. This would result in 'g x' not being a leaf node, so the program would have genuine ambiguity and
+would consequently fail to compile. To fix this, you need to quantify 'g' as a unique symbol, like this:
+
+| f x = g x ∃ g ∀ x             Please forgive my misuse of ∃ to mean 'for some'...
+
+Here, ∃ scopes 'g' as a local gensym literal (unlike a ∀-scoped value, which is also a gensym but is a variable and thus matches any value).
