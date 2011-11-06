@@ -22,4 +22,12 @@ decisional, for which the worse case is used. For example:
 | f x y = y > 0 ? f x 1 : f $ f x y ∀ x y       Complexity of 2 because of the right decisional branch
 
 Mutual recursion.
-TODO
+Mutually recursive equations aren't a problem because of complexity-0 inlining. For instance, suppose you have this:
+
+| f x = 1 + g x ∀ x                     Complexity 0
+  g x = f x + f (x - 1) ∀ x             Complexity 0
+
+Each case will involve inlining the other:
+
+| f x = 1 + f x + f (x - 1) ∀ x         Complexity 2
+  g x = 1 + g x + 1 + g (x - 1) ∀ x     Complexity 2
