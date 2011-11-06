@@ -1,0 +1,25 @@
+Complexity analysis | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc can't afford to optimistically expand certain forms. For instance, the recursive Fibonacci function branches exponentially without memoization, and Havoc isn't required to memoize. This
+means that if Havoc finds a reason to expand a Fibonacci function by 20 inductive steps at compile-time, you'll have a million terms in memory.
+
+As such, Havoc does a simple worst-case complexity analysis of each function that it considers expanding. This is represented as a scalar. Here are some examples:
+
+| f x = x + 1 ∀ x                               O(1) expansion, so complexity of 0
+  f x = x * f (x - 1) ∀ x                       O(n) expansion, so complexity of 1
+  f x = f (x - 1) + f (x - 2) ∀ x               O(2^n) expansion, so complexity of 2
+  f x = f (x - 1) + f (x - 2) + f (x - 3) ∀ x   O(3^n) expansion, so complexity of 3
+
+This scalar doesn't have a lot of theoretical significance, but it does provide Havoc with some information about how expensive it is to explore a function's expansion. In general, Havoc will
+always expand functions of complexity 0, will usually expand functions of complexity 1, and will not expand higher-complexity functions.
+
+Determining complexity.
+This is simple. Havoc simply attempts to unify each term on the right-hand side with the left-hand side; for each match, it increments the complexity. The only interesting case is a
+decisional, for which the worse case is used. For example:
+
+| f x y = y > 0 ? f x 1 : f $ f x y ∀ x y       Complexity of 2 because of the right decisional branch
+
+Mutual recursion.
+TODO
