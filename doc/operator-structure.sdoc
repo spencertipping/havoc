@@ -24,4 +24,20 @@ Now let's suppose you want to make some exception to these rules. For example, l
 | a * b $$ c + d = a * b (c + d) ∀ a b c d
   ...
 
-This isn't the best way to do it. Better is to use abstraction over operators with similar roles. (TODO: explain this)
+This isn't the best way to do it. Better is to use abstraction over operators with similar roles. For example, let's define some properties of common arithmetic operators.
+
+| associative (+)
+  associative (*)
+  left-associative (-)
+  left-associative (/)
+  precedence (-) = precedence (+)
+  precedence (*) = precedence (/)
+  precedence (+) < precedence (*)
+
+Now we can write inference rules for those properties:
+
+| associative op = ((x op y) op z = x op (y op z) ∀ x y z) ∀ op
+  left-associative op = (x op y op z = (x op y) op z ∀ x y z) ∀ op
+  precedence op1 < precedence op2 = (x op1 y op2 z = x op1 (y op2 z) ∀ x y z) ∀ op1 op2
+
+These inference rules govern the rewrite process that causes operators to fold into precedence-sensitive structures.
