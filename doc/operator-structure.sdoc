@@ -9,3 +9,19 @@ expression.
 Similarly, the ⋅ qualification operator changes the precedence of = to its right. For example:
 
 | f x = x + y ⋅ y = 10 ∀ x    ->    ((f x) = ((x + y) ⋅ (y = 10))) ∀ x
+
+Mechanics of operator precedence.
+I mentioned above that Havoc uses an operator precedence parser, but this isn't true in the usual sense. Havoc implements only a very simple Lisp-style parser. The remaining structure comes
+from rewrite rules that approximate the behavior of an operator precedence parser. The important thing to realize about this is that you can write your own equations that change how this is
+done. For example, here are some builtins:
+
+| x + y * z = x + (y * z) ∀ x y z
+  x * y + z = (x * y) + z ∀ x y z
+  ...
+
+Now let's suppose you want to make some exception to these rules. For example, let's introduce an operator called $$ whose left-side precedence is high and whose right-side precedence is low:
+
+| a * b $$ c + d = a * b (c + d) ∀ a b c d
+  ...
+
+This isn't the best way to do it. Better is to use abstraction over operators with similar roles. (TODO: explain this)
