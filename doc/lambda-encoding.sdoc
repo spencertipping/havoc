@@ -12,5 +12,3 @@ Binding _ was my first attempt, and the simplest thing I could think of. For ins
 This is verbose and clunky, not to mention difficult to work with from inside functions that use these lambdas. Better is to use the standard-library λ rewrite, which does what you'd expect:
 
 | λ x y z = y ⋅ x = z ∀ x y z
-
-Now consumers of lambda functions can simply apply them, and you can simply write them naturally.
