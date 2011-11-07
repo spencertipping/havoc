@@ -1,0 +1,4 @@
+Naive Havoc interpreter
+
+This interpreter does no optimization, has few real-world hooks, and in general
+serves as a proof of concept.
