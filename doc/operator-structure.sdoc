@@ -38,6 +38,6 @@ Now we can write inference rules for those properties:
 
 | associative op = ((x op y) op z = x op (y op z) ∀ x y z) ∀ op
   left-associative op = (x op y op z = (x op y) op z ∀ x y z) ∀ op
-  precedence op1 < precedence op2 = (x op1 y op2 z = x op1 (y op2 z) ∀ x y z) ∀ op1 op2
+  precedence op1 < precedence op2 = (x op1 y op2 z = x op1 (y op2 z) ∀ x y z and x op2 y op1 z = (x op2 y) op1 z ∀ x y z) ∀ op1 op2
 
 These inference rules govern the rewrite process that causes operators to fold into precedence-sensitive structures.
