@@ -1,0 +1,11 @@
+Provable values | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc uses empirical constructivism as a logical foundation, unlike Prolog which has similar inference semantics but uses the law of the excluded middle. In fact, Havoc has no built-in
+negation operator; you have to define its semantics manually if you want to use one. What this all means for a programmer is that unless your program constructs a value, Havoc will not assume
+its existence. Once a value is constructed it is considered to be 'proven' and will trigger equation rewriting.
+
+Role of provable values in metaprogramming.
+Values specified at the toplevel are considered to be axioms of your program, and as such each one is provable. The set of provable values is theoretically the transitive closure of axioms
+across axiomatic equivalence relations, but in practice it is not this large. (This allows your program to have an infinite transitive closure but compile in finite time.)

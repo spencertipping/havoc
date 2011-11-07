@@ -1,0 +1,12 @@
+Compile-time values | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+Havoc lets you put any expression you want to at the toplevel. It has built-in behavior for '=', but not all expressions need to use it directly. This mechanism lets you use abstraction over
+equations; for example:
+
+| transitive op = (x op y and y op z = x op z ∀ x y z) ∀ op             Nothing special here, just a toplevel equation
+  transitive (==)                                                       This is expanded at compile-time to form the equation 'x == y and y == z = x == z ∀ x y z'
+
+The reason I'm calling attention to this is that it places an interesting requirement on the Havoc compiler. The compiler needs to test every provable value (see provable-values.sdoc) across
+every equation at compile-time. It's allowed some leeway as far as searching goes (see discoverable-reductions.sdoc for details), but it should definitely expand things like the above example.
