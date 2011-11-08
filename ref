@@ -1992,23 +1992,21 @@ This parser outputs a single Caterwaul syntax tree representing the list of topl
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
              -where [without_comments(s)            = s /!without_literate_paragraphs /!without_line_comments,
-                     without_literate_paragraphs(s) = s.split(/\n\s*\n/) %![/[^A-Z|]/.test(x)] -seq -re- it.join('\n'),
+                     without_literate_paragraphs(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n'),
                      without_line_comments(s)       = s.replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
 
                      split_into_lists(s)            = [new linear_string_state(s)] /!expression -re- it[0]
 
-                                              -where [expression(s) = expression(s),
-                                                      expression    = annotate(expression, 'expression'),
+                                              -where [expression(s) = expression(s), expression = annotate(expression, 'expression'),
 
                                                       wsr(regexp)   = linear_regexp(/\s*/) /-bfs/ linear_regexp(regexp),
-
                                                       fold(nodes)   = nodes /[new $.syntax(' ', x, x0)] -seq,
-                                                      list          = wsr(/\(/) / manyc(expression) /-bfc/ wsr(/\s*\)/) /-map/ "_[1] /!fold".qf,
-                                                      atom          = wsr(/[^\n\t ()[\]{}]+/) /-map/ "new $.syntax(_[1])".qf,
+                                                      list          = wsr(/\(/) / manyc(expression) /-bfc/ wsr(/\)/) /-map/ "_[1] /!fold".qf,
+                                                      atom          = wsr(/[^\n\t ()[\]{}]+/)                        /-map/ "new $.syntax(_[1])".qf,
 
                                                       expression    = list /-alt/ atom]
 
-                                              -using [caterwaul.parser]]})(caterwaul);
+                                              -using- caterwaul.parser]})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
