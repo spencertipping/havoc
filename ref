@@ -1996,17 +1996,20 @@ This parser outputs a single Caterwaul syntax tree representing the list of topl
                      without_literate_paragraphs(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n'),
                      without_line_comments(s)       = s.replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
 
+                     nil                            = new $.syntax('nil'),
+
                      split_into_lists(s)            = [new linear_string_state(s)] /!toplevel -re- it[0].value()
 
                                               -where [expression(s) = expression(s), expression = annotate(expression, 'expression'),
 
-                                                      wsr(regexp)   = linear_regexp(/\s+/) /!optional /-bfs/ linear_regexp(regexp),
-                                                      fold(nodes)   = nodes /[new $.syntax(' ', x, x0)] -seq,
+                                                      whitespace    = linear_regexp(/\s+/) /!optional,
+                                                      wsr(regexp)   = whitespace /-bfs/ linear_regexp(regexp),
+                                                      fold(nodes)   = nodes /! [nil] [new $.syntax('::', x, x0)] -seq,
                                                       list          = wsr(/\(/) / manyc(expression) /-bfc/ wsr(/\)/) /-map/ "_[1] /!fold".qf,
                                                       atom          = wsr(/[^\n\t ()[\]{}⟨⟩]+/)                      /-map/ "new $.syntax(_[0])".qf,
 
                                                       expression    = list /-alt/ atom,
-                                                      toplevel      = expression /-bfc/ linear_string_state.end() /-map/ "_[0]".qf]
+                                                      toplevel      = expression /!manyc /-map/ "_ /!fold".qf / whitespace /-bfc/ linear_string_state.end() /-map/ "_[0]".qf]
 
                                               -using- caterwaul.parser]})(caterwaul);
 
@@ -2418,9 +2421,21 @@ running under (e.g. node.js or a browser).
 test_case = function (x) {return caterwaul.havoc.parse(x).structure()};
 
 t('foo');
-t('foo bar');
+t('foo bar (bif)');
 t('(foo bar)');
-t('(foo bar bif)');
+t('(foo bar) bif');
+t('(foo (bar) bif)');
+
+t('foo  #foo');
+t('foo  -foo');
+t('foo  /foo');
+t('#foo');
+t('-bar');
+t('/bif');
+
+t('Foo bar bif\nbaz bok\n\none two');
+t('foo  \n\nFoo bar bif\nbaz bok\n\none two');
+t('foo  Bok\n\nFoo bar bif\nbaz bok\n\none two');
 
 __
 meta::sdoc('js::test-setup', <<'__');
