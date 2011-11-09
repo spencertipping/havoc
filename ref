@@ -2025,7 +2025,12 @@ This is possible because g is order-0; a recursive 'g' wouldn't work here.
                                                 intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
                                                 equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this.lhs(), rhs = this.rhs()]],
 
+Static constructors.
+These are shorthands for producing common kinds of syntax trees.
+
                    statics_for(ctor) = capture [nil                   = new ctor('nil'),
+                                                cons(x, y)            = new ctor('::', x, y),
+                                                equation(x, y)        = new ctor('::', new ctor('='), new ctor('::', x, new ctor('::', y, $.havoc.syntax.nil))),
                                                 intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);
 
 __
@@ -2040,8 +2045,47 @@ phase.
 
 caterwaul.js_all()(function ($) {
 
-Parser output.
-The parser outputs an array of rewrite rules, each one of which is separated by a comma or semicolon in the original source. Paragraph boundaries do not impact rule separation.
+Havoc syntax.
+Since this is the reference implementation, I'm going to provide a complete listing of Havoc's syntactic constructs here. First, there are various types of comments, all of which are removed
+by the lexer. These include literate paragraphs, which follow SDoc syntax, and line comments, which come in several different styles:
+
+| foo bar bif           # line comment                  <- two or more spaces between code and the #
+  foo bar bif           - line comment                  <- ditto here
+  foo bar bif           / line comment
+  foo bar bif           Line comment                    <- capital letter indicates line comment, but only after two or more spaces
+  Line comment                                          <- no spaces required if no code is present
+  # line comment
+  - line comment
+  / line comment
+
+This syntax was chosen to be ergonomic (hence the capital letter heuristic and the choice of - and /), and to allow traditional constructs like the shebang line. I make no claim that you'd
+want to use shebang-style interpretation without a memoizing interpreter ... but the syntax won't prevent you from doing so.
+
+Lists.
+Havoc behaves similarly to Lisp in concept, but differently in a number of important ways. It conses source code into lists of symbols, but it does so in a sort of strange way. First, cons is
+left-associative and represents function application. This means that 'f x y' becomes (:: (:: f x) y), not (:: f (:: x y)) as it would in a right-associative language. Second, there is no
+'nil' element; this preserves the conventional intuition that (x) is the same as x. By extension, all consed lists end with an improper cons cell.
+
+Havoc also adds parenthesis-free syntax for list definition. This follows English:
+
+| foo bar and bif                               -> (:: (:: foo bar) bif)
+  foo and bar bif                               -> (:: foo (:: bar bif))
+  foo x, bar y, and bif                         -> (:: (:: (:: foo x) (:: bar y)) bif)
+  foo x and bar y, bif, and baz                 -> (:: (:: (:: (:: foo x) (:: bar y)) bif) baz)
+
+Right now comma-based syntax works only with the 'and' conjunction, though at some point in the future I'd like to generalize this.
+
+Atoms.
+There are two kinds of atoms. One is a literal, which doesn't start with a letter, and the other is a variable, which does. This is backwards from Caterwaul's convention that variables start
+with an underscore, but Havoc is biased towards abstraction rather than constants. The convention in Havoc is to begin literal words with a single quotation mark, as in Lisp. So, for example:
+
+| 'fact n = n > 0 ? 'fact (n - 1) : 1
+
+Note that out of the box, Havoc's parser has absolutely no support for this infix notation. You'd have to write the above definition like this:
+
+| = ('fact n) (? (> n 0) ('fact (- n 1)) 1)
+
+It is, however, possible to write rules that transform infix expressions into prefix. These are provided by Havoc's standard library.
 
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
@@ -2049,22 +2093,24 @@ The parser outputs an array of rewrite rules, each one of which is separated by 
                      without_literate_paragraphs(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n'),
                      without_line_comments(s)       = s.replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
 
-                     split_into_lists(s)            = [new linear_string_state(s)] /!toplevel -re- it[0].value()
+                     split_into_lists(s)            = [new linear_string_state(s)] /!expression -re- it[0].value()
 
                                               -where [expression(s) = expression(s), expression = annotate(expression, 'expression'),
 
                                                       whitespace    = linear_regexp(/\s+/) /!optional,
                                                       wsr(regexp)   = whitespace /-bfs/ linear_regexp(regexp),
-                                                      fold(nodes)   = nodes /! [syntax.nil] [new syntax('::', x, x0)] -seq,
-                                                      list          = wsr(/\(/) / manyc(expression) /-bfc/ wsr(/\)/) /-map/ "_[1] /!fold".qf,
-                                                      atom          = wsr(/[^\n\t,; ()[\]{}]+/)                      /-map/ "new syntax(_[0])".qf,
+                                                      fold(nodes)   = nodes /[x /-syntax.cons/ x0] -seq,
 
-                                                      terminator    = wsr(/[,;]/),
+                                                      atom          = wsr(/[^\n\t, ()\[\]{}]+/) /-map/ "new syntax(_[0])".qf,
+                                                      list(o, c)    = wsr(o) / manyc(expression) /-bfc/ wsr(c) /-map/ "_[1] /!fold".qf,
+                                                      paren_list    = list(/\(/, /\)/),
+                                                      bracket_list  = list(/\[/, /\]/),
+                                                      brace_list    = list(/\{/, /\}/),
 
-                                                      expression    = list /-alt/ atom,
-                                                      implicit_cons = expression /-bfc/ manyc(expression) /-map/ "fold([_[0]] + _[1] -seq)".qf,
-                                                      expressions   = implicit_cons /-bfc/ (terminator /-bfs/ implicit_cons /!manyc)  /-map/ "[_[0]] + _[1] -seq".qf,
-                                                      toplevel      = expressions / whitespace /-bfc/ linear_string_state.end() /-map/ "_[0]".qf]
+                                                      comma_pair    = expression / wsr(/and/) /-bfc/ expression /-map/ "syntax.cons(_[0], _[2])".qf,
+                                                      comma_list    = (expression /-bfc/ wsr(/,/) /-map/ "_[0]".qf) /!manyc / wsr(/and/) /-bfc/ expression /-map/ "fold(_[0] + [_[2]] -seq)".qf,
+
+                                                      expression    = paren_list / bracket_list / brace_list / comma_pair / comma_list /-alt/ atom]
 
                                               -using- caterwaul.parser
                                               -using- caterwaul.havoc]})(caterwaul);
@@ -2101,18 +2147,24 @@ consider a program like 'f x = (g = x)' and 'f 5'. Both expressions here are ass
 rewrites. In particular, we immediately observe 'f x = (g = x)' and 'f 5', since they are assumed. In the process of observing 'f 5', we rewrite it using the first equation; now we also
 observe 'g = 5', so we add this to the rewriting list.
 
+Note that it isn't productive to observe intermediate values as they're being rewritten. This is because of transitivity; if you can rewrite a value with unknowns, then you can rewrite any
+specialization of that value. We do, however, observe the fact that we started with one thing and ended up with another.
+
                               rewrite_with(xs, r)         = xs *![observe(r(x))] -seq,
 
-                              new_axiom(v)                = invariant_axioms /~push/ v,
-                              new_rewriter(v)             = invariant_equations /~push/ v -se [invariant_equations /-rewrite_with/ r,
-                                                                                               invariant_axioms    /-rewrite_with/ r] -where [r = v.rewriter()],
-
                               observe(value)              = value -se [value.is_rewriter() ? new_rewriter(value) : new_axiom(value), when.value],
-                              rewrite_once(v)             = invariant_equations |[x.rewriter()(v)] |seq,
-                              assume(v)                   = observe(v) -se- observe(v /!rewrite),
+                              new_axiom(v)                = invariant_axioms /~push/ v,
+                              new_rewriter(v)             = invariant_equations /~push/ v -se [invariant_equations /-rewrite_with/ v.rewriter(),
+                                                                                               invariant_axioms    /-rewrite_with/ v.rewriter()],
+
+                              rewrite_once(v)             = invariant_equations |[x.rewriter()(v)] |seq || null,
                               rewrite(v)                  = v /!rewrite_once -re [it ? rewrite(it) : v],
 
-                              transitive_closure_rewriter = rewrite]})(caterwaul);
+                              assume(v)                   = observe(v) -se [observe(r) && observe(equation(v, r)), where [r = rewrite(v)]],
+
+                              transitive_closure_rewriter = rewrite]
+
+                      -using- caterwaul.havoc.syntax})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
