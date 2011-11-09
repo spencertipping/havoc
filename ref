@@ -225,6 +225,7 @@ meta::meta('type::module', <<'__');
 meta::functor::editable 'module', extension => '.js.sdoc', inherit => 1, default => 'edit';
 
 __
+meta::meta('type::note', 'meta::functor::editable \'note\', extension => \'.sdoc\', inherit => 0, default => \'edit\';');
 meta::meta('type::parent', <<'__');
 meta::define_form 'parent', \&meta::bootstrap::implementation;
 meta::configure 'parent', extension => '', inherit => 1;
@@ -274,10 +275,7 @@ meta::alias('e', 'havoc');
 meta::alias('ed', 'edit sdoc::js::dependencies');
 meta::alias('em', 'edit sdoc::js::modules');
 meta::alias('ep', 'havoc.parser');
-meta::alias('er', <<'__');
-edit sdoc::js::repl -f
-
-__
+meta::alias('er', 'havoc.rewriter');
 meta::alias('et', <<'__');
 edit sdoc::js::test -f
 
@@ -372,6 +370,7 @@ meta::cache('parent-identification', <<'__');
 /home/spencertipping/bin/repository 05bc3036c343fdb8aec5b0be12a9b19e
 /home/spencertipping/conjectures/perl-objects/js 246bc56c88e8e8daae3737dbb16a2a2c
 /home/spencertipping/conjectures/perl-objects/sdoc a1e8480e579614c01dabeecf0f963bcc
+notes a9e5975593ed5d90d943ad98405c71e5
 object 99aeabc9ec7fe80b1b39f5e53dc7e49e
 preprocessor 70dae4b46eb4e06798ec6f38d17d4c7b
 __
@@ -1220,7 +1219,7 @@ Introduction.
 This module is called $name.
 end
 
-associate('sdoc::js::modules', retrieve('sdoc::js::modules') . "\n- include perl::sdoc('pp::module::$name')\n");
+associate('sdoc::js::modules', retrieve('sdoc::js::modules') . "\n- include perl::sdoc('module::$name')\n");
 
 terminal::info("created module $name, which is automatically loaded into REPL sessions.",
                'some relevant commands:',
@@ -1250,6 +1249,11 @@ my $name = $0;
 $name =~ s/^.*\///;
 $name;
 __
+meta::function('note', <<'__');
+# Creates a note with a given name, useful for jotting things down.
+create("note::$_[0]");
+__
+meta::function('notes', 'ls(\'-a\', \'^note::\');');
 meta::function('parents', 'join "\\n", grep s/^parent:://o, sort keys %data;');
 meta::function('perl', <<'__');
 my $result = eval(join ' ', @_);
@@ -1317,7 +1321,7 @@ __
 meta::function('reload', 'around_hook(\'reload\', sub {execute($_) for grep ! /^bootstrap::/, keys %data});');
 meta::function('render', <<'__');
 around_hook('render', @_, sub {
-  file::write("$_.js",     sdoc("pp::$_")) for modules();
+  file::write("$_.js",     sdoc("module::$_")) for modules();
   file::write('test.html', retrieve('pp::html::test'))});
 
 __
@@ -1988,7 +1992,7 @@ phase.
 caterwaul.js_all()(function ($) {
 
 Parser output.
-This parser outputs a single Caterwaul syntax tree representing the list of toplevel expressions, each of which is itself a Caterwaul syntax tree representing a linked list of terms.
+The parser outputs an array of rewrite rules, each one of which is separated by a comma or semicolon in the original source. Paragraph boundaries do not impact rule separation.
 
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
@@ -2006,18 +2010,40 @@ This parser outputs a single Caterwaul syntax tree representing the list of topl
                                                       wsr(regexp)   = whitespace /-bfs/ linear_regexp(regexp),
                                                       fold(nodes)   = nodes /! [nil] [new $.syntax('::', x, x0)] -seq,
                                                       list          = wsr(/\(/) / manyc(expression) /-bfc/ wsr(/\)/) /-map/ "_[1] /!fold".qf,
-                                                      atom          = wsr(/[^\n\t ()[\]{}⟨⟩]+/)                      /-map/ "new $.syntax(_[0])".qf,
+                                                      atom          = wsr(/[^\n\t,; ()[\]{}]+/)                      /-map/ "new $.syntax(_[0])".qf,
+
+                                                      terminator    = wsr(/[,;]/),
 
                                                       expression    = list /-alt/ atom,
-                                                      toplevel      = expression /!manyc /-map/ "_ /!fold".qf / whitespace /-bfc/ linear_string_state.end() /-map/ "_[0]".qf]
+                                                      implicit_cons = expression /-bfc/ manyc(expression) /-map/ "fold([_[0]] + _[1] -seq)".qf,
+                                                      expressions   = implicit_cons /-bfc/ (terminator /-bfs/ implicit_cons /!manyc)  /-map/ "[_[0]] + _[1] -seq".qf,
+                                                      toplevel      = expressions / whitespace /-bfc/ linear_string_state.end() /-map/ "_[0]".qf]
 
                                               -using- caterwaul.parser]})(caterwaul);
 
 __
+meta::module('havoc.rewriter', <<'__');
+Havoc reference implementation rewriter | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module takes the toplevel parse output along with an expression and returns its expansion. Since this is only a reference implementation, it is not particularly fast.
+
+caterwaul.js_all()(function ($) {
+
+Rewriting mechanics.
+This is a fairly basic bootstrapping rewrite system. The rule we set up is that = does what you'd expect, and for initial rewriting rules, quantification is indicated by prefixing variables
+with underscores rather than using ∀ explicitly. (Later on this modification gets incorporated into the rewriting rules so that you can use ∀.)
+
+The parser returns an array of toplevel expressions, which is a perfect place to start. This array is then used for rewrite-table lookups. 
+
+})(caterwaul);
+
+__
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
-function::module                                            b457af4710c9e757c4d26cd7ccea48b1
+function::module                                            cd75ead8fad4b21dd5e29bc85a2de334
 function::modules                                           e3b6934465aed29eebaa08eef3be15fd
-function::render                                            750506b8c87b0794432d9ea5631848c1
+function::render                                            41e9d01f7b705950c999151c13224573
 function::repl                                              878e54fa550b881619f987a9d676038b
 function::test                                              af8715c7a61b18bfe7d0e2e72469dfea
 meta::type::module                                          4dd84ea154141e3559df4bb6612393c1
@@ -2177,6 +2203,13 @@ parent::/home/spencertipping/bin/object  7374722eec54c39ab752e3fb032c1886
 retriever::html-sdoc                     2a5d5aa45e2d7576f79e045177d8705c
 retriever::sdoc                          662061e9e41491e2a1debd6862ccf1e7
 retriever::sdocp                         330694ea14a23bb04b65c761075cd946
+
+__
+meta::parent('notes', <<'__');
+function::note    5e2737593e8d13fc43bb10e97603e53a
+function::notes   7229b326ac8686b2db6de98496bc7527
+meta::type::note  f81bea58841a438e4ee34608ab4f54c0
+parent::object    7374722eec54c39ab752e3fb032c1886
 
 __
 meta::parent('object', <<'__');
@@ -2397,6 +2430,7 @@ This is where your modules get loaded into the REPL. This script is included by 
 
 - include perl::sdoc('module::havoc')
 - include perl::sdoc('module::havoc.parser')
+- include perl::sdoc('module::havoc.rewriter')
 
 __
 meta::sdoc('js::repl', <<'__');
@@ -2418,24 +2452,28 @@ Unit tests.
 These are quick, visible assertions to make sure that the setup works properly. The test_case function is called automatically by t(), which is customized to work on whatever platform you're
 running under (e.g. node.js or a browser).
 
-test_case = function (x) {return caterwaul.havoc.parse(x).structure()};
+caterwaul.js_all()(function ($) {
+  test_case(x) = $.havoc.parse(x) *[x.structure()] -seq,
 
-t('foo');
-t('foo bar (bif)');
-t('(foo bar)');
-t('(foo bar) bif');
-t('(foo (bar) bif)');
+  t('foo'),
+  t('foo bar (bif)'),
+  t('foo, bar, bif'),
+  t('foo bar, bif'),
+  t('foo; bar, bif'),
+  t('(foo bar)'),
+  t('(foo bar) bif'),
+  t('(foo (bar) bif)'),
 
-t('foo  #foo');
-t('foo  -foo');
-t('foo  /foo');
-t('#foo');
-t('-bar');
-t('/bif');
+  t('foo  #foo'),
+  t('foo  -foo'),
+  t('foo  /foo'),
+  t('#foo'),
+  t('-bar'),
+  t('/bif'),
 
-t('Foo bar bif\nbaz bok\n\none two');
-t('foo  \n\nFoo bar bif\nbaz bok\n\none two');
-t('foo  Bok\n\nFoo bar bif\nbaz bok\n\none two');
+  t('Foo bar bif\nbaz bok\n\none two'),
+  t('foo  \n\nFoo bar bif\nbaz bok\n\none two'),
+  t('foo  Bok\n\nFoo bar bif\nbaz bok\n\none two')}, {t: t})(caterwaul);
 
 __
 meta::sdoc('js::test-setup', <<'__');
