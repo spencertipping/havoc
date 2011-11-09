@@ -1974,10 +1974,59 @@ Havoc reference implementation | Spencer Tipping
 Licensed under the terms of the MIT source code license
 
 Introduction.
-This file provides the base attachment point for the Havoc reference implementation. Other modules extend this function.
+This file provides the base attachment point for the Havoc reference implementation. Other modules extend this function. It also sets up core methods associated with Havoc syntax trees.
 
 caterwaul.js_all()(function ($) {
-  $.havoc() = $.havoc.compile($.havoc.parse.apply(this, arguments))})(caterwaul);
+  $.havoc() = $.havoc.compile($.havoc.parse.apply(this, arguments)),
+
+Syntax trees.
+These are the usual Caterwaul syntax trees, but customized for Havoc interpreter operation.
+
+  $.havoc.syntax = $.syntax_subclass(ctor, methods) -se- it /-$.merge/ statics_for(it)
+           -where [ctor(data, xs = +arguments -seq -se- it.shift()) = this -se [it.data = data, it.length = 0, xs *!it.push -seq],
+
+                   methods           = capture [h()                  = this[0],
+                                                t()                  = this[1],
+
+Role detection.
+Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
+form '= x y' for some x and y. A tree of this form is required to return a rewriter that, when applied to an input that matches 'x', returns an output that matches 'y'.
+
+                                                is_equation()        = this.data === '::' && this[0].data === '=',
+                                                is_intrinsic()       = false,
+                                                is_rewriter()        = this.is_equation() || this.is_intrinsic(),
+                                                is_wildcard()        = /^[a-z]/.test(this.data),
+
+                                                lhs()                = this.t().h(),
+                                                rhs()                = this.t().t().h(),
+
+Complexity analysis.
+Each equation has a certain complexity, which is a way of measuring the expected amount of work required to expand the equation. For any nonrecursive definition it's 0, for linear recursion
+it's 1, and for n-order recursion it's n. Basically, it's just the number of times the left-hand side matches something on the right-hand side.
+
+                                                complexity()         = this.rhs() /~reach/ check_unification -re- count
+                                                               -where [lhs                     = this.lhs(),
+                                                                       count                   = 0,
+                                                                       check_unification(node) = lhs /~match/ node && ++count],
+
+Transitive fusion.
+It's often the case that one equation will rewrite the output of another. For instance, if f x = g x and g x = x + 1, then we can change the definition of 'f x' to be 'x + 1', thus inlining g.
+This is possible because g is order-0; a recursive 'g' wouldn't work here.
+
+                                                fuse_with(equation)  = new this.constructor('=', this.lhs(), rewritten_rhs) -when.rewritten_rhs
+                                                                       -where [rewritten_rhs = equation.rewriter()(this.rhs())],
+
+                                                serialize(xs)        = xs -se [this.length === 2 ? xs.push('(') -se- this[0].serialize(xs) -se- xs.push(' #{this.data} ') -se-
+                                                                                                                     this[1].serialize(xs) -se- xs.push(')') :
+                                                                                                   xs.push(this.data)],
+                                                rewriter()           = this._rewriter ||
+                                                                       (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
+
+                                                intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
+                                                equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this.lhs(), rhs = this.rhs()]],
+
+                   statics_for(ctor) = capture [nil                   = new ctor('nil'),
+                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);
 
 __
 meta::module('havoc.parser', <<'__');
@@ -2000,17 +2049,15 @@ The parser outputs an array of rewrite rules, each one of which is separated by 
                      without_literate_paragraphs(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n'),
                      without_line_comments(s)       = s.replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
 
-                     nil                            = new $.syntax('nil'),
-
                      split_into_lists(s)            = [new linear_string_state(s)] /!toplevel -re- it[0].value()
 
                                               -where [expression(s) = expression(s), expression = annotate(expression, 'expression'),
 
                                                       whitespace    = linear_regexp(/\s+/) /!optional,
                                                       wsr(regexp)   = whitespace /-bfs/ linear_regexp(regexp),
-                                                      fold(nodes)   = nodes /! [nil] [new $.syntax('::', x, x0)] -seq,
+                                                      fold(nodes)   = nodes /! [syntax.nil] [new syntax('::', x, x0)] -seq,
                                                       list          = wsr(/\(/) / manyc(expression) /-bfc/ wsr(/\)/) /-map/ "_[1] /!fold".qf,
-                                                      atom          = wsr(/[^\n\t,; ()[\]{}]+/)                      /-map/ "new $.syntax(_[0])".qf,
+                                                      atom          = wsr(/[^\n\t,; ()[\]{}]+/)                      /-map/ "new syntax(_[0])".qf,
 
                                                       terminator    = wsr(/[,;]/),
 
@@ -2019,7 +2066,8 @@ The parser outputs an array of rewrite rules, each one of which is separated by 
                                                       expressions   = implicit_cons /-bfc/ (terminator /-bfs/ implicit_cons /!manyc)  /-map/ "[_[0]] + _[1] -seq".qf,
                                                       toplevel      = expressions / whitespace /-bfc/ linear_string_state.end() /-map/ "_[0]".qf]
 
-                                              -using- caterwaul.parser]})(caterwaul);
+                                              -using- caterwaul.parser
+                                              -using- caterwaul.havoc]})(caterwaul);
 
 __
 meta::module('havoc.rewriter', <<'__');
@@ -2038,23 +2086,33 @@ with underscores rather than using ∀ explicitly. (Later on this modification g
 The parser returns an array of toplevel expressions, which is a perfect place to start. This array is then used for rewrite-table lookups. This process is done in the dumbest possible way:
 each term is compared to each toplevel expression and the fixed-point of this expansion is then run. When there are no more expansions, the result is added to the list as an axiom.
 
-  $.havoc.rewrite(equations, expression) = prime_axioms() -re- prime_equations() -re- rewrite(expression)
+Scoping.
+Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
+are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten.
 
-                                   -where [equation_form         = $.havoc.parse('= _lhs _rhs')[0],
-                                           is_equation(e)        = equation_form.match(e) || e.data === '::' && equation_form.match(e[0]),
+  $.havoc.scope(invariants) = invariants *!assume -seq -re- transitive_closure_rewriter
 
-                                           active_equations      = equations %~!is_equation -seq,
-                                           axioms                = equations %!is_equation -seq,
+                      -where [invariant_equations         = [],
+                              invariant_axioms            = [],
 
-                                           register_equation(x)  = active_equations /~push/ x -se- rewrite(x),
-                                           in_syntax_form(e)     = e.constructor === $.syntax ? e : equation_form.replace(e),
+Observation and assumption.
+Observation is the process of noticing that a value has been produced. It's important to do this because once a value is observed it can be added to the list of rewriters. For instance,
+consider a program like 'f x = (g = x)' and 'f 5'. Both expressions here are assume()d, which means that things observed while rewriting those expressions are stored in the table of available
+rewrites. In particular, we immediately observe 'f x = (g = x)' and 'f 5', since they are assumed. In the process of observing 'f 5', we rewrite it using the first equation; now we also
+observe 'g = 5', so we add this to the rewriting list.
 
-                                           intercept_equation(x) = x /!is_equation -se [register_equation(it) -when- it] -re- x,
-                                           rewrite_step(x)       = active_equations |e[e._lhs.match(x) -re [it && intercept_equation(e._rhs.replace(it))]] |seq,
-                                           rewrite(x)            = rewrite_step(x /!in_syntax_form) -re [it && rewrite(it)] || x,
+                              rewrite_with(xs, r)         = xs *![observe(r(x))] -seq,
 
-                                           prime_equations()     = active_equations *!rewrite -seq,
-                                           prime_axioms()        = axioms *!rewrite -seq]})(caterwaul);
+                              new_axiom(v)                = invariant_axioms /~push/ v,
+                              new_rewriter(v)             = invariant_equations /~push/ v -se [invariant_equations /-rewrite_with/ r,
+                                                                                               invariant_axioms    /-rewrite_with/ r] -where [r = v.rewriter()],
+
+                              observe(value)              = value -se [value.is_rewriter() ? new_rewriter(value) : new_axiom(value), when.value],
+                              rewrite_once(v)             = invariant_equations |[x.rewriter()(v)] |seq,
+                              assume(v)                   = observe(v) -se- observe(v /!rewrite),
+                              rewrite(v)                  = v /!rewrite_once -re [it ? rewrite(it) : v],
+
+                              transitive_closure_rewriter = rewrite]})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
@@ -2496,21 +2554,21 @@ These just make sure that the parser doesn't choke on well-formed input. In an i
 Rewriter tests.
 TODO
 
-  test_case(x) = $.havoc.rewrite($.havoc.parse(x), new $.syntax('test')).structure(),
+  test_case(x) = $.havoc.scope($.havoc.parse(x))(new $.syntax("'test")).structure(),
 
-  t('= test foo'),
-  t('= foo bar'),
+  t("= 'test 'foo"),
+  t("= 'foo 'bar"),
 
-  t('= (foo _x) (= test _x)'),
-  t('= (foo _x) (= test _x); foo bif'),
-  t('= (foo _x) (= test _x); foo bar'),
+  t("= ('foo x) (= 'test x)"),
+  t("= ('foo x) (= 'test x); 'foo 'bif"),
+  t("= ('foo x) (= 'test x); 'foo 'bar"),
 
-  t('= (= t _x) (= test _x)'),
-  t('= (= t _x) (= test _x); = t 10'),
-  t('= (foo _x) (= test _x); = (= t _x) (foo _x); = t 19'),
-  t('= (foo _x) (= test _x); = (= t _y) (foo _y); = t 19'),
+  t("= (= 't x) (= 'test x)"),
+  t("= (= 't x) (= 'test x); = 't 10"),
+  t("= ('foo x) (= 'test x); = (= 't x) ('foo x); = 't 19"),
+  t("= ('foo x) (= 'test x); = (= 't y) ('foo y); = 't 19"),
 
-  t('= (_x = _y) (= _x _y); test = 5')}, {t: t})(caterwaul);
+  t("= (x = y) (= x y); 'test = 5")}, {t: t})(caterwaul);
 
 __
 meta::sdoc('js::test-setup', <<'__');
