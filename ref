@@ -2035,9 +2035,22 @@ Rewriting mechanics.
 This is a fairly basic bootstrapping rewrite system. The rule we set up is that = does what you'd expect, and for initial rewriting rules, quantification is indicated by prefixing variables
 with underscores rather than using ∀ explicitly. (Later on this modification gets incorporated into the rewriting rules so that you can use ∀.)
 
-The parser returns an array of toplevel expressions, which is a perfect place to start. This array is then used for rewrite-table lookups. 
+The parser returns an array of toplevel expressions, which is a perfect place to start. This array is then used for rewrite-table lookups. This process is done in the dumbest possible way:
+each term is compared to each toplevel expression and the fixed-point of this expansion is then run. When there are no more expansions, the result is added to the list as an axiom.
 
-})(caterwaul);
+  $.havoc.rewrite(equations, expression) = prime_axioms() -re- rewrite(expression)
+
+                                   -where [equation_form         = $.havoc.parse('= _lhs _rhs')[0],
+                                           is_equation(e)        = equation_form.match(e) || e.data === '::' && equation_form.match(e[0]),
+
+                                           active_equations      = equations %~!is_equation -seq,
+                                           axioms                = equations %!is_equation -seq,
+
+                                           intercept_equation(x) = x /!is_equation -se [active_equations /~push/ it -when- it] -re- x,
+                                           rewrite_step(x)       = active_equations |e[e._lhs.match(x) -re [it && intercept_equation(e._rhs.replace(it))]] |seq,
+                                           rewrite(x)            = rewrite_step(x) -re [it && rewrite(it)] || x,
+
+                                           prime_axioms()        = axioms *!rewrite -seq]})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
@@ -2453,6 +2466,10 @@ These are quick, visible assertions to make sure that the setup works properly. 
 running under (e.g. node.js or a browser).
 
 caterwaul.js_all()(function ($) {
+
+Parser tests.
+These just make sure that the parser doesn't choke on well-formed input. In an ideal world they would be verified somehow, but for now I can manually look over the output.
+
   test_case(x) = $.havoc.parse(x) *[x.structure()] -seq,
 
   t('foo'),
@@ -2473,7 +2490,19 @@ caterwaul.js_all()(function ($) {
 
   t('Foo bar bif\nbaz bok\n\none two'),
   t('foo  \n\nFoo bar bif\nbaz bok\n\none two'),
-  t('foo  Bok\n\nFoo bar bif\nbaz bok\n\none two')}, {t: t})(caterwaul);
+  t('foo  Bok\n\nFoo bar bif\nbaz bok\n\none two'),
+
+Rewriter tests.
+TODO
+
+  test_case(x) = $.havoc.rewrite($.havoc.parse(x), new $.syntax('test')).structure(),
+
+  t('= test foo'),
+  t('= foo bar'),
+
+  t('= (foo _x) (= test _x)'),
+  t('= (foo _x) (= test _x); foo bif'),
+  t('= (foo _x) (= test _x); foo bar')}, {t: t})(caterwaul);
 
 __
 meta::sdoc('js::test-setup', <<'__');
