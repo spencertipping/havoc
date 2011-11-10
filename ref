@@ -2066,14 +2066,14 @@ Havoc behaves similarly to Lisp in concept, but differently in a number of impor
 left-associative and represents function application. This means that 'f x y' becomes (:: (:: f x) y), not (:: f (:: x y)) as it would in a right-associative language. Second, there is no
 'nil' element; this preserves the conventional intuition that (x) is the same as x. By extension, all consed lists end with an improper cons cell.
 
-Havoc also adds parenthesis-free syntax for list definition. This follows English:
+Havoc also adds parenthesis-free syntax for building lists. This is done with the infix operators comma and semicolon, like this:
 
-| foo bar and bif                               -> (:: (:: foo bar) bif)
-  foo and bar bif                               -> (:: foo (:: bar bif))
-  foo x, bar y, and bif                         -> (:: (:: (:: foo x) (:: bar y)) bif)
-  foo x and bar y, bif, and baz                 -> (:: (:: (:: (:: foo x) (:: bar y)) bif) baz)
-
-Right now comma-based syntax works only with the 'and' conjunction, though at some point in the future I'd like to generalize this.
+| foo bar, bif                                  -> (:: (:: foo bar) bif)
+  foo, bar bif                                  -> (:: foo (:: bar bif))
+  foo x, bar y, bif                             -> (:: (:: (:: foo x) (:: bar y)) bif)
+  (foo x, bar y), bif, baz                      -> (:: (:: (:: (:: foo x) (:: bar y)) bif) baz)
+  foo bar, bif baz; quux, bok                   -> (:: (:: (:: foo bar) (:: bif baz)) (:: quuz bok))
+  foo bar, bif baz; one fish, two fish          -> (:: (:: (:: foo bar) (:: bif baz)) (:: (:: one fish) (:: two fish)))
 
 Atoms.
 There are two kinds of atoms. One is a literal, which doesn't start with a letter, and the other is a variable, which does. This is backwards from Caterwaul's convention that variables start
@@ -2089,28 +2089,29 @@ It is, however, possible to write rules that transform infix expressions into pr
 
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
-             -where [without_comments(s)            = s /!without_literate_paragraphs /!without_line_comments,
-                     without_literate_paragraphs(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n'),
-                     without_line_comments(s)       = s.replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
+             -where [without_comments(s)            = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n').replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
 
-                     split_into_lists(s)            = [new linear_string_state(s)] /!expression -re- it[0].value()
+                     split_into_lists(s)            = [new linear_string_state(s)] /!semi_list -re- it[0].value()
 
-                                              -where [expression(s) = expression(s), expression = annotate(expression, 'expression'),
+                                              -where [semi_list(ss) = semi_list(ss), semi_list = annotate(semi_list, 'semi_list'),
 
-                                                      whitespace    = linear_regexp(/\s+/) /!optional,
-                                                      wsr(regexp)   = whitespace /-bfs/ linear_regexp(regexp),
-                                                      fold(nodes)   = nodes /[x /-syntax.cons/ x0] -seq,
+                                                      whitespace              = linear_regexp(/\s+/) /!optional,
+                                                      wsr(regexp)             = whitespace /-bfs/ linear_regexp(regexp),
+                                                      fold(nodes)             = nodes /[x0 /-syntax.cons/ x] -seq,
 
-                                                      atom          = wsr(/[^\n\t, ()\[\]{}]+/) /-map/ "new syntax(_[0])".qf,
-                                                      list(o, c)    = wsr(o) / manyc(expression) /-bfc/ wsr(c) /-map/ "_[1] /!fold".qf,
-                                                      paren_list    = list(/\(/, /\)/),
-                                                      bracket_list  = list(/\[/, /\]/),
-                                                      brace_list    = list(/\{/, /\}/),
+                                                      list(o, c)              = wsr(o) / semi_list /-bfc/ wsr(c) /-map/ "_[1]".qf,
+                                                      paren_list              = list(/\(/, /\)/),
+                                                      bracket_list            = list(/\[/, /\]/),
+                                                      brace_list              = list(/\{/, /\}/),
 
-                                                      comma_pair    = expression / wsr(/and/) /-bfc/ expression /-map/ "syntax.cons(_[0], _[2])".qf,
-                                                      comma_list    = (expression /-bfc/ wsr(/,/) /-map/ "_[0]".qf) /!manyc / wsr(/and/) /-bfc/ expression /-map/ "fold(_[0] + [_[2]] -seq)".qf,
+                                                      delimited(p, separator) = p /-bfc/ manyc(separator /!wsr /-bfc/ p /-map/ "_[1]".qf) /-map/ "fold([_[0]] + _[1] -seq)".qf /-alt/ p,
 
-                                                      expression    = paren_list / bracket_list / brace_list / comma_pair / comma_list /-alt/ atom]
+                                                      symbol                  = wsr(/[^\n\t ,;()\[\]\{\}]+/) /-map/ "new syntax(_[0])".qf,
+                                                      atom                    = symbol / paren_list / bracket_list /-alt/ brace_list,
+
+                                                      application             = atom /!manyc /-map/ fold,
+                                                      comma_list              = delimited(application, /,/),
+                                                      semi_list               = delimited(comma_list, /;/)]
 
                                               -using- caterwaul.parser
                                               -using- caterwaul.havoc]})(caterwaul);
@@ -2584,7 +2585,7 @@ caterwaul.js_all()(function ($) {
 Parser tests.
 These just make sure that the parser doesn't choke on well-formed input. In an ideal world they would be verified somehow, but for now I can manually look over the output.
 
-  test_case(x) = $.havoc.parse(x) *[x.structure()] -seq,
+  test_case(x) = $.havoc.parse(x).structure(),
 
   t('foo'),
   t('foo bar (bif)'),
