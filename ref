@@ -1988,31 +1988,21 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                    methods           = capture [h()                  = this[0],
                                                 t()                  = this[1],
 
-                                                serialize(xs)        = this.is_equation() ? xs -se [xs.push('(') -se- this.lhs().serialize(xs) -se- xs.push(' = ')
-                                                                                                                 -se- this.rhs().serialize(xs) -se- xs.push(')')] :
-
-                                                                                            xs -se [this.length === 2 ? xs.push('(') -se- this[0].serialize(xs) -se- xs.push(this.data) -se-
-                                                                                                                                          this[1].serialize(xs) -se- xs.push(')') :
-                                                                                                                        xs.push(this.data)],
+                                                serialize(xs)        = xs -se [this.length === 2 ? xs.push('(') -se- this[0].serialize(xs) -se- xs.push(' #{this.data} ') -se-
+                                                                                                                     this[1].serialize(xs) -se- xs.push(')') :
+                                                                                                   xs.push(this.data)],
 
   Role detection.
   Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
   form '= x y' for some x and y. A tree of this form is required to return a rewriter that, when applied to an input that matches 'x', returns an output that matches 'y'.
 
-                                                is_equation()        = this.is_cons() && this.h().is_cons() && this.h().h().data === '=',
+                                                is_equation()        = this.data === '=',
                                                 is_intrinsic()       = false,
                                                 is_rewriter()        = this.is_equation() || this.is_intrinsic(),
                                                 is_wildcard()        = /^[a-z]/.test(this.data),
-                                                is_cons()            = this.data === '::',
 
-                                                lhs()                = this.h().t(),
-                                                rhs()                = this.t(),
-
-  Format conversion.
-  Most Havoc trees are conses, but there are times when you would prefer to have a Javascript list of things. Javascript arrays have a few advantages, one of which being that they are more
-  efficient to work with than cons trees. This method produces a Javascript list of syntax trees from a cons tree.
-
-                                                unconjoin()          = +this.flatten('&&') -seq,
+                                                lhs()                = this[0],
+                                                rhs()                = this[1],
 
   Complexity analysis.
   Each equation has a certain complexity, which is a way of measuring the expected amount of work required to expand the equation. For any nonrecursive definition it's 0, for linear recursion
@@ -2038,18 +2028,17 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                                                        (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
 
                                                 intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
-                                                equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it -se- console.log(it %v*[x.toString()] -seq)) /se [console.log('#{rhs.structure()} -> #{it.structure()}')] /when.it] -where [lhs = this.lhs(), rhs = this.rhs()]],
+                                                equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this.lhs(), rhs = this.rhs()]],
 
   Static constructors.
   These are shorthands for producing common kinds of syntax trees. You should use these rather than building syntax trees directly, since at some point the format might change.
 
-                   statics_for(ctor) = wcapture [nil                   = new ctor('nil'),
-                                                 symbol(x)             = new ctor(x),
-                                                 literal(x)            = new ctor("'#{x}"),
-                                                 cons(x, y)            = new ctor('::', x, y),
-                                                 and(x, y)             = new ctor('&&', x, y),
-                                                 equation(x, y)        = cons(cons(symbol('='), x), y),
-                                                 intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);
+                   statics_for(ctor) = capture [application(x, y)     = new ctor(' ', x, y),
+                                                infix(op, x, y)       = new ctor(op, x, y),
+                                                comma(x, y)           = new ctor(',', x, y),
+                                                symbol(x)             = new ctor(x),
+                                                literal(x)            = new ctor("'#{x}"),
+                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);
 
 __
 meta::module('havoc.parser', <<'__');
@@ -2079,19 +2068,13 @@ by the lexer. These include literate paragraphs, which follow SDoc syntax, and l
 This syntax was chosen to be ergonomic (hence the capital letter heuristic and the choice of - and /), and to allow traditional constructs like the shebang line. I make no claim that you'd
 want to use shebang-style interpretation without a memoizing interpreter ... but the syntax won't prevent you from doing so.
 
-Lists.
-Havoc behaves similarly to Lisp in concept, but differently in a number of important ways. It conses source code into lists of symbols, but it does so in a sort of strange way. First, cons is
-left-associative and represents function application. This means that 'f x y' becomes (:: (:: f x) y), not (:: f (:: x y)) as it would in a right-associative language. Second, there is no
-'nil' element; this preserves the conventional intuition that (x) is the same as x. By extension, all consed lists end with an improper cons cell.
+Operators.
+My initial inclination was to use lists to represent all expressions. However, lists suck (in my very biased opinion). So, Havoc doesn't try to make lists out of stuff you write. Instead, it
+folds your code into a right-associative syntax tree, where it infers operators based on the first character of each symbol. Operators include a motley assortment of characters I decided
+should be operators; the reference implementation isn't necessarily to spec about this.
 
-Havoc also adds parenthesis-free syntax for building lists. This is done with the infix operators comma and semicolon, like this:
-
-| foo bar, bif                                  -> (:: (:: foo bar) bif)
-  foo, bar bif                                  -> (:: foo (:: bar bif))
-  foo x, bar y, bif                             -> (:: (:: (:: foo x) (:: bar y)) bif)
-  (foo x, bar y), bif, baz                      -> (:: (:: (:: (:: foo x) (:: bar y)) bif) baz)
-  foo bar, bif baz; quux, bok                   -> (:: (:: (:: foo bar) (:: bif baz)) (:: quuz bok))
-  foo bar, bif baz; one fish, two fish          -> (:: (:: (:: foo bar) (:: bif baz)) (:: (:: one fish) (:: two fish)))
+Note that function application always has higher precedence than operators. You can rewrite expressions to change this, but the parse considers function application to be the
+highest-precedence thing that can happen.
 
 Atoms.
 There are two kinds of atoms. One is a literal, which doesn't start with a letter, and the other is a variable, which does. This is backwards from Caterwaul's convention that variables start
@@ -2107,33 +2090,35 @@ It is, however, possible to write rules that transform infix expressions into pr
 
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
-             -where [without_comments(s)            = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n').replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
+             -where [without_comments(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n').replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
 
-                     split_into_lists(s)            = [new linear_string_state(s)] /!semi_list -re- it[0].value()
+                     split_into_lists(s) = [new linear_string_state(s)] /!toplevel -re- it[0].value()
 
-                                              -where [semi_list(ss) = semi_list(ss), semi_list = annotate(semi_list, 'semi_list'),
+                                   -where [toplevel(ss) = toplevel(ss), toplevel = annotate(toplevel, 'toplevel'),
 
-                                                      whitespace              = linear_regexp(/\s+/) /!optional,
-                                                      wsr(regexp)             = whitespace /-bfs/ linear_regexp(regexp),
-                                                      cons(nodes)             = nodes /[x0 /-syntax.cons/ x] -seq,
-                                                      conjoin(nodes)          = nodes /[x0 /-syntax.and/  x] -seq,
+                                           whitespace            = linear_regexp(/\s+/) /!optional,
+                                           wsr(regexp)           = whitespace /-bfs/ linear_regexp(regexp),
 
-                                                      list(o, c)              = wsr(o) / semi_list /-bfc/ wsr(c) /-map/ "_[1]".qf,
-                                                      paren_list              = list(/\(/, /\)/),
-                                                      bracket_list            = list(/\[/, /\]/),
-                                                      brace_list              = list(/\{/, /\}/),
+                                           list(o, c)            = wsr(o) / toplevel /-bfc/ wsr(c) /-map/ "_[1]".qf,
+                                           paren_list            = list(/\(/, /\)/),
+                                           bracket_list          = list(/\[/, /\]/),
+                                           brace_list            = list(/\{/, /\}/),
 
-                                                      delimited(p, separator) = p /-bfc/ manyc(separator /!wsr /-bfc/ p /-map/ "_[1]".qf) /-map/ "conjoin([_[0]] + _[1] -seq)".qf /-alt/ p,
+                                           delimited(p, s, cons) = p /-bfc/ manyc(s /-bfc/ p) /-map/ "_[1] /[_[0]][x0 /-cons/ x] -seq".qf /-alt/ p,
 
-                                                      symbol                  = wsr(/[^\n\t ,;()\[\]\{\}]+/) /-map/ "syntax.symbol(_[0])".qf,
-                                                      atom                    = symbol / paren_list / bracket_list /-alt/ brace_list,
+                                           symbol                = wsr(/[a-zA-Z_'][^\n\t ,;()\[\]\{\}]*/) /-map/ "syntax.symbol(_[0])".qf,
+                                           operator              = wsr(/[^\n\t ,;()\[\]\{\}]+/)           /-map/ "syntax.symbol(_[0])".qf,
 
-                                                      application             = atom /!manyc /-map/ cons,
-                                                      comma_list              = delimited(application, /,/),
-                                                      semi_list               = delimited(comma_list, /;/)]
+                                           operator_literal      = wsr(/\(/) / operator /-bfc/ wsr(/\)/) /-map/ "_[1]".qf,
+                                           atom                  = operator_literal / symbol / paren_list / bracket_list /-alt/ brace_list,
 
-                                              -using- caterwaul.parser
-                                              -using- caterwaul.havoc]})(caterwaul);
+                                           application           = atom /!manyc /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
+                                           infix_tree            = delimited(application, operator, syntax.infix(y[1], y[0], x) -given [x, y]),
+                                           comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(y[1], x)       -given [x, y]),
+                                           toplevel              = comma_list]
+
+                                   -using- caterwaul.parser
+                                   -using- caterwaul.havoc]})(caterwaul);
 
 __
 meta::module('havoc.rewriter', <<'__');
@@ -2611,7 +2596,7 @@ These just make sure that the parser doesn't choke on well-formed input. In an i
   t('foo bar (bif)'),
   t('foo, bar, bif'),
   t('foo bar, bif'),
-  t('foo; bar, bif'),
+  t('foo, bar bif'),
   t('(foo bar)'),
   t('(foo bar) bif'),
   t('(foo (bar) bif)'),
@@ -2627,21 +2612,19 @@ These just make sure that the parser doesn't choke on well-formed input. In an i
 Rewriter tests.
 TODO
 
-  test_case(x) = $.havoc.scope($.havoc.parse(x).unconjoin())(new $.syntax("'test")).structure(),
+  test_case(x) = $.havoc.scope($.havoc.parse(x).flatten(','))(new $.syntax("'test")).structure(),
 
-  t("= 'test 'foo"),
-  t("= 'foo 'bar"),
+  t("'test = 'foo"),
+  t("'foo = 'bar"),
 
-  t("= ('foo x) (= 'test x)"),
-  t("= ('foo x) (= 'test x); 'foo 'bif"),
-  t("= ('foo x) (= 'test x); 'foo 'bar"),
+  t("('foo x) = ('test = x)"),
+  t("('foo x) = ('test = x), 'foo 'bif"),
+  t("('foo x) = ('test = x), 'foo 'bar"),
 
-  t("= (= 't x) (= 'test x)"),
-  t("= (= 't x) (= 'test x); = 't 10"),
-  t("= ('foo x) (= 'test x); = (= 't x) ('foo x); = 't 19"),
-  t("= ('foo x) (= 'test x); = (= 't y) ('foo y); = 't 19"),
-
-  t("= (x = y) (= x y); 'test = 5")}, {t: t})(caterwaul);
+  t("('t = x) = ('test = x)"),
+  t("('t = x) = ('test = x), 't = 10"),
+  t("('foo = x) = ('test = x), ('t = x) = ('foo x), 't = 19"),
+  t("('foo = x) = ('test = x), ('t = y) = ('foo y), 't = 19")}, {t: t})(caterwaul);
 
 __
 meta::sdoc('js::test-setup', <<'__');
