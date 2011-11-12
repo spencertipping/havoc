@@ -1,0 +1,52 @@
+Havoc reference implementation | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This file provides the base attachment point for the Havoc reference implementation. Other modules extend this function. It also sets up core methods associated with Havoc syntax trees.
+
+caterwaul.js_all()(function ($) {
+  $.havoc() = $.havoc.compile($.havoc.parse.apply(this, arguments)),
+
+Syntax trees.
+These are the usual Caterwaul syntax trees, but customized for Havoc interpreter operation.
+
+  $.havoc.syntax = $.syntax_subclass(ctor, methods) -se- it /-$.merge/ statics_for(it)
+
+           -where [ctor(data, xs = +arguments -seq -se- it.shift()) = data instanceof this.constructor ? this -se [it.data = data.data, it.length = 0]
+                                                                                                       : this -se [it.data = data, it.length = 0, xs *!it.push -seq],
+
+                   methods = capture [serialize(xs)        = xs -se [this.length === 0 ? xs.push(this.data)
+                                                                                       : xs.push('(') -se- this[0].serialize(xs) -se- xs.push(d) -se- this[1].serialize(xs) -se- xs.push(')')
+                                                                                         -where [d = this.data === ' ' ? ' ' : ' #{this.data} ']],
+
+                                      id()                 = this._id || (this._id = this.structure()),
+
+  Role detection.
+  Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
+  form '= x y' for some x and y. A tree of this form is required to return a rewriter that, when applied to an input that matches 'x', returns an output that matches 'y'.
+
+                                      is_equation()        = this.data === '=',
+                                      is_intrinsic()       = false,
+                                      is_rewriter()        = this.is_equation() || this.is_intrinsic(),
+                                      is_wildcard()        = /^[a-z]/.test(this.data),
+
+  Rewriting.
+  Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
+  is an equation. It returns false if the node is not an equation.
+
+                                      rewrite(x)           = this.rewriter()(x) -when- this.is_rewriter(),
+                                      rewriter()           = this._rewriter ||
+                                                             (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
+
+                                      intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
+                                      equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this[0], rhs = this[1]]],
+
+  Static constructors.
+  These are shorthands for producing common kinds of syntax trees. You should use these rather than building syntax trees directly, since at some point the format might change.
+
+                   statics_for(ctor) = capture [application(x, y)     = new ctor(' ', x, y),
+                                                infix(op, x, y)       = new ctor(op,  x, y),
+                                                comma(x, y)           = new ctor(',', x, y),
+                                                equation(x, y)        = new ctor('=', x, y),
+                                                symbol(x)             = new ctor(x),
+                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);

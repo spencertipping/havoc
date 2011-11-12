@@ -1,0 +1,14 @@
+Havoc reference implementation REPL | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module provides a simple REPL for Caterwaul. The REPL has a small set of utility functions that you can use to do things like loading external files or saving the equation state.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.repl() = link_stdin_to(handle_interaction)
+
+           -where [repl_scope            = $.havoc.scope([]),
+                   handle_input(s)       = /^\?/.test(s) ? repl_scope($.havoc.parse(s.substr(1))) : repl_scope /~assume/ $.havoc.parse(s),
+                   handle_interaction(s) = console.log('\033[1;34m%s\033[0;0m', handle_input(s).toString()) -se- prompt(),
+                   prompt()              = process.stdout.write('\033[1;32mhavoc\033[1;30m :: \033[0;0m'),
+                   link_stdin_to(f)      = process.stdin -se [it.on('data', f), it.setEncoding('utf8'), it.resume(), prompt()]]})(caterwaul);

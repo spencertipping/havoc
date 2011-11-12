@@ -1,0 +1,27 @@
+Havoc reference implementation rewriter | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module takes the toplevel parse output along with an expression and returns its expansion. Since this is only a reference implementation, it is not particularly fast.
+
+caterwaul.js_all()(function ($) {
+
+Rewriting mechanics.
+This is a fairly basic bootstrapping rewrite system. The rule we set up is that = does what you'd expect, and for initial rewriting rules, quantification is indicated by prefixing variables
+with underscores rather than using ∀ explicitly. (Later on this modification gets incorporated into the rewriting rules so that you can use ∀.)
+
+The parser returns an array of toplevel expressions, which is a perfect place to start. This array is then used for rewrite-table lookups. This process is done in the dumbest possible way:
+each term is compared to each toplevel expression and the fixed-point of this expansion is then run. When there are no more expansions, the result is added to the list as an axiom.
+
+Scoping.
+Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
+are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten. I refer to the invariants as assumptions.
+
+  $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf /se [it.assumptions = assumptions, it.already_assumed = already_assumed, it.assume = assume]
+
+                      -where [assumptions       = [],
+                              already_assumed   = {},
+                              add_assumption(v) = assumptions /~push/ v -re [already_assumed[v.id()] = v],
+
+                              assume(v)         = add_assumption(v) -se- v /!rewrite /!assume -se- assumptions *![x /!rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when [it.length > 1]]]})(caterwaul);

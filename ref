@@ -1327,8 +1327,7 @@ __
 meta::function('reload', 'around_hook(\'reload\', sub {execute($_) for grep ! /^bootstrap::/, keys %data});');
 meta::function('render', <<'__');
 around_hook('render', @_, sub {
-  file::write("$_.js",     sdoc("module::$_")) for modules();
-  file::write('test.html', retrieve('pp::html::test'))});
+  file::write(name() . "-src/$_.js.sdoc", retrieve("module::$_"), mkpath => 1) for modules()});
 
 __
 meta::function('repl', <<'__');
@@ -1604,6 +1603,10 @@ unlink $other if my $result = $observed eq (my $state = state());
 terminal::error("Verification failed; expected $state but got $observed from $other") unless $result;
 hook('after-verify', $result, observed => $observed, expected => $state);
 $result;
+__
+meta::hook('after-shell::render', <<'__');
+render();
+
 __
 meta::hook('before-shell::ad-module', <<'__');
 ad('module::');
