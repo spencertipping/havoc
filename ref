@@ -271,7 +271,6 @@ meta::define_form 'template', sub {
   meta::externalize "template::$name", "template::$name", meta::eval_in("sub {\n$value\n}", "template::$name");
 };
 __
-meta::meta('type::vim_highlighter', 'meta::functor::editable \'vim_highlighter\', extension => \'.vim\', inherit => 1, default => \'edit\';');
 meta::alias('e', 'havoc');
 meta::alias('ed', 'edit sdoc::js::dependencies');
 meta::alias('em', 'edit sdoc::js::modules');
@@ -1609,10 +1608,6 @@ terminal::error("Verification failed; expected $state but got $observed from $ot
 hook('after-verify', $result, observed => $observed, expected => $state);
 $result;
 __
-meta::function('vim', <<'__');
-# Installs VIM highlighters.
-file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
-__
 meta::hook('after-shell::render', <<'__');
 render();
 
@@ -2514,12 +2509,6 @@ template::script-include       76be051ad116449ddebd10e7c3729afd
 template::style-include        8e5a06b70e1b00379765f319bf6c8066
 
 __
-meta::parent('vim-highlighters', <<'__');
-function::vim                cf9e37026f6cd1499a6dd258fbbcd060
-meta::type::vim_highlighter  11a2d74eca3445ee1b7887a6f6370462
-parent::object               7374722eec54c39ab752e3fb032c1886
-
-__
 meta::retriever('file', '-f $_[0] ? file::read($_[0]) : undef;');
 meta::retriever('html-sdoc', <<'__');
 my ($attribute) = @_;
@@ -2754,52 +2743,6 @@ my ($name) = @_;
 my $s      = 'style';
 my $style  = retrieve($name);
 "<$s>\n$style\n</$s>";
-
-__
-meta::vim_highlighter('havoc', <<'__');
-" Havoc VIM highlighter | Spencer Tipping
-" Licensed under the terms of the MIT source code license
-
-" Language:   Havoc
-" Maintainer: Spencer Tipping <spencer@spencertipping.com>
-
-if exists("main_syntax") && exists("b:current_syntax")
-  finish
-endif
-
-let main_syntax = 'havoc'
-
-syn sync minlines=5
-syn case match
-setlocal iskeyword=33-39,42-43,45-127
-
-" High-level lexer concerns:
-syn match   havoc_line_comment      /\(^\s*\|\s\s\+\)\([-#\/A-Z]\).*$/
-syn match   havoc_literal_symbol    /\<[^A-Za-z][^()\[\]{} \n\t,;]*[A-Za-z0-9_']\>/
-syn match   havoc_variable_symbol   /\<[A-Za-z][^()\[\]{} \n\t,;]*[A-Za-z0-9_']\>/
-syn match   havoc_literal_operator  /\<[^A-Za-z][^()\[\]{} \n\t,;]*[^A-Za-z0-9_'\n\t;, ()\[\]{}]\>/
-syn match   havoc_variable_operator /\<[A-Za-z][^()\[\]{} \n\t,;]*[^A-Za-z0-9_'\n\t;, ()\[\]{}]\>/
-
-hi link havoc_line_comment      Comment
-hi link havoc_literal_symbol    Identifier
-hi link havoc_variable_symbol   Normal
-hi link havoc_literal_operator  Operator
-hi link havoc_variable_operator Special
-
-" Havoc literate programming stuff, mostly taken from SDoc:
-syn region  sd_block_comment    start=/\(^$\n^\|\%^\)\s*[A-Z\|]/ end=/^\s*$\|\%$/ contains=sd_coerce_sdoc,sd_heading,sd_name_author keepend
-syn match   sd_heading          /\(^$\n^\|\%^\)\s*[A-Z].\{,60\}\.$/ contained
-syn match   sd_coerce_sdoc      /^\s*|\(\s\|$\)/ contained
-syn match   sd_preprocessor     /^\s*-\s\+\w\+.*$/
-syn match   sd_name_author      /\%^.*$/ contained contains=sd_author_delimiter
-syn match   sd_author_delimiter /|/ contained
-
-hi link sd_block_comment        Comment
-hi link sd_heading              PreProc
-hi link sd_coerce_sdoc          PreProc
-hi link sd_preprocessor         Special
-hi link sd_name_author          Special
-hi link sd_author_delimiter     SpecialKey
 
 __
 internal::main();
