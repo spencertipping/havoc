@@ -276,6 +276,7 @@ meta::alias('ed', 'edit sdoc::js::dependencies');
 meta::alias('em', 'edit sdoc::js::modules');
 meta::alias('ep', 'havoc.parser');
 meta::alias('er', 'havoc.rewriter');
+meta::alias('ere', 'havoc.repl');
 meta::alias('et', <<'__');
 edit sdoc::js::test -f
 
@@ -1152,6 +1153,11 @@ dangerous('', sub {&$_(@args)}) for grep /^hook::${hook}::/, sort keys %data;
 @args;
 __
 meta::function('hooks', 'join "\\n", sort keys %{$transient{active_hooks}};');
+meta::function('hrepl', <<'__');
+around_hook('hrepl', sub {
+  with_exported('pp::js::hrepl', sub {sh('node', @_)})});
+
+__
 meta::function('identity', 'retrieve(\'data::permanent-identity\') || associate(\'data::permanent-identity\', fast_hash(rand() . name() . serialize()));');
 meta::function('import', <<'__');
 my $name = pop @_;
@@ -2060,16 +2066,13 @@ Note that function application always has higher precedence than operators. You 
 highest-precedence thing that can happen.
 
 Atoms.
-There are two kinds of atoms. One is a literal, which doesn't start with a letter, and the other is a variable, which does. This is backwards from Caterwaul's convention that variables start
-with an underscore, but Havoc is biased towards abstraction rather than constants. The convention in Havoc is to begin literal words with a single quotation mark, as in Lisp. So, for example:
+There are two kinds of atoms. One is a literal or operator, which doesn't start with a letter, and the other is a variable, which does. This is backwards from Caterwaul's convention that
+variables start with an underscore, but Havoc is biased towards abstraction rather than constants. The convention in Havoc is to begin literal words with a single quotation mark, as in Lisp.
+So, for example:
 
 | 'fact n = n > 0 ? 'fact (n - 1) : 1
 
-Note that out of the box, Havoc's parser has absolutely no support for this infix notation. You'd have to write the above definition like this:
-
-| = ('fact n) (? (> n 0) ('fact (- n 1)) 1)
-
-It is, however, possible to write rules that transform infix expressions into prefix. These are provided by Havoc's standard library.
+This is obviously not the same notation used in the files in doc/. The reference implementation differs from the ideal on this point.
 
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
@@ -2101,6 +2104,23 @@ It is, however, possible to write rules that transform infix expressions into pr
                                    -using- caterwaul.havoc]})(caterwaul);
 
 __
+meta::module('havoc.repl', <<'__');
+Havoc reference implementation REPL | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module provides a simple REPL for Caterwaul. The REPL has a small set of utility functions that you can use to do things like loading external files or saving the equation state.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.repl() = link_stdin_to(handle_interaction)
+
+           -where [repl_scope            = $.havoc.scope([]),
+                   handle_input(s)       = /^\?/.test(s) ? repl_scope($.havoc.parse(s.substr(1))) : repl_scope /~assume/ $.havoc.parse(s),
+                   handle_interaction(s) = console.log('\033[1;34m%s\033[0;0m', handle_input(s).toString()) -se- prompt(),
+                   prompt()              = process.stdout.write('\033[1;32mhavoc\033[1;30m :: \033[0;0m'),
+                   link_stdin_to(f)      = process.stdin -se [it.on('data', f), it.setEncoding('utf8'), it.resume(), prompt()]]})(caterwaul);
+
+__
 meta::module('havoc.rewriter', <<'__');
 Havoc reference implementation rewriter | Spencer Tipping
 Licensed under the terms of the MIT source code license
@@ -2121,7 +2141,7 @@ Scoping.
 Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
 are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten. I refer to the invariants as assumptions.
 
-  $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf
+  $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf /se [it.assumptions = assumptions, it.already_assumed = already_assumed, it.assume = assume]
 
                       -where [assumptions       = [],
                               already_assumed   = {},
@@ -2515,6 +2535,18 @@ from.
 - include cached_dependency::caterwaul.parser.js
 
 __
+meta::sdoc('js::hrepl', <<'__');
+Havoc REPL driver.
+This just loads up the Havoc environment and creates a REPL.
+
+- pinclude pp::js::dependencies
+- pinclude pp::js::modules
+
+- pinclude perl::sdoc('module::havoc.repl')
+
+caterwaul.havoc.repl();
+
+__
 meta::sdoc('js::modules', <<'__');
 Module loading code.
 This is where your modules get loaded into the REPL. This script is included by sdoc::js::repl and is used to render into HTML for cross-browser testing.
@@ -2522,6 +2554,7 @@ This is where your modules get loaded into the REPL. This script is included by 
 - include perl::sdoc('module::havoc')
 - include perl::sdoc('module::havoc.parser')
 - include perl::sdoc('module::havoc.rewriter')
+- include perl::sdoc('module::havoc.repl')
 
 __
 meta::sdoc('js::repl', <<'__');
