@@ -12,12 +12,15 @@ caterwaul.js_all()(function ($) {
                    help_table            = capture [help  = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
                                                     state = ':state prints the list of assumptions being made by the toplevel scope.\n' +
                                                             ':state <expression> prints assumptions that match <expression>.',
+                                                    load  = ':load <filename> assumes all expressions in <filename>.',
                                                     clear = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
 
                    commands              = capture [help(c)  = c ? help_table[c.replace(/^:/, '')] : 'commands: ' + help_table /keys *[':#{x}'] /seq /re [it.join(' ')],
 
                                                     state(x) = x ? repl_scope.assumptions %~![x.toString() -when- p /~match/ x] -seq -re- it.join('\n') -where [p = $.havoc.parse(x)]
                                                                  : repl_scope.assumptions *[x.toString()] -seq -re- it.join('\n'),
+
+                                                    load(x)  = 
 
                                                     clear(x) = x ? 'removed these assumptions:\n#{removed_assumptions.join("\n")}' -se [repl_scope.assumptions = remaining_assumptions]
                                                                    -where [p                     = $.havoc.parse(x),

@@ -26,7 +26,7 @@ want to use shebang-style interpretation without a memoizing interpreter ... but
 
 Operators.
 My initial inclination was to use lists to represent all expressions. However, lists suck (in my very biased opinion). So, Havoc doesn't try to make lists out of stuff you write. Instead, it
-folds your code into a right-associative syntax tree, where it infers operators based on the first character of each symbol. Operators include a motley assortment of characters I decided
+folds your code into a left-associative syntax tree, where it infers operators based on the first character of each symbol. Operators include a motley assortment of characters I decided
 should be operators; the reference implementation isn't necessarily to spec about this.
 
 Note that function application always has higher precedence than operators. You can rewrite expressions to change this, but the parse considers function application to be the
@@ -49,19 +49,30 @@ This is obviously not the same notation used in the files in doc/. The reference
 
                                    -where [toplevel(ss) = toplevel(ss), toplevel = annotate(toplevel, 'toplevel'),
 
-                                           wsr(regexp)           = linear_regexp(/\s+/) /!optional /-bfs/ linear_regexp(regexp),
+                                           whitespace            = linear_regexp(/\s+/),
+                                           wsr(regexp)           = whitespace /!optional /-bfs/ linear_regexp(regexp),
+                                           delimited(p, s, cons) = p /-bfc/ manyc(s /-bfc/ p) /-map/ "_[1] /[_[0]][x0 /-cons/ x] -seq".qf /-alt/ p,
 
-                                           symbol                = wsr(/[0-9a-zA-Z_'][^\n\t ,;()\[\]\{\}]*/) /-map/ "_[0] /!syntax.symbol".qf,
-                                           operator              = wsr(             /[^\n\t ,;()\[\]\{\}]+/) /-map/ "_[0] /!syntax.symbol".qf,
-                                           operator_literal      = wsr(/\(/) / operator /-bfc/ wsr(/\)/)     /-map/ "_[1]".qf,
-                                           list(o, c)            = wsr(o)    / toplevel /-bfc/ wsr(c)        /-map/ "_[1]".qf,
+                                           not_identifier        = linear_regexp(/[\n\t ,;\(\)\[\]\{\}]/) /-alt/ linear_string_state.end() /!match,
+                                           identifier            = linear_regexp(/[^\n\t ,;\(\)\[\]\{\}]+/)          /-map/ "_[0]".qf,
+                                           symbol_segment        = linear_regexp(/[A-Za-z0-9_']+/)                   /-map/ "_[0]".qf,
+                                           operator_segment      = linear_regexp(/[^A-Za-z0-9_' \n\t,;()\[\]\{\}]+/) /-map/ "_[0]".qf,
+
+                                           symbol                = whitespace /!optional / delimited(symbol_segment, operator_segment, x + y.join('') -given [x, y]) /-bfc/ not_identifier
+                                                            /-map/ "syntax.symbol(_[1])".qf,
+
+                                           // Note: operator is too general to use directly; you need to try to match a symbol first and use operator only when symbols fail. Otherwise
+                                           // everything will be considered an operator.
+                                           operator              = whitespace /!optional /-bfs/ identifier /-map/ syntax.symbol,
+
+                                           operator_literal      = wsr(/\(/) / operator /-bfc/ wsr(/\)/) /-map/ "_[1]".qf,
+                                           list(o, c)            = wsr(o)    / toplevel /-bfc/ wsr(c)    /-map/ "_[1]".qf,
                                            paren_list            = list(/\(/, /\)/),
                                            bracket_list          = list(/\[/, /\]/),
                                            brace_list            = list(/\{/, /\}/),
 
-                                           atom                  = operator_literal / paren_list / bracket_list / brace_list /-alt/ symbol,
+                                           atom                  = symbol / paren_list / bracket_list / brace_list /-alt/ operator_literal,
 
-                                           delimited(p, s, cons) = p /-bfc/ manyc(s /-bfc/ p) /-map/ "_[1] /[_[0]][x0 /-cons/ x] -seq".qf /-alt/ p,
                                            application           = atom /!manyc /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
                                            infix_tree            = delimited(application, operator, syntax.infix(y[0].data, x, y[1]) -given [x, y]),
                                            comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(x, y[1])            -given [x, y]),
