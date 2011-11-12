@@ -1,10 +1,18 @@
-Havoc: A relational programming language whose compiler is usually correct.
+Havoc: a relational programming language.
 
-If this language looks interesting, you should first check out Pure at
-http://pure-lang.googlecode.com. It is similar to Havoc in that it supports
-term rewriting, but has the following benefits over Havoc:
+See the files in doc/ for conceptual background. The reference implementation
+provides a REPL based on node.js. For example:
 
-1. It probably has no potentially debilitating contradictions
-2. It has reasonable performance
-3. Its compiler is not necessarily NP-complete
-4. Its compiler exists
+  $ ./ref hrepl
+  havoc :: 'foo = 'bar
+  ('foo = 'bar)
+  havoc :: ? 'foo
+  'bar
+  havoc :: ('f x) = ('g = x)
+  (('f x) = ('g = x))
+  havoc :: 'f 10
+  ('f 10)
+  havoc :: ? 'g
+  10
+  havoc :: ^D
+  $
