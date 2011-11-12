@@ -1983,13 +1983,15 @@ Syntax trees.
 These are the usual Caterwaul syntax trees, but customized for Havoc interpreter operation.
 
   $.havoc.syntax = $.syntax_subclass(ctor, methods) -se- it /-$.merge/ statics_for(it)
+
            -where [ctor(data, xs = +arguments -seq -se- it.shift()) = data instanceof this.constructor ? this -se [it.data = data.data, it.length = 0]
                                                                                                        : this -se [it.data = data, it.length = 0, xs *!it.push -seq],
 
-                   methods = capture [serialize(xs)        = xs -se [this.length === 2 ? xs.push('(') -se- this[0].serialize(xs) -se- xs.push(d) -se-
-                                                                                                           this[1].serialize(xs) -se- xs.push(')')
-                                                                                       : xs.push(this.data),
-                                                                     where [d = this.data === ' ' ? ' ' : ' #{this.data} ']],
+                   methods = capture [serialize(xs)        = xs -se [this.length === 0 ? xs.push(this.data)
+                                                                                       : xs.push('(') -se- this[0].serialize(xs) -se- xs.push(d) -se- this[1].serialize(xs) -se- xs.push(')')
+                                                                                         -where [d = this.data === ' ' ? ' ' : ' #{this.data} ']],
+
+                                      id()                 = this._id || (this._id = this.structure()),
 
   Role detection.
   Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
@@ -2092,7 +2094,7 @@ It is, however, possible to write rules that transform infix expressions into pr
                                            delimited(p, s, cons) = p /-bfc/ manyc(s /-bfc/ p) /-map/ "_[1] /[_[0]][x0 /-cons/ x] -seq".qf /-alt/ p,
                                            application           = atom /!manyc /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
                                            infix_tree            = delimited(application, operator, syntax.infix(y[0].data, x, y[1]) -given [x, y]),
-                                           comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(y[1], x)            -given [x, y]),
+                                           comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(x, y[1])            -given [x, y]),
                                            toplevel              = comma_list]
 
                                    -using- caterwaul.parser
@@ -2121,9 +2123,12 @@ are the equations used to rewrite things within it, and 'variants', which are th
 
   $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf
 
-                      -where [assumptions = [],
-                              assume(v)   = assumptions /~push/ v -se- v /!rewrite /!assume -when.v,
-                              rewrite(v)  = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when- it.length > 1]]})(caterwaul);
+                      -where [assumptions       = [],
+                              already_assumed   = {},
+                              add_assumption(v) = assumptions /~push/ v -re [already_assumed[v.id()] = v],
+
+                              assume(v)         = add_assumption(v) -se- v /!rewrite /!assume -se- assumptions *![x /!rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when [it.length > 1]]]})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
@@ -2565,7 +2570,7 @@ These just make sure that the parser doesn't choke on well-formed input. In an i
 Rewriter tests.
 TODO
 
-  test_case(x) = $.havoc.scope($.havoc.parse(x).flatten(','))(new $.syntax("'test")).structure(),
+  test_case(x) = $.havoc.scope($.havoc.parse(x).flatten(','))($.havoc.parse("'test")).structure(),
 
   t("'test = 'foo"),
   t("'foo = 'bar"),
@@ -2576,8 +2581,8 @@ TODO
 
   t("('t = x) = ('test = x)"),
   t("('t = x) = ('test = x), 't = 10"),
-  t("('foo = x) = ('test = x), ('t = x) = ('foo x), 't = 19"),
-  t("('foo = x) = ('test = x), ('t = y) = ('foo y), 't = 19")}, {t: t})(caterwaul);
+  t("('foo = x) = ('test = x), ('t = x) = ('foo = x), 't = 19"),
+  t("('foo = x) = ('test = x), ('t = y) = ('foo = y), 't = 19")}, {t: t})(caterwaul);
 
 __
 meta::sdoc('js::test-setup', <<'__');
