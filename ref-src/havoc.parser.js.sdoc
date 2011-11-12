@@ -73,7 +73,7 @@ This is obviously not the same notation used in the files in doc/. The reference
 
                                            atom                  = symbol / paren_list / bracket_list / brace_list /-alt/ operator_literal,
 
-                                           application           = atom /!manyc /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
+                                           application           = atom /!manyc_one /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
                                            infix_tree            = delimited(application, operator, syntax.infix(y[0].data, x, y[1]) -given [x, y]),
                                            comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(x, y[1])            -given [x, y]),
                                            toplevel              = comma_list]

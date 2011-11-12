@@ -1,0 +1,11 @@
+Linked lists.
+This is a test library for Havoc. It is totally not going to be used in production.
+
+'head ('cons x xs) = x,
+'tail ('cons x xs) = xs,
+
+'map f ('cons x xs) = 'cons (f x) ('map f xs),
+'map f 'nil         = 'nil,
+
+'filter f ('cons x xs) = f x ('cons x ('filter f xs)) ('filter f xs),
+'filter f 'nil         = 'nil

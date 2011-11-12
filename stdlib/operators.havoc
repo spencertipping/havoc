@@ -1,0 +1,7 @@
+Operator precedence library.
+
+('precedence (a$) < 'precedence (b$)) = ((x a$ y b$ z) = (x a$ (y b$ z))),
+('precedence (a$) < 'precedence (b$), 'precedence (b$) < 'precedence (c$)) = ('precedence (a$) < 'precedence (c$)),
+
+'precedence (+) < 'precedence (*),
+'precedence (==) < 'precedence (+)

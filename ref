@@ -449,8 +449,6 @@ caterwaul.js_all()(function ($) {
 // appropriately-defined termination conditions. This means that you could theoretically use these parser combinators to identify properties of continuous vector fields or other non-discrete
 // directed structures.
 
-  $.parser = capture [
-
   // Parser type annotation.
 //   This is useful for writing your own parsers or forward definitions. You need to annotate them in order for them to be usable with other combinators. So, for example, suppose we're parsing
 //   arithmetic expressions with parentheses and you need a forward definition for the recursive 'expression' rule. You'd need to annotate the shell function like this:
@@ -464,8 +462,8 @@ caterwaul.js_all()(function ($) {
   // Along the same line of thought is the 'parsers' function, which takes an array-like thing of parsers and type-checks each one. It automatically throws an error if any of them doesn't look
 //   like a parser.
 
-    annotate = annotate,
-    parsers  = parsers,
+  $.parser = capture [annotate = annotate,
+                      parsers  = parsers],
 
   // Traversal combinators.
 //   Linear parser combinator libraries generally implement a 'seq' or 'join' combinator that causes one parser to be activated and then followed by another one. Because there is only one path to
@@ -500,9 +498,11 @@ caterwaul.js_all()(function ($) {
 //   tricky given that we're potentially cloning them on every step. This logic is captured by step_matrix_mutable(), which optimizes linear cases. (step_matrix_immutable doesn't employ this
 //   optimization, which may be safer if you want to preserve intermediate matrices.)
 
+  $.parser /-$.merge/ wcapture [
+
     bfs(ps = parsers('bfs', arguments), annotate(result, 'bfs', ps))(states) = ps /[states][x /-memo/ x0] -seq,
-    bfc(ps = parsers('bfc', arguments), annotate(result, 'bfc', ps))(states) = ps /[states /!$.parser.state_matrix][step(x)(x0)] /seq /!$.parser.row_composite_states_from
-                                                                               -where [step = $.parser.step_matrix_mutable],
+    bfc(ps = parsers('bfc', arguments), annotate(result, 'bfc', ps))(states) = ps /[states /!state_matrix][step_matrix_mutable(x)(x0)] /seq /!row_composite_states_from,
+
     state_matrix(states)         = states *[[x]] -seq,
     step_matrix_mutable(p)(m)    = m *~!r[xs.length === 1 ? r.push(xs[0]) && [r] : xs *~[r + [x]] -seq, where [xs = p /-memo_single/ r[r.length - 1]]] -seq,
     step_matrix_immutable(p)(m)  = m *~!~r[memo_single(p, r[r.length - 1]) *~[r + [x]]] -seq,
@@ -534,12 +534,15 @@ caterwaul.js_all()(function ($) {
 //   means that some rows have fewer columns than others. In order to deal with this in a breadth-first way, we need to keep track of which states have terminated and stop iterating those while
 //   simultaneously flat-mapping others. I'm doing this by appending a null entry to terminated arrays. The iteration is done when all rows end with null.
 
-    manyc(p, annotate(result, 'manyc', [p]))(states)   = $.parser.state_matrix(states) /~!step /seq /!$.parser.row_null_states_from
-                                                         -where [iterate = $.parser.step_matrix_mutable_null(p), step(m) = $.parser.has_non_null_states(m) ? iterate(m) : null],
+  // Note that many() and manyc() have slightly different behavior: many() requires at least one match, whereas manyc() does not. To require at least one match, use manyc_one().
 
-    many(p, join, annotate(result, 'many', [p, join])) = f -where [j = join || $.parser.bfs, f(states) = f(states), f = p /-j/ annotate(f, 'recursive', []) /-$.parser.alt/ p],
+    manyc(p, annotate(result, 'manyc', [p]))(states)   = state_matrix(states) /~!step /seq /!row_null_states_from
+                                                         -where [iterate = step_matrix_mutable_null(p), step(m) = has_non_null_states(m) ? iterate(m) : null],
+    manyc_one(p)                                       = p /-bfc/ manyc(p) /-map/ "[_[0]] + _[1] -seq".qf,
 
-    optional(p, annotate(result, 'optional', [p]))     = p /-$.parser.alt/ $.parser.zero(),
+    many(p, join, annotate(result, 'many', [p, join])) = f -where [j = join || bfs, f(states) = f(states), f = p /-j/ annotate(f, 'recursive', []) /-alt/ p],
+
+    optional(p, annotate(result, 'optional', [p]))     = p /-alt/ zero(),
 
     step_matrix_immutable_null(p)(m) = m *~!r[xs ? xs.length ? xs *~[r + [x]] -seq : [r + [null] -seq] : [r], where [xs = r[r.length - 1] -re [it && p /-memo_single/ it]]] -seq,
     step_matrix_mutable_null(p)(m)   = m *~!r[xs ? l ? l === 1 ? r.push(xs[0]) && [r] : xs *~[r + [x]] -seq : r.push(null) && [r] : [r],
@@ -1329,9 +1332,9 @@ meta::function('reload', 'around_hook(\'reload\', sub {execute($_) for grep ! /^
 meta::function('render', <<'__');
 around_hook('render', @_, sub {
   file::write(name() . "-src/$_.js.sdoc", retrieve("module::$_"), mkpath => 1) for modules();
-  file::write(name() . '-src/repl', retrieve('pp::js::repl-standalone'));
 
-  chmod 0700, name() . '-src/repl'});
+  file::write(name() . '-repl', retrieve('pp::js::repl-standalone'));
+  chmod 0700, name() . '-repl'});
 
 __
 meta::function('repl', <<'__');
@@ -2014,6 +2017,10 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                       is_intrinsic()       = false,
                                       is_rewriter()        = this.is_equation() || this.is_intrinsic(),
                                       is_wildcard()        = /^[a-z]/.test(this.data),
+                                      is_operator()        = /[^A-Za-z0-9'_]$/.test(this.data),
+                                      is_quoted_operator() = this.length === 0 && this.is_operator(),
+
+                                      canonical_form()     = this.length === 0 ? this.data : this,
 
   Rewriting.
   Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
@@ -2023,8 +2030,8 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                       rewriter()           = this._rewriter ||
                                                              (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
 
-                                      intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
-                                      equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this[0], rhs = this[1]]],
+                                      intrinsic_rewriter() = given.x [pattern /~match/ x -re- f(it) /when.it] -where [pattern = this[0], f = this.intrinsic],
+                                      equation_rewriter()  = given.x [lhs /~match/ x -re- it %v*[x.canonical_form()] /seq /!rhs.replace /when.it] -where [lhs = this[0], rhs = this[1]]],
 
   Static constructors.
   These are shorthands for producing common kinds of syntax trees. You should use these rather than building syntax trees directly, since at some point the format might change.
@@ -2113,7 +2120,7 @@ This is obviously not the same notation used in the files in doc/. The reference
 
                                            atom                  = symbol / paren_list / bracket_list / brace_list /-alt/ operator_literal,
 
-                                           application           = atom /!manyc /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
+                                           application           = atom /!manyc_one /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
                                            infix_tree            = delimited(application, operator, syntax.infix(y[0].data, x, y[1]) -given [x, y]),
                                            comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(x, y[1])            -given [x, y]),
                                            toplevel              = comma_list]
@@ -2130,7 +2137,7 @@ Introduction.
 This module provides a simple REPL for Caterwaul. The REPL has a small set of utility functions that you can use to do things like loading external files or saving the equation state.
 
 caterwaul.js_all()(function ($) {
-  $.havoc.repl(argv) = link_stdin_to(handle_interaction) -se- argv *!commands.load /seq /when.argv
+  $.havoc.repl(argv) = argv *!commands.load /seq /when.argv -re- link_stdin_to(handle_interaction)
 
                -where [repl_scope            = $.havoc.scope([]),
 
@@ -2148,8 +2155,9 @@ caterwaul.js_all()(function ($) {
                                                         state(x) = x ? repl_scope.assumptions %~![x.toString() -when- p /~match/ x] -seq -re- it.join('\n') -where [p = $.havoc.parse(x)]
                                                                      : repl_scope.assumptions *[x.toString()] -seq -re- it.join('\n'),
 
-                                                        load(x)  = console.log('\033[1;32m[loading #{x}...]') -re-
-                                                                   $.havoc.parse(x /!read_file) -re [it ? repl_scope.assume(it.flatten(',')) -re- 'assuming #{it}'
+                                                        load(x)  = console.log('[\033[1;32m loading #{x}... \033[0;0m]') -re-
+                                                                   $.havoc.parse(x /!read_file) -re [it ? it.flatten(',') *![repl_scope /~assume/ x -se- console.log('assuming #{x}')] -seq
+                                                                                                          -re- 'successfully loaded #{x}'
                                                                                                         : 'parse error in #{x}, and I have no useful information to help you find it'],
 
                                                         clear(x) = x ? 'removed these assumptions:\n#{removed_assumptions.join("\n")}' -se [repl_scope.assumptions = remaining_assumptions]
@@ -2173,7 +2181,7 @@ caterwaul.js_all()(function ($) {
                                                                         "  'foo 'bar\n" + 'precede it with ! to assume it:\n' +
                                                                         "  ! 'foo = 'bar\n" + 'type :help for more information.\n'],
 
-                       link_stdin_to(f)      = process.stdin -se [it.on('data', f), it.setEncoding('utf8'), it.resume(), initial_prompt()]]})(caterwaul);
+                       link_stdin_to(f)      = process.stdin -se [it.on('data', f), it.setEncoding('utf8'), it.resume(), initial_prompt()]]}, {require: require})(caterwaul);
 
 __
 meta::module('havoc.rewriter', <<'__');
@@ -2196,14 +2204,16 @@ Scoping.
 Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
 are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten. I refer to the invariants as assumptions.
 
-  $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf /se [it.assumptions = assumptions, it.already_assumed = already_assumed, it.assume = assume]
+  $.havoc.scope(invariants) = invariants *!assume -seq -re- "_ /!deep_rewrite".qf /se [it.assumptions = assumptions, it.assume = assume]
 
                       -where [assumptions       = [],
                               already_assumed   = {},
                               add_assumption(v) = assumptions /~push/ v -re [already_assumed[v.id()] = v],
 
                               assume(v)         = add_assumption(v) -se- v /!rewrite /!assume -se- assumptions *![x /!rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
-                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when [it.length > 1]]]})(caterwaul);
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when [it.length > 1]],
+
+                              deep_rewrite(v)   = v /~rmap/ "rewrite(_) -se [success |= it]".qf -re [success ? deep_rewrite(it) : it] -where [success = false]]})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
@@ -2664,6 +2674,8 @@ These just make sure that the parser doesn't choke on well-formed input. In an i
   t('(foo bar)'),
   t('(foo bar) bif'),
   t('(foo (bar) bif)'),
+
+  t('(+)'),
 
   t('foo  #foo'),
   t('foo  -foo'),

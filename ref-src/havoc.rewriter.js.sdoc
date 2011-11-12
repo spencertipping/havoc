@@ -17,11 +17,13 @@ Scoping.
 Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
 are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten. I refer to the invariants as assumptions.
 
-  $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf /se [it.assumptions = assumptions, it.already_assumed = already_assumed, it.assume = assume]
+  $.havoc.scope(invariants) = invariants *!assume -seq -re- "_ /!deep_rewrite".qf /se [it.assumptions = assumptions, it.assume = assume]
 
                       -where [assumptions       = [],
                               already_assumed   = {},
                               add_assumption(v) = assumptions /~push/ v -re [already_assumed[v.id()] = v],
 
                               assume(v)         = add_assumption(v) -se- v /!rewrite /!assume -se- assumptions *![x /!rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
-                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when [it.length > 1]]]})(caterwaul);
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when [it.length > 1]],
+
+                              deep_rewrite(v)   = v /~rmap/ "rewrite(_) -se [success |= it]".qf -re [success ? deep_rewrite(it) : it] -where [success = false]]})(caterwaul);

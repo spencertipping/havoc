@@ -29,6 +29,10 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                       is_intrinsic()       = false,
                                       is_rewriter()        = this.is_equation() || this.is_intrinsic(),
                                       is_wildcard()        = /^[a-z]/.test(this.data),
+                                      is_operator()        = /[^A-Za-z0-9'_]$/.test(this.data),
+                                      is_quoted_operator() = this.length === 0 && this.is_operator(),
+
+                                      canonical_form()     = this.length === 0 ? this.data : this,
 
   Rewriting.
   Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
@@ -38,8 +42,8 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                       rewriter()           = this._rewriter ||
                                                              (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
 
-                                      intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
-                                      equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this[0], rhs = this[1]]],
+                                      intrinsic_rewriter() = given.x [pattern /~match/ x -re- f(it) /when.it] -where [pattern = this[0], f = this.intrinsic],
+                                      equation_rewriter()  = given.x [lhs /~match/ x -re- it %v*[x.canonical_form()] /seq /!rhs.replace /when.it] -where [lhs = this[0], rhs = this[1]]],
 
   Static constructors.
   These are shorthands for producing common kinds of syntax trees. You should use these rather than building syntax trees directly, since at some point the format might change.

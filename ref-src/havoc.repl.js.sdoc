@@ -5,7 +5,7 @@ Introduction.
 This module provides a simple REPL for Caterwaul. The REPL has a small set of utility functions that you can use to do things like loading external files or saving the equation state.
 
 caterwaul.js_all()(function ($) {
-  $.havoc.repl(argv) = link_stdin_to(handle_interaction) -se- argv *!commands.load /seq /when.argv
+  $.havoc.repl(argv) = argv *!commands.load /seq /when.argv -re- link_stdin_to(handle_interaction)
 
                -where [repl_scope            = $.havoc.scope([]),
 
@@ -23,8 +23,9 @@ caterwaul.js_all()(function ($) {
                                                         state(x) = x ? repl_scope.assumptions %~![x.toString() -when- p /~match/ x] -seq -re- it.join('\n') -where [p = $.havoc.parse(x)]
                                                                      : repl_scope.assumptions *[x.toString()] -seq -re- it.join('\n'),
 
-                                                        load(x)  = console.log('\033[1;32m[loading #{x}...]') -re-
-                                                                   $.havoc.parse(x /!read_file) -re [it ? repl_scope.assume(it.flatten(',')) -re- 'assuming #{it}'
+                                                        load(x)  = console.log('[\033[1;32m loading #{x}... \033[0;0m]') -re-
+                                                                   $.havoc.parse(x /!read_file) -re [it ? it.flatten(',') *![repl_scope /~assume/ x -se- console.log('assuming #{x}')] -seq
+                                                                                                          -re- 'successfully loaded #{x}'
                                                                                                         : 'parse error in #{x}, and I have no useful information to help you find it'],
 
                                                         clear(x) = x ? 'removed these assumptions:\n#{removed_assumptions.join("\n")}' -se [repl_scope.assumptions = remaining_assumptions]
@@ -48,4 +49,4 @@ caterwaul.js_all()(function ($) {
                                                                         "  'foo 'bar\n" + 'precede it with ! to assume it:\n' +
                                                                         "  ! 'foo = 'bar\n" + 'type :help for more information.\n'],
 
-                       link_stdin_to(f)      = process.stdin -se [it.on('data', f), it.setEncoding('utf8'), it.resume(), initial_prompt()]]})(caterwaul);
+                       link_stdin_to(f)      = process.stdin -se [it.on('data', f), it.setEncoding('utf8'), it.resume(), initial_prompt()]]}, {require: require})(caterwaul);
