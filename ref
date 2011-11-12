@@ -1983,61 +1983,42 @@ Syntax trees.
 These are the usual Caterwaul syntax trees, but customized for Havoc interpreter operation.
 
   $.havoc.syntax = $.syntax_subclass(ctor, methods) -se- it /-$.merge/ statics_for(it)
-           -where [ctor(data, xs = +arguments -seq -se- it.shift()) = this -se [it.data = data, it.length = 0, xs *!it.push -seq],
+           -where [ctor(data, xs = +arguments -seq -se- it.shift()) = data instanceof this.constructor ? this -se [it.data = data.data, it.length = 0]
+                                                                                                       : this -se [it.data = data, it.length = 0, xs *!it.push -seq],
 
-                   methods           = capture [h()                  = this[0],
-                                                t()                  = this[1],
-
-                                                serialize(xs)        = xs -se [this.length === 2 ? xs.push('(') -se- this[0].serialize(xs) -se- xs.push(' #{this.data} ') -se-
-                                                                                                                     this[1].serialize(xs) -se- xs.push(')') :
-                                                                                                   xs.push(this.data)],
+                   methods = capture [serialize(xs)        = xs -se [this.length === 2 ? xs.push('(') -se- this[0].serialize(xs) -se- xs.push(d) -se-
+                                                                                                           this[1].serialize(xs) -se- xs.push(')')
+                                                                                       : xs.push(this.data),
+                                                                     where [d = this.data === ' ' ? ' ' : ' #{this.data} ']],
 
   Role detection.
   Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
   form '= x y' for some x and y. A tree of this form is required to return a rewriter that, when applied to an input that matches 'x', returns an output that matches 'y'.
 
-                                                is_equation()        = this.data === '=',
-                                                is_intrinsic()       = false,
-                                                is_rewriter()        = this.is_equation() || this.is_intrinsic(),
-                                                is_wildcard()        = /^[a-z]/.test(this.data),
-
-                                                lhs()                = this[0],
-                                                rhs()                = this[1],
-
-  Complexity analysis.
-  Each equation has a certain complexity, which is a way of measuring the expected amount of work required to expand the equation. For any nonrecursive definition it's 0, for linear recursion
-  it's 1, and for n-order recursion it's n. Basically, it's just the number of times the left-hand side matches something on the right-hand side.
-
-                                                complexity()         = this.rhs() /~reach/ check_unification -re- count
-                                                               -where [lhs                     = this.lhs(),
-                                                                       count                   = 0,
-                                                                       check_unification(node) = lhs /~match/ node && ++count],
-
-  Transitive fusion.
-  It's often the case that one equation will rewrite the output of another. For instance, if f x = g x and g x = x + 1, then we can change the definition of 'f x' to be 'x + 1', thus inlining
-  g. This is possible because g is order-0; a recursive 'g' wouldn't work here.
-
-                                                fuse_with(equation)  = this.constructor.equation(this.lhs(), rewritten_rhs) -when.rewritten_rhs
-                                                                       -where [rewritten_rhs = equation.rewriter()(this.rhs())],
+                                      is_equation()        = this.data === '=',
+                                      is_intrinsic()       = false,
+                                      is_rewriter()        = this.is_equation() || this.is_intrinsic(),
+                                      is_wildcard()        = /^[a-z]/.test(this.data),
 
   Rewriting.
   Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
   is an equation. It returns false if the node is not an equation.
 
-                                                rewriter()           = this._rewriter ||
-                                                                       (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
+                                      rewrite(x)           = this.rewriter()(x) -when- this.is_rewriter(),
+                                      rewriter()           = this._rewriter ||
+                                                             (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
 
-                                                intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
-                                                equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this.lhs(), rhs = this.rhs()]],
+                                      intrinsic_rewriter() = given.x [pattern.match(x) -re- f(it)           /when.it] -where [pattern = this[0], f = this.intrinsic],
+                                      equation_rewriter()  = given.x [lhs.match(x)     -re- rhs.replace(it) /when.it] -where [lhs = this[0], rhs = this[1]]],
 
   Static constructors.
   These are shorthands for producing common kinds of syntax trees. You should use these rather than building syntax trees directly, since at some point the format might change.
 
                    statics_for(ctor) = capture [application(x, y)     = new ctor(' ', x, y),
-                                                infix(op, x, y)       = new ctor(op, x, y),
+                                                infix(op, x, y)       = new ctor(op,  x, y),
                                                 comma(x, y)           = new ctor(',', x, y),
+                                                equation(x, y)        = new ctor('=', x, y),
                                                 symbol(x)             = new ctor(x),
-                                                literal(x)            = new ctor("'#{x}"),
                                                 intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);
 
 __
@@ -2096,25 +2077,22 @@ It is, however, possible to write rules that transform infix expressions into pr
 
                                    -where [toplevel(ss) = toplevel(ss), toplevel = annotate(toplevel, 'toplevel'),
 
-                                           whitespace            = linear_regexp(/\s+/) /!optional,
-                                           wsr(regexp)           = whitespace /-bfs/ linear_regexp(regexp),
+                                           wsr(regexp)           = linear_regexp(/\s+/) /!optional /-bfs/ linear_regexp(regexp),
 
-                                           list(o, c)            = wsr(o) / toplevel /-bfc/ wsr(c) /-map/ "_[1]".qf,
+                                           symbol                = wsr(/[0-9a-zA-Z_'][^\n\t ,;()\[\]\{\}]*/) /-map/ "_[0] /!syntax.symbol".qf,
+                                           operator              = wsr(             /[^\n\t ,;()\[\]\{\}]+/) /-map/ "_[0] /!syntax.symbol".qf,
+                                           operator_literal      = wsr(/\(/) / operator /-bfc/ wsr(/\)/)     /-map/ "_[1]".qf,
+                                           list(o, c)            = wsr(o)    / toplevel /-bfc/ wsr(c)        /-map/ "_[1]".qf,
                                            paren_list            = list(/\(/, /\)/),
                                            bracket_list          = list(/\[/, /\]/),
                                            brace_list            = list(/\{/, /\}/),
 
+                                           atom                  = operator_literal / paren_list / bracket_list / brace_list /-alt/ symbol,
+
                                            delimited(p, s, cons) = p /-bfc/ manyc(s /-bfc/ p) /-map/ "_[1] /[_[0]][x0 /-cons/ x] -seq".qf /-alt/ p,
-
-                                           symbol                = wsr(/[a-zA-Z_'][^\n\t ,;()\[\]\{\}]*/) /-map/ "syntax.symbol(_[0])".qf,
-                                           operator              = wsr(/[^\n\t ,;()\[\]\{\}]+/)           /-map/ "syntax.symbol(_[0])".qf,
-
-                                           operator_literal      = wsr(/\(/) / operator /-bfc/ wsr(/\)/) /-map/ "_[1]".qf,
-                                           atom                  = operator_literal / symbol / paren_list / bracket_list /-alt/ brace_list,
-
                                            application           = atom /!manyc /-map/ "_ /[x0 /-syntax.application/ x] -seq".qf,
-                                           infix_tree            = delimited(application, operator, syntax.infix(y[1], y[0], x) -given [x, y]),
-                                           comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(y[1], x)       -given [x, y]),
+                                           infix_tree            = delimited(application, operator, syntax.infix(y[0].data, x, y[1]) -given [x, y]),
+                                           comma_list            = delimited(infix_tree,  wsr(/,/), syntax.comma(y[1], x)            -given [x, y]),
                                            toplevel              = comma_list]
 
                                    -using- caterwaul.parser
@@ -2139,38 +2117,13 @@ each term is compared to each toplevel expression and the fixed-point of this ex
 
 Scoping.
 Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
-are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten.
+are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten. I refer to the invariants as assumptions.
 
-  $.havoc.scope(invariants) = invariants *!assume -seq -re- transitive_closure_rewriter
+  $.havoc.scope(invariants) = invariants *!assume -seq -re- "rewrite(_) || _".qf
 
-                      -where [invariant_equations            = [],
-                              invariant_axioms               = [],
-
-Observation and assumption.
-Observation is the process of noticing that a value has been produced. It's important to do this because once a value is observed it can be added to the list of rewriters. For instance,
-consider a program like 'f x = (g = x)' and 'f 5'. Both expressions here are assume()d, which means that things observed while rewriting those expressions are stored in the table of available
-rewrites. In particular, we immediately observe 'f x = (g = x)' and 'f 5', since they are assumed. In the process of observing 'f 5', we rewrite it using the first equation; now we also
-observe 'g = 5', so we add this to the rewriting list.
-
-Note that it isn't productive to observe intermediate values as they're being rewritten. This is because of transitivity; if you can rewrite a value with unknowns, then you can rewrite any
-specialization of that value. We do, however, observe the fact that we started with one thing and ended up with another.
-
-                              rewrite_with(xs, r)            = xs *![observe(r(x))] -seq,
-
-                              observe(value)                 = value -se [it.is_rewriter() ? new_rewriter(it) : new_axiom(it), when.it],
-                              new_axiom(v)                   = invariant_axioms /~unshift/ v,
-                              new_rewriter(v)                = invariant_equations /~unshift/ v -se [invariant_equations /-rewrite_with/ v.rewriter(),
-                                                                                                     invariant_axioms    /-rewrite_with/ v.rewriter()],
-
-                              rewrite_once(v)                = invariant_equations |[x.rewriter()(v)] |seq || null,
-                              rewrite(v)                     = v /~!rewrite_once -seq -re [it.length > 1 && it.pop()],
-
-                              assume(v)                      = console.log('assuming #{v.structure()}') -re- 
-                                                               observe(v) -se [observe(v /-equation/ r) -se- console.log('concluding #{r.structure()}') -when- observe(r), where [r = rewrite(v)]],
-
-                              transitive_closure_rewriter(x) = rewrite(x) || x]
-
-                      -using- caterwaul.havoc.syntax})(caterwaul);
+                      -where [assumptions = [],
+                              assume(v)   = assumptions /~push/ v -se- v /!rewrite /!assume -when.v,
+                              rewrite(v)  = v /~!v[assumptions |[x /~rewrite/ v] |seq || null] -seq -re [it[it.length - 1] -when- it.length > 1]]})(caterwaul);
 
 __
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
