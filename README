@@ -3,16 +3,16 @@ Havoc: a relational programming language.
 See the files in doc/ for conceptual background. The reference implementation
 provides a REPL based on node.js. For example:
 
-  $ ./ref hrepl
-  havoc :: 'foo = 'bar
+  $ ref-src/repl
+  havoc :: ! 'foo = 'bar
   ('foo = 'bar)
-  havoc :: ? 'foo
+  havoc :: 'foo
   'bar
-  havoc :: ('f x) = ('g = x)
+  havoc :: ! ('f x) = ('g = x)
   (('f x) = ('g = x))
-  havoc :: 'f 10
+  havoc :: ! 'f 10
   ('f 10)
-  havoc :: ? 'g
+  havoc :: 'g
   10
   havoc :: ^D
   $
