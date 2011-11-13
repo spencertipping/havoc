@@ -641,24 +641,48 @@ caterwaul.js_all()(function ($) {
 
 // Implementation.
 // Caterwaul Bloom filters are implemented as bit-vectors stuffed into 32-bit signed integer values. When you build a filter, you specify the array of hash functions (which map stuff to
-// arbitrarily large numbers, preferably unsigned integers) and the number of 32-bit words you want to use for the table.
+// arbitrarily large numbers, preferably unsigned integers) and the number of 32-bit words you want to use for the table. The bit counting algorithm was retrieved from
+// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel.
 
-  $.bloom(hash_functions, words, self = result) = wcapture [table = words instanceof Array ? +words -seq : n[words] *[0] -seq,
-                                                            size  = words instanceof Array ? words.length : words,
-                                                            mask  = size - 1 -se [raise [new Error('Caterwaul Bloom filter: #{size} is not a power of two')] -when [size & (size - 1)]],
-                                                            hs    = hash_functions,
+  $.bloom(hash_functions, words) = words === 1 ? new $.bloom.single(hash_functions) : new $.bloom.array(hash_functions, words),
 
-                                                            set_bit(n) = table[n >>> 5 & mask] |= (1 << (n & 31)),
-                                                            get_bit(n) = table[n >>> 5 & mask] & (1 << (n & 31)),
-                                                            hash()     = table /[x ^ x0] -seq,
+  $.bloom.array(hs, words) = this -se [it.table = words instanceof Array ? +words -seq : n[words] *[0] -seq,
+                                       it.size  = words instanceof Array ? words.length : words,
+                                       it.mask  = it.size - 1 -se [raise [new Error('Caterwaul Bloom filter: #{it.size} is not a power of two')] -when [it.size & (it.size - 1)]],
+                                       it.hs    = hs],
 
-                                                            add(xs = arguments) = xs *!~item[hs *![set_bit(x(item) >>> 0)]] -seq -re- self,
-                                                            contains(item)      = !(hs |[!get_bit(x(item) >>> 0)] |seq),
+  $.bloom.array.prototype /-$.merge/ capture [set_bit(n) = this.table[n >>> 5 & this.mask] |= (1 << (n & 31)),
+                                              get_bit(n) = this.table[n >>> 5 & this.mask] & (1 << (n & 31)),
+                                              hash()     = this.table /[x ^ x0] -seq,
+                                              density()  = this.table /[0][x0 + (x -= x >>> 1 & 0x55555555, x = (x & 0x33333333) + ((x >>> 2) & 0x33333333),
+                                                                                 (x + (x >>> 4) & 0xf0f0f0f) * 0x1010101 >>> 24)] -seq,
 
-                                                            union(f)        = $.bloom(hs, table *[x | ft[xi]] -seq) -where [ft = f.table],
-                                                            intersect(f)    = $.bloom(hs, table *[x & ft[xi]] -seq) -where [ft = f.table],
-                                                            subset(f)       = !(table |[(x & ft[xi]) !== x] |seq)   -where [ft = f.table],
-                                                            reduce_to(size) = $.bloom(hs, n[size] *[0] -seq -se [table *![it[xi & mask] |= x] -seq] -where [mask = size - 1])],
+                                              add(xs = arguments) = xs *!~item[this.hs *![this.set_bit(x(item))]] -seq -re- this,
+                                              contains(item)      = !(this.hs |[!this.get_bit(x(item))] |seq),
+
+                                              union(f)        = $.bloom(this.hs, this.table *[x | ft[xi]] -seq) -where [ft = f.table],
+                                              intersect(f)    = $.bloom(this.hs, this.table *[x & ft[xi]] -seq) -where [ft = f.table],
+                                              subset(f)       = !(this.table |[(x & ft[xi]) !== x] |seq)   -where [ft = f.table],
+                                              reduce_to(size) = $.bloom(this.hs, n[size] *[0] -seq -se [this.table *![it[xi & mask] |= x] -seq] -where [mask = size - 1])],
+
+// Unboxed implementation.
+// This implementation doesn't allocate the array, instead using a flat integer for the value. As such, it has a fixed size of 32 bits. It is automatically created when you request a filter of
+// size one.
+
+  $.bloom.single(hs, v) = this -se [it.value = v || 0, it.size = 1, it.hs = hs],
+
+  $.bloom.single.prototype /-$.merge/ capture [set_bit(n)              = this.value |= 1 << (n & 31),
+                                               get_bit(n)              = this.value & 1 << (n & 31),
+                                               hash()                  = this.value,
+                                               density(x = this.value) = (x -= x >>> 1 & 0x55555555, x = (x & 0x33333333) + ((x >>> 2) & 0x33333333),
+                                                                          (x + (x >>> 4) & 0xf0f0f0f) * 0x1010101 >>> 24),
+
+                                               add(xs = arguments) = xs *!~item[this.hs *![this.set_bit(x(item))]] -seq -re- this,
+                                               contains(item)      = !(this.hs |[!this.get_bit(x(item))] |seq),
+
+                                               union(f)     = new $.bloom.single(this.hs, this.value | f.value),
+                                               intersect(f) = new $.bloom.single(this.hs, this.value & f.value),
+                                               subset(f)    = (this.value & f.value) === this.value],
 
 // Standard hash functions.
 // These are just for convenience; you can also define your own. These functions are optimized to avoid allocating memory.
@@ -693,16 +717,21 @@ caterwaul.js_all()(function ($) {
 
   $.havoc.syntax = $.syntax_subclass(ctor, methods) -se- it /-$.merge/ statics_for(it)
 
-           -where [bloom_hashes   = jenkins_string(419, 581, 12),                       // Arbitrary hash keys
-                   syntax_bloom() = $.bloom(bloom_hashes, 8),                           // 256 bits of entropy
+           -where [bloom_hashes   = jenkins_string(419, 581, 12),                       // Arbitrary hash keys (I might change these at any point)
+                   syntax_bloom() = $.bloom(bloom_hashes, 1),                           // 32 bits of entropy
                    empty_bloom    = syntax_bloom(),
+
+                   blooms       = 0,
+                   matches      = 0,
+                   structures   = 0,
+                   cannot_match = 0,
 
                    ctor(data, xs = +arguments -seq -se- it.shift()) = data instanceof this.constructor ? this -se [it.data = data.data, it.length = 0]
                                                                                                        : this -se [it.data = data, it.length = 0, xs *!it.push -seq],
 
                    methods = capture [toString()           = +this -seq -re [this.length ? '(#{it.join(this.data === " " ? this.data : " " + this.data + " ")})' : this.data],
 
-                                      id()                 = this._id || (this._id = this.structure()),
+                                      id()                 = this._id || (++structures, this._id = this.structure()),
 
   // Role detection.
 //   Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
@@ -724,13 +753,13 @@ caterwaul.js_all()(function ($) {
 //   This is used as an optimized way to match trees. Basically, we take the set of all constants in the tree and turn it into a Bloom filter; then only the trees which also contain those
 //   constants can match the pattern. (Here, can_match() assumes that the receiver is the pattern and the tree is the match target -- just like match() does.)
 
-                                      self_bloom()         = this._self_bloom      || (this._self_bloom      = this.is_wildcard() ? empty_bloom : syntax_bloom() /~add/ this.data),
-                                      bloom()              = this._bloom           || (this._bloom           = this /[this.self_bloom()][x0 /~union/ x.bloom()] -seq),
+                                      self_bloom()         = this._self_bloom      || (this._self_bloom      = this.is_wildcard() ? empty_bloom : (++blooms, syntax_bloom() /~add/ this.data)),
+                                      bloom()              = this._bloom           || (++blooms, this._bloom = this /[this.self_bloom()][x0 /~union/ x.bloom()] -seq),
 
                                       pattern_bloom()      = this._pattern_bloom   || (this._pattern_bloom   = this.is_rewriter() && this[0].bloom()),
                                       expansion_bloom()    = this._expansion_bloom || (this._expansion_bloom = this.is_equation() && this[1].bloom()),
 
-                                      can_match(tree)      = this.bloom() /~subset/ tree.bloom(),
+                                      can_match(tree)      = this.bloom() /~subset/ tree.bloom() -se [cannot_match += !it],
 
   // Rewriting.
 //   Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
@@ -740,8 +769,8 @@ caterwaul.js_all()(function ($) {
                                       rewriter()           = this._rewriter ||
                                                              (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
 
-                                      intrinsic_rewriter() = given.x [pattern /~match/ x -re- f(it) /when.it -when- pattern /~can_match/ x] -where [pattern = this[0], f = this.intrinsic],
-                                      equation_rewriter()  = given.x [lhs /~match/ x -re- it %v*[x.canonical_form()] /seq /!rhs.replace /when.it -when- lhs /~can_match/ x]
+                                      intrinsic_rewriter() = given.x [++matches -re- pattern /~match/ x -re- f(it) /when.it -when- pattern /~can_match/ x] -where [pattern = this[0], f = this.intrinsic],
+                                      equation_rewriter()  = given.x [++matches -re- lhs /~match/ x -re- it %v*[x.canonical_form()] /seq /!rhs.replace /when.it -when- lhs /~can_match/ x]
                                                              -where [lhs = this[0], rhs = this[1]]],
 
   // Static constructors.
@@ -752,7 +781,9 @@ caterwaul.js_all()(function ($) {
                                                 comma(x, y)           = new ctor(',', x, y),
                                                 equation(x, y)        = new ctor('=', x, y),
                                                 symbol(x)             = new ctor(x),
-                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]
+                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true],
+
+                                                performance_counters() = {blooms: blooms, matches: matches, structures: structures, cannot_match: cannot_match}]]
 
            -using- caterwaul.bloom})(caterwaul);
 
@@ -867,7 +898,7 @@ caterwaul.js_all()(function ($) {
                               assume(v)         = deep_rewrite(v).flatten(',') *!assume /seq -se- assumptions *![x /!deep_rewrite /!assume] /seq
                                                   -when- add_assumption(v) -unless [!v || already_assumed[v.id()]],
 
-                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re [it[it.length - 1] -when [it.length > 1]],
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re- it[it.length - 1] /when [it.length > 1],
                               deep_rewrite(v)   = v /~rmap/ rewrite -re [it.id() !== v.id() ? deep_rewrite(it) : it]]})(caterwaul);
 
 // Generated by SDoc 
@@ -885,14 +916,17 @@ caterwaul.js_all()(function ($) {
 
                        read_file(name)       = require('fs').readFileSync(name, 'utf8'),
 
-                       help_table            = capture [help  = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
-                                                        state = ':state prints the list of assumptions being made by the toplevel scope.\n' +
-                                                                ':state <expression> prints assumptions that match <expression>.',
-                                                        load  = ':load <filename> assumes all expressions in <filename>.',
-                                                        clear = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
+                       help_table            = capture [help   = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
+                                                        counts = 'lists the current values of performance-related counters',
+                                                        state  = ':state prints the list of assumptions being made by the toplevel scope.\n' +
+                                                                 ':state <expression> prints assumptions that match <expression>.',
+                                                        load   = ':load <filename> assumes all expressions in <filename>.',
+                                                        clear  = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
 
                        commands              = capture [help(c)  = c ? help_table[c.replace(/^:/, '')] : 'commands: ' + help_table /keys *[':#{x}'] /seq /re [it.join(' ')] +
                                                                                                          '\n#{help_table.help}',
+
+                                                        counts() = $.havoc.syntax.performance_counters() /pairs *['#{x[0]}: #{x[1]}'] -seq -re- it.join(', '),
 
                                                         state(x) = x ? repl_scope.assumptions %~![x.toString() -when- p /~match/ x] -seq -re- it.join('\n') -where [p = $.havoc.parse(x)]
                                                                      : repl_scope.assumptions *[x.toString()] -seq -re- it.join('\n'),
@@ -964,14 +998,17 @@ caterwaul.js_all()(function ($) {
 
                        read_file(name)       = require('fs').readFileSync(name, 'utf8'),
 
-                       help_table            = capture [help  = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
-                                                        state = ':state prints the list of assumptions being made by the toplevel scope.\n' +
-                                                                ':state <expression> prints assumptions that match <expression>.',
-                                                        load  = ':load <filename> assumes all expressions in <filename>.',
-                                                        clear = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
+                       help_table            = capture [help   = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
+                                                        counts = 'lists the current values of performance-related counters',
+                                                        state  = ':state prints the list of assumptions being made by the toplevel scope.\n' +
+                                                                 ':state <expression> prints assumptions that match <expression>.',
+                                                        load   = ':load <filename> assumes all expressions in <filename>.',
+                                                        clear  = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
 
                        commands              = capture [help(c)  = c ? help_table[c.replace(/^:/, '')] : 'commands: ' + help_table /keys *[':#{x}'] /seq /re [it.join(' ')] +
                                                                                                          '\n#{help_table.help}',
+
+                                                        counts() = $.havoc.syntax.performance_counters() /pairs *['#{x[0]}: #{x[1]}'] -seq -re- it.join(', '),
 
                                                         state(x) = x ? repl_scope.assumptions %~![x.toString() -when- p /~match/ x] -seq -re- it.join('\n') -where [p = $.havoc.parse(x)]
                                                                      : repl_scope.assumptions *[x.toString()] -seq -re- it.join('\n'),

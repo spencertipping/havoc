@@ -11,14 +11,17 @@ caterwaul.js_all()(function ($) {
 
                        read_file(name)       = require('fs').readFileSync(name, 'utf8'),
 
-                       help_table            = capture [help  = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
-                                                        state = ':state prints the list of assumptions being made by the toplevel scope.\n' +
-                                                                ':state <expression> prints assumptions that match <expression>.',
-                                                        load  = ':load <filename> assumes all expressions in <filename>.',
-                                                        clear = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
+                       help_table            = capture [help   = ':help with no arguments prints a list of all REPL commands.\n:help <command> prints help for <command>.',
+                                                        counts = 'lists the current values of performance-related counters',
+                                                        state  = ':state prints the list of assumptions being made by the toplevel scope.\n' +
+                                                                 ':state <expression> prints assumptions that match <expression>.',
+                                                        load   = ':load <filename> assumes all expressions in <filename>.',
+                                                        clear  = ':clear clears all assumptions being made by the toplevel scope.\n:clear <expression> clears matching expressions.'],
 
                        commands              = capture [help(c)  = c ? help_table[c.replace(/^:/, '')] : 'commands: ' + help_table /keys *[':#{x}'] /seq /re [it.join(' ')] +
                                                                                                          '\n#{help_table.help}',
+
+                                                        counts() = $.havoc.syntax.performance_counters() /pairs *['#{x[0]}: #{x[1]}'] -seq -re- it.join(', '),
 
                                                         state(x) = x ? repl_scope.assumptions %~![x.toString() -when- p /~match/ x] -seq -re- it.join('\n') -where [p = $.havoc.parse(x)]
                                                                      : repl_scope.assumptions *[x.toString()] -seq -re- it.join('\n'),
