@@ -1,5 +1,0 @@
-Operator definition library.
-This library lets you inform Havoc about operator precedence and associativity by giving you access to the precedence ordering relation directly.
-
-('precedence (a$) < 'precedence (b$)) = ((x a$ y b$ z) = (x a$ (y b$ z))),
-'right-associative (op$) = ((x op$ y op$ z) = (x op$ (y op$ z)))

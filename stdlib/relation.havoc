@@ -1,7 +1,0 @@
-Properties of relations.
-
-'transitive (op$) = ((a op$ b, b op$ c) = (a op$ c))
-'symmetric  (op$) = ((a op$ b) = (b op$ a))
-'reflexive  (op$) = (a op$ a)
-
-'equivalence-relation a = ('transitive a, 'symmetric a, 'reflexive a)

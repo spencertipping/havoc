@@ -1,0 +1,53 @@
+Havoc core standard library | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Operator definition library.
+This library lets you inform Havoc about operator precedence and associativity by giving you access to the precedence ordering relation directly.
+
+('precedence (a$) < 'precedence (b$)) = ((x a$ y b$ z) = (x a$ (y b$ z))),
+'right-associative (op$) = ((x op$ y op$ z) = (x op$ (y op$ z))),
+
+Common operators.
+Operators as they exist right now aren't very convenient. This fixes that.
+
+a $ b = a b,
+'right-associative ($),
+'value-space-operator a = ('precedence a > 'precedence ($)),
+
+Distributive properties.
+Sometimes you want to use things like the comma operator in a first-class way. This rewriting setup lets you do that.
+
+'right-distributive (op$) = ((a op$ (b, c)) = (a op$ b, a op$ c)),
+
+Relation definition library.
+Havoc gives you constructs to define relations.
+
+'transitive (op$) = ((a op$ b, b op$ c) = (a op$ c)),
+'symmetric  (op$) = ((a op$ b) = (b op$ a)),
+'reflexive  (op$) = (a op$ a),
+
+'complementary (a$) (b$) = ((a a$ b) = (b b$ a)),
+
+'equivalence-relation a = ('transitive a, 'symmetric a, 'reflexive a),
+
+(a -> b) = (a x = b x),
+'right-distributive (->),
+
+'ordering -> 'transitive,
+
+General-purpose ordering operators.
+
+'ordering (<) (>),
+
+Linked lists.
+This is a test library for Havoc. It is totally not going to be used in production.
+
+(x :: y) = 'cons x y,
+'right-associative (::),
+'value-space-operator (::),
+
+'list-recursive f (head-name tail-name) cons-case = (f ('cons head-name tail-name) = cons-case, f 'nil = 'nil),
+
+'list-recursive ('map f)       (x xs) ('cons (f x) ('map f xs)),
+'list-recursive ('filter f)    (x xs) (f x ('cons x ('filter f xs)) ('filter f xs)),
+'list-recursive ('foldl (op$)) (x xs) (x op$ ('foldl (op$) xs))
