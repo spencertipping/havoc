@@ -2209,7 +2209,7 @@ are the equations used to rewrite things within it, and 'variants', which are th
                       -where [assumptions       = [],
                               already_assumed   = {},
                               add_assumption(v) = assumptions /~push/ v -re [already_assumed[v.id()] = v] -unless [already_assumed[v.id()]],
-                              assume(v)         = add_assumption(v) -se- v /!rewrite /!assume -se- assumptions *![x /!rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
+                              assume(v)         = add_assumption(v) -se- v /!deep_rewrite /!assume -se- assumptions *![x /!deep_rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
 
                               rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re [it[it.length - 1] -when [it.length > 1]],
                               deep_rewrite(v)   = v /~rmap/ rewrite -re [it.id() !== v.id() ? deep_rewrite(it) : it]]})(caterwaul);
