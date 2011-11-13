@@ -1,0 +1,4 @@
+Orderings.
+Allows you to define total orderings over things.
+
+'ordinal (op$) (complement$) = ((a complement$ b) = (b op$ a), 'transitive (op$), 

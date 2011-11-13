@@ -2003,9 +2003,7 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
            -where [ctor(data, xs = +arguments -seq -se- it.shift()) = data instanceof this.constructor ? this -se [it.data = data.data, it.length = 0]
                                                                                                        : this -se [it.data = data, it.length = 0, xs *!it.push -seq],
 
-                   methods = capture [serialize(xs)        = xs -se [this.length === 0 ? xs.push(this.data)
-                                                                                       : xs.push('(') -se- this[0].serialize(xs) -se- xs.push(d) -se- this[1].serialize(xs) -se- xs.push(')')
-                                                                                         -where [d = this.data === ' ' ? ' ' : ' #{this.data} ']],
+                   methods = capture [toString()           = +this -seq -re [this.length ? '(#{it.join(this.data === " " ? this.data : " " + this.data + " ")})' : this.data],
 
                                       id()                 = this._id || (this._id = this.structure()),
 
@@ -2019,6 +2017,7 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                       is_wildcard()        = /^[a-z]/.test(this.data),
                                       is_operator()        = /[^A-Za-z0-9'_]$/.test(this.data),
                                       is_quoted_operator() = this.length === 0 && this.is_operator(),
+                                      is_tautology()       = this.is_equation() && this[1] /~match/ this[0] && this[0] /~match/ this[1],
 
                                       canonical_form()     = this.length === 0 ? this.data : this,
 
@@ -2204,8 +2203,10 @@ are the equations used to rewrite things within it, and 'variants', which are th
 
                       -where [assumptions       = [],
                               already_assumed   = {},
-                              add_assumption(v) = assumptions /~push/ v -re [already_assumed[v.id()] = v] -unless [already_assumed[v.id()]],
-                              assume(v)         = add_assumption(v) -se- v /!deep_rewrite /!assume -se- assumptions *![x /!deep_rewrite /!assume] /seq -unless [already_assumed[v.id()]] -when.v,
+                              add_assumption(v) = assumptions /~unshift/ v -unless- v.is_tautology() -se [already_assumed[v.id()] = v],
+
+                              assume(v)         = deep_rewrite(v).flatten(',') *!assume /seq -se- assumptions *![x /!deep_rewrite /!assume] /seq
+                                                  -when- add_assumption(v) -unless [!v || already_assumed[v.id()]],
 
                               rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re [it[it.length - 1] -when [it.length > 1]],
                               deep_rewrite(v)   = v /~rmap/ rewrite -re [it.id() !== v.id() ? deep_rewrite(it) : it]]})(caterwaul);

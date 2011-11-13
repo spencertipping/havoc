@@ -1,14 +1,11 @@
 Linked lists.
 This is a test library for Havoc. It is totally not going to be used in production.
 
-'head ('cons x xs) = x,
-'tail ('cons x xs) = xs,
-
-'map f ('cons x xs) = 'cons (f x) ('map f xs),
-'map f 'nil         = 'nil,
-
-(x :: y) = 'cons x y,                           - Notational convenience
+(x :: y) = 'cons x y,
 'right-associative (::),
 
-'filter f ('cons x xs) = f x ('cons x ('filter f xs)) ('filter f xs),
-'filter f 'nil         = 'nil
+'list-recursive f (head-name tail-name) cons-case = (f ('cons head-name tail-name) = cons-case, f 'nil = 'nil),
+
+'list-recursive ('map f)       (x xs) ('cons (f x) ('map f xs)),
+'list-recursive ('filter f)    (x xs) (f x ('cons x ('filter f xs)) ('filter f xs),
+'list-recursive ('foldl (op$)) (x xs) (x op$ ('foldl (op$) xs))
