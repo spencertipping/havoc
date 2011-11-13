@@ -1,0 +1,13 @@
+Havoc reference implementation native connections | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module binds Havoc constructs to the underyling Javascript runtime. This is by no means native, but it's more native than Havoc.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.native = [syntax.infix('/number+', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data + +match.y.data}')],
+                    syntax.infix('/number-', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data - +match.y.data}')],
+                    syntax.infix('/number*', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data * +match.y.data}')],
+                    syntax.infix('/number/', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data / +match.y.data}')]],
+
+  using [caterwaul.havoc]})(caterwaul);

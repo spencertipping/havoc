@@ -274,6 +274,7 @@ __
 meta::alias('e', 'havoc');
 meta::alias('ed', 'edit sdoc::js::dependencies');
 meta::alias('em', 'edit sdoc::js::modules');
+meta::alias('en', 'havoc.native');
 meta::alias('ep', 'havoc.parser');
 meta::alias('er', 'havoc.rewriter');
 meta::alias('ere', 'havoc.repl');
@@ -2043,6 +2044,22 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                                 intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]})(caterwaul);
 
 __
+meta::module('havoc.native', <<'__');
+Havoc reference implementation native connections | Spencer Tipping
+Licensed under the terms of the MIT source code license
+
+Introduction.
+This module binds Havoc constructs to the underyling Javascript runtime. This is by no means native, but it's more native than Havoc.
+
+caterwaul.js_all()(function ($) {
+  $.havoc.native = [syntax.infix('/number+', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data + +match.y.data}')],
+                    syntax.infix('/number-', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data - +match.y.data}')],
+                    syntax.infix('/number*', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data * +match.y.data}')],
+                    syntax.infix('/number/', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data / +match.y.data}')]],
+
+  using [caterwaul.havoc]})(caterwaul);
+
+__
 meta::module('havoc.parser', <<'__');
 Havoc reference implementation parser | Author name
 Licensed under the terms of the MIT source code license
@@ -2134,7 +2151,7 @@ This module provides a simple REPL for Caterwaul. The REPL has a small set of ut
 caterwaul.js_all()(function ($) {
   $.havoc.repl(argv) = argv *!commands.load /seq /when.argv -re- link_stdin_to(handle_interaction)
 
-               -where [repl_scope            = $.havoc.scope([]),
+               -where [repl_scope            = $.havoc.scope($.havoc.native),
 
                        read_file(name)       = require('fs').readFileSync(name, 'utf8'),
 
@@ -2616,6 +2633,7 @@ This is where your modules get loaded into the REPL. This script is included by 
 - include perl::sdoc('module::havoc.parser')
 - include perl::sdoc('module::havoc.rewriter')
 - include perl::sdoc('module::havoc.repl')
+- include perl::sdoc('module::havoc.native')
 
 __
 meta::sdoc('js::repl', <<'__');
