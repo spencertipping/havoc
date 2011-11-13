@@ -13,13 +13,9 @@ Since this is the reference implementation, I'm going to provide a complete list
 by the lexer. These include literate paragraphs, which follow SDoc syntax, and line comments, which come in several different styles:
 
 | foo bar bif           # line comment                  <- two or more spaces between code and the #
-  foo bar bif           - line comment                  <- ditto here
-  foo bar bif           / line comment
   foo bar bif           Line comment                    <- capital letter indicates line comment, but only after two or more spaces
   Line comment                                          <- no spaces required if no code is present
   # line comment
-  - line comment
-  / line comment
 
 This syntax was chosen to be ergonomic (hence the capital letter heuristic and the choice of - and /), and to allow traditional constructs like the shebang line. I make no claim that you'd
 want to use shebang-style interpretation without a memoizing interpreter ... but the syntax won't prevent you from doing so.
@@ -43,7 +39,7 @@ This is obviously not the same notation used in the files in doc/. The reference
 
   $.havoc.parse(s) = s /!without_comments /!split_into_lists
 
-             -where [without_comments(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n').replace(/(^\s*|\s\s+)[-\/#A-Z].*$/mg, ''),
+             -where [without_comments(s) = s.split(/\n\s*\n/) %![/^\s*[A-Z|]/.test(x)] -seq -re- it.join('\n').replace(/(^\s*|\s\s+)[#A-Z].*$/mg, ''),
 
                      split_into_lists(s) = [new linear_string_state(s)] /!toplevel -re- it[0].value()
 

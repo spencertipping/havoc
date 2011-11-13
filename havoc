@@ -1308,7 +1308,6 @@ syn case match
 setlocal iskeyword=33-39,42-43,45-127
 
 " High-level lexer concerns:
-syn match   havoc_line_comment      /\(^\s*\|\s\s\+\)\([-#\/A-Z]\).*$/
 syn match   havoc_literal_symbol    /\<[^A-Za-z][^()\[\]{} \n\t,;]*[A-Za-z0-9_']\>/
 syn match   havoc_literal_symbol    /\<[0-9_']\>/
 syn match   havoc_variable_symbol   /\<[A-Za-z][^()\[\]{} \n\t,;]*[A-Za-z0-9_']\>/
@@ -1319,13 +1318,16 @@ syn match   havoc_variable_operator /\<[A-Za-z][^()\[\]{} \n\t,;]*[^A-Za-z0-9_'\
 syn match   havoc_meta_operator     /[()\[\]{}]/
 syn match   havoc_toplevel          /[,;]/
 
-hi link havoc_line_comment      Comment
 hi link havoc_literal_symbol    Type
 hi link havoc_variable_symbol   Identifier
 hi link havoc_literal_operator  Operator
 hi link havoc_variable_operator Special
 hi link havoc_meta_operator     Special
 hi link havoc_toplevel          Operator
+
+syn match   havoc_line_comment /\(^\s*\|\s\s\+\)\([#A-Z]\).*$/
+
+hi link havoc_line_comment Comment
 
 " Havoc literate programming stuff, mostly taken from SDoc:
 syn region  sd_block_comment    start=/\(^$\n^\|\%^\)\s*[A-Z\|]/ end=/^\s*$\|\%$/ contains=sd_coerce_sdoc,sd_heading,sd_name_author keepend
