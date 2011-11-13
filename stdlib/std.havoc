@@ -50,4 +50,7 @@ This is a test library for Havoc. It is totally not going to be used in producti
 
 'list-recursive ('map f)       (x xs) ('cons (f x) ('map f xs)),
 'list-recursive ('filter f)    (x xs) (f x ('cons x ('filter f xs)) ('filter f xs)),
-'list-recursive ('foldl (op$)) (x xs) (x op$ ('foldl (op$) xs))
+'list-recursive ('foldl (op$)) (x xs) (x op$ ('foldl (op$) xs)),
+
+'length ('cons x xs) = 1 + 'length xs,
+'length 'nil         = 0
