@@ -765,12 +765,18 @@ caterwaul.js_all()(function ($) {
 //   Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
 //   is an equation. It returns false if the node is not an equation.
 
+                                      match(x, bindings)   = this / x /~ll_match/ (bindings || {}) -when- this /~can_match/ x,
+                                      ll_match(x, bs)      = bs /~hasOwnProperty/ this.data ? x /~eq/ bs[this.data] :
+                                                                         this.is_wildcard() ? bs -se [bs[this.data] = x] :
+                                                                                              this.data === x.data && this.length === x.length &&
+                                                                                                this /c[true][c0 && this[ci] / x[ci] /~match/ bs] /seq && bs,
+
                                       rewrite(x)           = this.rewriter()(x) -when- this.is_rewriter(),
                                       rewriter()           = this._rewriter ||
                                                              (this._rewriter = this.is_equation() ? this.equation_rewriter() : this.is_intrinsic() && this.intrinsic_rewriter()),
 
                                       intrinsic_rewriter() = given.x [++matches -re- pattern /~match/ x -re- f(it) /when.it -when- pattern /~can_match/ x] -where [pattern = this[0], f = this.intrinsic],
-                                      equation_rewriter()  = given.x [++matches -re- lhs /~match/ x -re- it %v*[x.canonical_form()] /seq /!rhs.replace /when.it -when- lhs /~can_match/ x]
+                                      equation_rewriter()  = given.x [lhs /~match/ x -re- it %v*[x.canonical_form()] /seq /!rhs.replace /when.it -when- lhs /~can_match/ x]
                                                              -where [lhs = this[0], rhs = this[1]]],
 
   // Static constructors.

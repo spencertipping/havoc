@@ -30,15 +30,6 @@ Havoc gives you constructs to define relations.
 
 'equivalence-relation a = ('transitive a, 'symmetric a, 'reflexive a),
 
-(a -> b) = (a x = b x),
-'right-distributive (->),
-
-'ordering -> 'transitive,
-
-General-purpose ordering operators.
-
-'ordering (<) (>),
-
 Linked lists.
 This is a test library for Havoc. It is totally not going to be used in production.
 
@@ -53,4 +44,14 @@ This is a test library for Havoc. It is totally not going to be used in producti
 'list-recursive ('foldl (op$)) (x xs) (x op$ ('foldl (op$) xs)),
 
 'length ('cons x xs) = 1 + 'length xs,
-'length 'nil         = 0
+'length 'nil         = 0,
+
+Lambda encoding.
+This is done at a lower level than is performant, but I may be able to fix it later.
+
+'lambda x expression value = 'lambda-substitute expression x value,
+
+'lambda-substitute x x value = value,
+'lambda-substitute (a b) x value = ('lambda-substitute a x value) ('lambda-substitute b x value),
+'lambda-substitute (a op$ b) x value = ('lambda-substitute a x value op$ 'lambda-substitute b x value),
+'lambda-substitute y x value = y
