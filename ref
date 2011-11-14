@@ -2336,7 +2336,7 @@ are the equations used to rewrite things within it, and 'variants', which are th
                                                   deep_rewrite(v).flatten(',') *!assume /seq -se- assumptions *![x /!deep_rewrite /!assume] /seq
                                                   -when- add_assumption(v) -unless [!v || already_assumed[v.id()]],
 
-                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v -se- console.log('#{x} -> #{it}') /when.it] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re- it[it.length - 1] /when [it.length > 1],
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v -se- console.log('#{v} x #{x} -> #{it}') /when.it] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re- it[it.length - 1] /when [it.length > 1],
                               deep_rewrite(v)   = v /~rmap/ rewrite -re [it.id() !== v.id() ? deep_rewrite(it) : it]]})(caterwaul);
 
 __
