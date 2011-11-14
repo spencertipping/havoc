@@ -30,15 +30,6 @@ Havoc gives you constructs to define relations.
 
 'equivalence-relation a = ('transitive a, 'symmetric a, 'reflexive a),
 
-(a -> b) = (a x = b x),
-'right-distributive (->),
-
-'ordering -> 'transitive,
-
-General-purpose ordering operators.
-
-'ordering (<) (>),
-
 Linked lists.
 This is a test library for Havoc. It is totally not going to be used in production.
 
