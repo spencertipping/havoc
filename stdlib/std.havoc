@@ -14,10 +14,14 @@ a $ b = a b,
 'right-associative ($),
 'value-space-operator a = ('precedence a > 'precedence ($)),
 
+'right-distributive 'value-space-operator,
+'value-space-operator ((+), (-), (*), (/)),
+
 Distributive properties.
 Sometimes you want to use things like the comma operator in a first-class way. This rewriting setup lets you do that.
 
 'right-distributive (op$) = ((a op$ (b, c)) = (a op$ b, a op$ c)),
+'right-distributive a = (a (b, c) = (a b, a c)),
 
 Relation definition library.
 Havoc gives you constructs to define relations.
