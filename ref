@@ -2341,6 +2341,12 @@ are the equations used to rewrite things within it, and 'variants', which are th
                               deep_rewrite(v)   = v /~rmap/ rewrite -re [it.id() !== v.id() ? deep_rewrite(it) : it]]})(caterwaul);
 
 __
+meta::note('direction', <<'__');
+Development direction.
+Havoc needs an editor. I was reluctant to go down this path initially because of the complications it brings, but offline compilation for a compile-run language like this is crazy. An editor
+would provide visibility into the rewriting and pattern-matching process, which is also good. The only thing is that it needs to separate user-generated from compiler-generated actions.
+
+__
 meta::parent('/home/spencertipping/bin/caterwaul-extension.html', <<'__');
 function::module                                            cd75ead8fad4b21dd5e29bc85a2de334
 function::modules                                           e3b6934465aed29eebaa08eef3be15fd
