@@ -863,8 +863,8 @@ caterwaul.js_all()(function ($) {
                                            operator_literal      = wsr(/\(/) / operator /-bfc/ wsr(/\)/) /-map/ "_[1]".qf,
                                            list(o, c)            = wsr(o)    / toplevel /-bfc/ wsr(c)    /-map/ "_[1]".qf,
                                            paren_list            = list(/\(/, /\)/),
-                                           bracket_list          = list(/\[/, /\]/),
-                                           brace_list            = list(/\{/, /\}/),
+                                           bracket_list          = list(/\[/, /\]/) /-map/ "syntax.symbol('[]') /-syntax.application/ _".qf,
+                                           brace_list            = list(/\{/, /\}/) /-map/ "syntax.symbol('{}') /-syntax.application/ _".qf,
 
                                            atom                  = symbol / paren_list / bracket_list / brace_list /-alt/ operator_literal,
 

@@ -1,8 +1,8 @@
 Toplevel notation experiment.
 Havoc rewrites too much by default. In order to stop it, toplevel expressions need to be qualified.
 
-'top ('right-associative (op$)) = ('top (a op$ b op$ c) = ('top a op$ 'top (b op$ c))),
-'top ('precedence (a$) < 'precedence (b$)) = ('top (a a$ b b$ c) = ('top a a$ 'top (b b$ c))),
+'top ('right-associative (op$)) = ('top (a op$ b op$ c) = 'top (a op$ 'top (b op$ c))),
+'top ('precedence (a$) < 'precedence (b$)) = ('top (a a$ b b$ c) = 'top (a a$ 'top (b b$ c))),
 
 'top (a = b) = (a = b),
 'top (a < b < c) = ('top (a < b), 'top (b < c)),
@@ -12,7 +12,7 @@ Havoc rewrites too much by default. In order to stop it, toplevel expressions ne
 'top ('distributive 'precedence),
 'top ('distributive 'right-associative),
 
-#'top ('precedence (::) < 'precedence ((+), (-)) < 'precedence ((*), (/)) < 'precedence (**)),
+'top ('precedence (::) < 'precedence (+) < 'precedence (*) < 'precedence (**)),
 
 'top ('right-associative (**)),
 'top ('right-associative (::)),
