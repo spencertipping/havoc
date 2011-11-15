@@ -303,6 +303,7 @@ run this script with the 'usage' argument.
 
 __
 meta::cache('parent-identification', <<'__');
+./havoc c68347ef78fcad1a9b2a8871d45a5b75
 /home/spencertipping/bin/object 99aeabc9ec7fe80b1b39f5e53dc7e49e
 object 99aeabc9ec7fe80b1b39f5e53dc7e49e
 vim-highlighters 902333a0bd6ed90ff919fe8477cb4e69
@@ -331,7 +332,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 __
-meta::data('permanent-identity', 'c68347ef78fcad1a9b2a8871d45a5b75');
 meta::function('ad', <<'__');
 return @{$transient{path}} = () unless @_;
 push @{$transient{path}}, @_;
@@ -709,6 +709,90 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
+meta::havoc('introduction', <<'__');
+Postmortem for reference implementation.
+First I want to say that the reference implementation was quite a success. It took about two days in Caterwaul, it tolerated repeated modifications and didn't break down, and I ended up
+learning a lot about how Havoc needs to work. So by all of those measures the project was successful.
+
+At a high level, here's what I want to fix for the next implementation:
+
+| 1  Compiler and interpreter performance, obviously -- especially considering that Havoc is likely to be used as an image-based online compiler of offline images.
+  2  Transparency. Right now it's difficult to anticipate what a program will do, and this would be easy to fix because every value is serializable.
+  3  Rewrite scoping. Global rewrites make it slow and nonlocal.
+  4  Things like operator precedence and associativity rewriting. Right now it's a disaster because it breaks parentheses, and the 'top stuff is a good start.
+  5  System interfacing, though I'm not in a huge hurry to open this can of worms.
+
+__
+meta::havoc('performance', <<'__');
+Performance.
+It doesn't actually matter how quickly or slowly Havoc runs. What matters is the amount of time the user spends waiting for it. This means a couple of things. First, offline compilation for
+this language is crazy. If the compiler and editor are fused, then the compiler can be running as a background thread as you're editing, and hopefully it can store the state of the compile as
+well as the state of user input (though in separate files). This should minimize the perceived delay of doing things.
+
+Second, a platform with good JIT support (node.js/caterwaul qualifies) is probably necessary. The reason is that the programmer might want to have the editor/compiler do a lot of work at
+compile-time (since compile-time and runtime are kind of blurred anyway). So profile-based optimization would be a good move, and this brings with it the usual overhead of shape analysis, flow
+analysis, etc.
+
+__
+meta::havoc('rewriting', <<'__');
+Toplevel rewriting.
+This is challenging because it involves recursion. Anything written at the toplevel is subject to reinterpretation (rewriting), but it also governs rewriting. Further, it isn't clear to me
+that you'd want toplevel rewriting to be implicit or universal. I think it would be more useful to contain syntactic rewrites to certain scopes.
+
+There's an open question here, and it gets back to some of the issues I had with Gnarly: How do we differentiate between parenthetical grouping and implicit grouping as a result of left
+associativity? That is, suppose I type these two things:
+
+| a + b * c             Here, left-association happens naturally
+  (a + b) * c           Here it happens as a result of parentheses, but it appears to have happened naturally
+
+Given that they compile into the same representation, how do we avoid rewriting the second with an operator-precedence rewrite?
+
+Explicit brackets.
+One option is to use explicit brackets of a different form, for instance, using square brackets or curly braces to indicate that we want a syntax-explicit group to be created. This might have
+the effect of "applying" a function to a bracketed expression; for example:
+
+| [5]                   Becomes (" " [] 5)
+  [5, 6, 7]             Becomes (" " [] ("," 5 ("," 6 7)))
+
+As long as the syntactic representation is consistent it can be used for pattern matching; the benefit of it being a function application is that it can be matched by something as general as
+(f x), which makes it easier to destructure syntax in equation-space.
+
+__
+meta::havoc('scoping', <<'__');
+Rewrite scoping.
+There's more to this than just cordoning off an equation to a particular set of values. A big part of this is controlling which kinds of values get matched in the first place. I ran into some
+problems with this when defining a lambda rewrite, for example:
+
+| 'lambda x x value = value,
+  'lambda y x value = y,
+  'lambda (a op$ b) x value = ('lambda a x value) op$ ('lambda b x value)
+
+Technically, the first and second equations are contradictory because the second includes the first in its domain. What I would like to say is more along the lines of this:
+
+| 'lambda x y value = (x == y) value y,
+  'lambda (a op$ b) x value = ('lambda a x value) op$ ('lambda b x value)
+
+So now I'm relying on a new operator provided by the system (which isn't particularly a problem, by the way). However, it's only part of the solution. I might also want to apply something to
+numbers, symbols, etc. I probably need more than just == to make decisions about things.
+
+__
+meta::havoc('transparency', <<'__');
+Transparency.
+This is a really important one. I was thinking about this yesterday; I think the best idea I've had so far is to highlight matching terms in the editor as you're constructing an equation. This
+graphically illustrates the impact of any given thing that you'd add to your program. (Maybe it could use the third dimension for expansion layers.) This interface could be reused for code
+searching, since this would probably be more useful than regexp-based searching anyway.
+
+__
+meta::havoc('variable-naming', <<'__');
+Variable naming conclusions.
+I really like the way variable names shook out. I'm not crazy about the prefix-quoting syntax (looks too much like Lisp :)), but I couldn't find a better alternative on the spot. The comment
+syntax is excellent, and having the parser give you infix and a tiny amount of precedence for free is great.
+
+__
+meta::hook('before-shell::ad', <<'__');
+ad('havoc::');
+
+__
 meta::indicator('cc', 'length ::retrieve(\'data::current-continuation\') ? "\\033[1;36mcc\\033[0;0m" : \'\';');
 meta::indicator('locked', 'is_locked() ? "\\033[1;31mlocked\\033[0;0m" : \'\';');
 meta::indicator('path', <<'__');
@@ -1075,6 +1159,15 @@ __
 meta::message_color('cc', '36');
 meta::message_color('state', 'purple');
 meta::message_color('states', 'yellow');
+meta::parent('./havoc', <<'__');
+function::ah                             1777a34c1d9b30cc8dc50d265394688f
+function::havoc                          ab205c6d3f1bcb24e771a86587b182b1
+meta::type::havoc                        4be05d459bfb601e4ac41868bab2a133
+parent::/home/spencertipping/bin/object  a048633520257eeb10084b7aaf08863a
+parent::vim-highlighters                 612ee2b5b7bffc6ecab4b6a0cb7b670f
+vim_highlighter::havoc                   6cf9d87e66504359108f27b0e5399a4f
+
+__
 meta::parent('/home/spencertipping/bin/object', <<'__');
 bootstrap::html                         f44dd03cb0c904b3a5f69fbda5f018d0
 bootstrap::initialization               1cf74e7209f32722a79b6e49e3907fd3
