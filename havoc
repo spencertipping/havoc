@@ -1343,7 +1343,7 @@ let main_syntax = 'havoc'
 
 syn sync minlines=5
 syn case match
-setlocal iskeyword=33-39,42-43,45-127
+setlocal iskeyword=33-39,42-43,45-90,92,94-122,124,126
 
 " High-level lexer concerns:
 syn match   havoc_literal_symbol    /\<[^A-Za-z][^()\[\]{} \n\t,;]*[A-Za-z0-9_']\>/

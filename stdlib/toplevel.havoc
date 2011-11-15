@@ -17,6 +17,6 @@ Havoc rewrites too much by default. In order to stop it, toplevel expressions ne
 'top ('right-associative (**)),
 'top ('right-associative (::)),
 
-This results in some interesting conclusions:
+This results in some interesting (and not very useful) conclusions:
 
 'top ('distributive 'distributive)
