@@ -709,6 +709,24 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
+meta::havoc('editor-structure', <<'__');
+Editor data structures.
+Programmers like for programs to be represented in some way that reflects user input carefully. This is probably why, after years of insistence of using text as the program storage format,
+programmers still use it despite imposing all sorts of low-level structure on code written in Java. (And even going so far as to build Eclipse to automatically work at this structured level.)
+And I think the motivation is simplicity; programmers are willing to trade visibility of effects for visibility of process.
+
+I feel like there's something really important in that statement. Process is more important than effect. And so if you have visibility into only one of these things, it must be process. (This
+is probably a large contributing factor behind the unpopularity of languages like Lisp and Haskell. The process is not visible, despite the effects being more so.)
+
+Here's what I take away from this:
+
+| 1  The editor needs to ultimately be text or ASTs. There can be no hidden state.
+  2  It's just fine for the editor to impose nondestructive structure on your program, for instance find-as-you-type for each side of each equation.
+  3  The editor needs to allow the programmer to edit the program in destructive ways (so no append-only stuff). Simplicity is more valuable than a fully-accessible history.
+  4  Programmer input must be visually distinct, and easily separable from, conclusions that the compiler makes about that input.
+  5  Programs must be readable from and writable to text; otherwise programmers, myself included, will get paranoid.
+
+__
 meta::havoc('introduction', <<'__');
 Postmortem for reference implementation.
 First I want to say that the reference implementation was quite a success. It took about two days in Caterwaul, it tolerated repeated modifications and didn't break down, and I ended up
@@ -732,6 +750,13 @@ well as the state of user input (though in separate files). This should minimize
 Second, a platform with good JIT support (node.js/caterwaul qualifies) is probably necessary. The reason is that the programmer might want to have the editor/compiler do a lot of work at
 compile-time (since compile-time and runtime are kind of blurred anyway). So profile-based optimization would be a good move, and this brings with it the usual overhead of shape analysis, flow
 analysis, etc.
+
+Live graph updating.
+Havoc programs are fairly complex graphs. Each equation is an edge, and each value is a vertex. The goal, then, is to construct the finished graph and identify the right path from beginning to
+end. This should be possible because we know what the starting and ending values look like.
+
+Rather than rebuilding the whole thing from scratch, it probably makes sense for the interpreter to store the graph state along with the source. This graph state can be compiled at any point.
+The source is just the user input required to construct the graph in the first place.
 
 __
 meta::havoc('rewriting', <<'__');
