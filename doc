@@ -726,6 +726,11 @@ Here's what I take away from this:
   4  Programmer input must be visually distinct, and easily separable from, conclusions that the compiler makes about that input.
   5  Programs must be readable from and writable to text; otherwise programmers, myself included, will get paranoid.
 
+Collaborative editing.
+This becomes easier when the editor manages the state at a higher level than just plain text, but at the very least it's possible to collaborate if programs can be converted to and from text.
+There's also the question of how programs are managed by version control. It may be worth having the editor use its own version control that is specialized to syntax tree operations (though
+this is a huge can of worms to open...).
+
 __
 meta::havoc('introduction', <<'__');
 Postmortem for reference implementation.
