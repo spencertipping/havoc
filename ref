@@ -1800,8 +1800,6 @@ __
 meta::function('reload', 'around_hook(\'reload\', sub {execute($_) for grep ! /^bootstrap::/, keys %data});');
 meta::function('render', <<'__');
 around_hook('render', @_, sub {
-  file::write(name() . "-src/$_.js.sdoc", retrieve("module::$_"), mkpath => 1) for modules();
-
   file::write(name() . '-repl', retrieve('pp::js::repl-standalone'));
   chmod 0700, name() . '-repl'});
 
