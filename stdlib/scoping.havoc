@@ -1,0 +1,4 @@
+Scoping.
+
+'right-associative (op$) = (a op$ b op$ c = (a op$ (b op$ c))),
+'foo = ('x + 'y + 'z // 'right-associative (+))
