@@ -1064,6 +1064,254 @@ caterwaul.js_all()(function ($) {
 
 __
 meta::cached_dependency('caterwaul.std.js', '(caterwaul.std_initializer=function(){(function(c){var b=function(g){var d=function(h){if(h.constructor===Array){for(var k=0,j=h.length,m=[];k<j;++k){m.push(d(h[k]))}return function(l){for(var o=m.length-1,q;o>=0;--o){if(q=m[o].call(this,l)){return q}}}}else{return h.constructor===String?d(c.parse(h)):h.constructor===c.syntax?g.call(this,h):h}};return d};c.pattern=b(function(d){return function(g){return d.match(g)}});c.expander=b(function(d){return function(g){return d.replace(g)}});c.alternatives=b(function(d){throw new Error("must use replacer functions with caterwaul.alternatives()")});c.reexpander=function(g){var d=c.expander(g);return function(h){var i=d.call(this,h);return i&&this(i)}};var a=function(d){return function(h,j){var i=c.pattern(h),g=d(j);return function(k){var l=i.call(this,k);return l&&g.call(this,l)}}};c.replacer=a(c.expander);c.rereplacer=a(c.reexpander);c.macroexpand=function(d){return c(c.alternatives(Array.prototype.slice.call(arguments,1)))(d)}})(caterwaul);(function(a){a.anonymizer=function(){for(var d={},c=0,b=arguments.length;c<b;++c){d[arguments[c]]=a.gensym(arguments[c])}return function(g){return a.parse(g).replace(d)}}})(caterwaul);(function(a){a.js=function(c){var h=function(Q){var Y=Q.data,N=Y.charAt(0),S=a.syntax;if(N!=="\'"&&N!==\'"\'||!/#\\{[^\\}]+\\}/.test(Y)){return false}for(var R=[],Z=[],U=1,T=Y.length-1,X=0,V=false,O=1,W;U<T;++U){if(X){if((W=Y.charAt(U))==="}"){--X||(R.push(Y.substring(O,U)),Z.push(true))&&(O=U+1),V=false}else{X+=W==="{"}}else{if((W=Y.charAt(U))==="#"){V=true}else{if(W==="{"&&V){R.push(Y.substring(O,U-1)),Z.push(false),O=U+1,++X}else{V=false}}}}R.push(Y.substring(O,T)),Z.push(false);for(var P=new RegExp("\\\\\\\\"+N,"g"),U=0,T=R.length;U<T;++U){R[U]=Z[U]?this(a.parse(R[U].replace(P,N)).as("(")):new S(N+R[U]+N)}return new S("+",R).unflatten().as("(")};var J=a.parse("var _x = _y"),M=a.parse("_x = _y"),G=a.parse("result"),L=a.parse("function (_formals) {_befores; var result = _result; _afters; return result}"),H=a.parse("function (_formals) {_befores; return _result}"),i=a.parse("_f = _x"),I=function(N){return N.is_empty()&&N.data==="result"},w=a.rereplacer("_f(_xs) = _y",function(W){for(var X=[],aa=[],ab=[],N=W._xs.flatten(","),V=0,T=N.length;V<T;++V){(ab.length||N[V].contains(I)?ab:aa.length||N[V].length?aa:X).push(N[V])}for(var S=[aa,ab],V=0,T=S.length;V<T;++V){for(var R=S[V],U=0,Z=R.length,Q;U<Z;++U){R[U]=(Q=M.match(R[U]))&&Q._x.is_empty()?J.replace(Q):R[U].as("(")}}var Y=X.length?new a.syntax(",",X).unflatten():a.empty,P=aa.length?new a.syntax(";",aa).unflatten():a.empty,O=ab.length?new a.syntax(";",ab).unflatten():a.empty;template=i.replace({_f:W._f,_x:ab.length?L:H});return template.replace({_formals:Y,_befores:P,_afters:O,_result:W._y})});var y=function(O){var Q=O.data,P,N;if((Q==="/"||Q==="|")&&(P=O[0]).data===Q&&P[1]&&P[1].data==="u-"&&(N=P[1][0])){return new a.syntax("()",N,this(O[0][0]).flatten(Q).push(this(O[1])).with_data(",").unflatten())}};var F=function(Q){var S=Q.data,R,P;if((S==="/"||S==="|")&&(R=Q[0]).data===S&&R[1]&&R[1].data==="u~"&&(P=R[1][0])){var O=[].slice.call(this(Q[0][0]).flatten(S)),N=O.shift();return new a.syntax("()",new a.syntax(".",new a.syntax("(",N),P),new a.syntax(",",O,this(Q[1])).unflatten())}};var o=a.parse("_f(_x)"),j=a.rereplacer("_x /!_f",function(N){return o.replace({_f:N._f,_x:this(N._x).flatten("/").with_data(",").unflatten()})});var l=a.pattern("_literal._modifier"),E=function(O,P,N){var Q=O.literal_modifiers[P];return Q.hasOwnProperty(N)&&Q[N]},u=function(P){var O=l.call(this,P),N,Q;if(O&&(N=O._literal)&&(Q=N.is_identifier()?E(this,"identifier",O._modifier.data):N.is_array()?E(this,"array",O._modifier.data):N.is_regexp()?E(this,"regexp",O._modifier.data):N.is_number()?E(this,"number",O._modifier.data):N.is_string()?E(this,"string",O._modifier.data):null)){return Q.call(this,N)}};var A=a.pattern("_modifier[_expression]"),k=a.pattern("_expression /_modifier"),C=a.pattern("_expression -_modifier"),K=a.pattern("_modifier in _expression"),z=a.pattern("_expression |_modifier"),B=a.pattern("_expression, _modifier"),v=a.pattern("_modifier._parameters"),m=a.pattern("_modifier[_parameters]"),D=a.pattern("_expression <_modifier> _parameters"),g=a.pattern("_expression -_modifier- _parameters"),b=function(S){var N=D.call(this,S)||g.call(this,S);if(N){for(var T=this.parameterized_modifiers,Q=T.length-1,R;Q>=0;--Q){if(R=T[Q].call(this,N)){return R}}}var P=A.call(this,S)||k.call(this,S)||C.call(this,S)||K.call(this,S)||z.call(this,S)||B.call(this,S);if(P){var O=v.call(this,P._modifier)||m.call(this,P._modifier);if(O){P._modifier=O._modifier;P._parameters=O._parameters;for(var T=this.parameterized_modifiers,Q=T.length-1,R;Q>=0;--Q){if(R=T[Q].call(this,P)){return R}}}else{for(var T=this.modifiers,Q=T.length-1,R;Q>=0;--Q){if(R=T[Q].call(this,P)){return R}}}}};var d=function(N){return h.call(this,N)||u.call(this,N)||N.length&&(b.call(this,N)||w.call(this,N)||y.call(this,N)||F.call(this,N)||j.call(this,N))},q=c?a(function(N){return c.call(this,N)||d.call(this,N)}):a(d);q.modifiers=[];q.parameterized_modifiers=[];q.literal_modifiers={regexp:{},array:{},string:{},number:{},identifier:{}};return q}})(caterwaul);(function(a){a.js_literals=function(c){var b=a.parse("function (_) {return _body}");(function(d){d.x=a.reexpander(function(h){return h.with_data(h.data.replace(/\\s+/g,""))});var g=a.parse("_regexp.exec(_)");d.qf=function(h){return b.replace({_body:g.replace({_regexp:h})})}})(c.literal_modifiers.regexp);(function(d){d.qw=a.reexpander(function(o){for(var q=new a.syntax("["),g=new a.syntax(","),j=o.data.charAt(0),m=o.as_escaped_string().split(/\\s+/),k=0,h=m.length;k<h;++k){g.push(new a.syntax(j+m[k]+j))}return q.push(g.unflatten())});d.qh=a.reexpander(function(o){for(var q=new a.syntax("{"),g=new a.syntax(","),j=o.data.charAt(0),m=o.as_escaped_string().split(/\\s+/),k=0,h=m.length;k<h;k+=2){g.push(new a.syntax(":",new a.syntax(j+m[k]+j),new a.syntax(j+m[k+1]+j)))}return q.push(g.unflatten())});d.qr=a.reexpander(function(g){return g.with_data("/"+g.as_escaped_string().replace(/\\//g,"\\\\/")+"/")});d.qs=function(g){return new a.ref(a.parse(g.as_unescaped_string()))};d.qf=a.reexpander(function(g){return b.replace({_body:a.parse(g.as_unescaped_string())})})})(c.literal_modifiers.string);return c}})(caterwaul);(function(a){a.words=function(d){var i=function(j,k){return function(l){return l._modifier.data===j&&k.call(this,l)}},b=function(j,k){d.modifiers.push(i(j,k))},h=function(j,k){d.parameterized_modifiers.push(i(j,k))};b("qs",function(j){return new a.ref(j._expression,"qs")});b("qse",function(j){return new a.ref(this(j._expression),"qse")});b("reexpand",function(j){return this(this(j._expression))});b("noexpand",function(j){return j._expression});b("raise",a.reexpander("(function () {throw _expression}).call(this)"));h("rescue",a.reexpander("(function () {try {return (_expression)} catch (e) {return (_parameters)}}).call(this)"));b("eval",function(j){return new a.ref(a.compile(this(j._expression)),"eval")});h("given",a.reexpander("(function (_parameters) {return _expression})"));h("bgiven",a.reexpander("(function (t, f) {return (function () {return f.apply(t, arguments)})})(this, (function (_parameters) {return _expression}))"));b("delay",a.reexpander("(function (t, f) {return (function () {return f.call(t)})})(this, (function () {return _expression}))"));b("lazy",a.reexpander("(function (t, f, v, vc) {return (function () {return vc ? v : (vc = true, v = f.call(t))})})(this, (function () {return _expression}))"));h("se",a.reexpander("(function (it) {return (_parameters), it}).call(this, (_expression))"));h("re",a.reexpander("(function (it) {return (_parameters)}).call(this, (_expression))"));h("where",a.reexpander("(function () {var _parameters; return (_expression)}).call(this)"));b("capture",function(m){for(var j=new a.syntax(","),q=m._expression.flatten(","),o=0,k=q.length;o<k;++o){j.push(this(q[o]).with_data(":"))}return new a.syntax("{",j.unflatten())});var g=a.parse("(function () {var _variables; return (_expression)}).call(this)");b("wcapture",function(m){for(var u=this(m._expression),j=new a.syntax(","),v=u.flatten(","),q,o=0,k=v.length;o<k;++o){(q=this(v[o]))[1]=q[0],j.push(q.with_data(":"))}return g.replace({_variables:u,_expression:new a.syntax("{",j.unflatten())})});var c=a.parse("(function () {var _variables; return (_expression)}).call(this)");h("using",a.reexpander(function(m){var q=a.compile(this(m._parameters)),j=new a.syntax(",");for(var l in q){if(Object.prototype.hasOwnProperty.call(q,l)){j.push(new a.syntax("=",l,new a.ref(q[l])))}}return c.replace({_variables:j.unflatten(),_expression:m._expression})}));h("when",a.reexpander("((_parameters) && (_expression))"));h("unless",a.reexpander("(! (_parameters) && (_expression))"));return d}})(caterwaul);caterwaul.words(caterwaul.js())(function(a){a.seq(caterwaul_function)=caterwaul_function-se-it.modifiers.push(given.match in seq_expand.call(seq_expand,anon_pattern.replace({_x:match._expression}))-re-this(it)/when.it-when[match._modifier.data==="seq"])-where[anon_pattern=anon("S[_x]"),seq_expand=a(a.alternatives(operator_macros.concat(word_macros)))],where[anon=a.anonymizer("S"),rule(p,e)=a.rereplacer(p.constructor===String?anon(p):p,e.constructor===String?anon(e):e),operator_macros=[rule("S[_x]","_x"),rule("S[_xs + _ys]",concat),rule("S[_xs ^ _ys]",zip),rule("S[_xs - _ys]",cross),rule("S[(_x)]","(S[_x])"),rule("S[_x[_y]]","S[_x][_y]"),rule("S[_xs(_ys)]","S[_xs](_ys)"),rule("S[[_x]]","[_x]"),rule("S[_x, _y]","S[_x], S[_y]"),rule("S[_xs._p]","S[_xs]._p"),rule("S[~[_x]]","[S[_x]]"),rule("S[_x ? _y : _z]","(S[_x]) ? (S[_y]) : (S[_z])"),rule("S[_x && _y]","(S[_x]) && (S[_y])"),rule("S[_x || _y]","(S[_x]) || (S[_y])"),rule("S[+_xs]","Array.prototype.slice.call((_xs))"),rule("S[_xs %_thing]",handle_filter_forms),rule("S[_xs *_thing]",handle_map_forms),rule("S[_xs /_thing]",handle_fold_forms),rule("S[_xs |_thing]",handle_exists_forms),rule("S[_xs %k*_thing]",handle_kmap_forms),rule("S[_xs %v*_thing]",handle_vmap_forms),rule("S[_xs %k%_thing]",handle_kfilter_forms),rule("S[_xs %v%_thing]",handle_vfilter_forms)]-where[unrecognized(reason)=raise[new Error(reason)],use_form(form,xs,body,init,vars)=form?form.replace({_f:body,_init:init}).replace(a.merge({_xs:xs},vars)):unrecognized("unsupported sequence operator or modifiers used on #{body}"),operator_case(forms)(match)=parse_modifiers(match._thing,use(forms.normal,forms.inormal),use(forms.bang,forms.ibang),use(forms.tbang,forms.itbang))-where[xs=match._xs,expander=this,form_function(form)(body,vars)=use_form(form,xs,body,null,vars),iform_function(form)(body,init,vars)=use_form(form,xs,body,init,vars),use(form,iform)(body)=parse_body(body,expander,form_function(form),iform_function(iform))],handle_map_forms=operator_case({normal:map,bang:each,tbang:flatmap}),handle_filter_forms=operator_case({normal:filter,bang:filter_not,tbang:map_filter}),handle_fold_forms=operator_case({normal:foldl,bang:foldr,tbang:unfold,inormal:ifoldl,ibang:ifoldr}),handle_kmap_forms=operator_case({normal:kmap,bang:keach}),handle_kfilter_forms=operator_case({normal:kfilter,bang:kfilter_not,tbang:kmap_filter}),handle_vmap_forms=operator_case({normal:vmap,bang:veach}),handle_vfilter_forms=operator_case({normal:vfilter,bang:vfilter_not,tbang:vmap_filter}),handle_exists_forms=operator_case({normal:exists}),block=anon("[_x]"),block_with_variable=anon("_var[_x]"),block_with_init=anon("[_init][_x]"),block_with_variable_and_init=anon("_var[_init][_x]"),block_with_closure=anon("+_x"),block_with_seq=anon("~_x"),standard_names={_x:"x",_x0:"x0",_xi:"xi",_xl:"xl"},prefixed_names(p)={_x:p,_x0:"#{p}0",_xi:"#{p}i",_xl:"#{p}l"},function_promotion=anon("_f(_x, _x0, _xi, _xl)"),promote_function(f)=function_promotion.replace({_f:f}),closure_wrapper=anon("(function (_x, _x0, _xi, _xl) {return _f}).call(this, _x, _x0, _xi, _xl)"),close_body(vars,f)=closure_wrapper.replace(vars).replace({_f:f}),seq_pattern=anon("S[_x]"),promote_seq(f)=seq_pattern.replace({_x:f}),parse_body(tree,expand,normal,init)=((r=block_with_seq.match(tree))?parse_body(r._x,expand,sequence_context_normal,sequence_context_init):(r=block_with_closure.match(tree))?parse_body(r._x,expand,wrapping_normal,wrapping_init):(r=block_with_variable_and_init.match(tree))?init(r._x,r._init,prefixed_names(r._var)):(r=block_with_init.match(tree))?init(r._x,r._init,standard_names):(r=block_with_variable.match(tree))?normal(r._x,prefixed_names(r._var)):(r=block.match(tree))?normal(r._x,standard_names):normal(promote_function(tree),standard_names))-where[in_sequence_context(f)=expand.call(expand,promote_seq(f)),sequence_context_normal(f,names)=normal(in_sequence_context(f),names),sequence_context_init(f,init_expression,names)=init(in_sequence_context(f),init_expression,names),wrapping_normal(f,names)=normal(close_body(names,f),names),wrapping_init(f,init_expression,names)=init(close_body(names,f),init_expression,names),r=null],tbang_modifier=anon("~!_x"),bang_modifier=anon("!_x"),parse_modifiers(tree,normal,bang,tbang)=((result=tbang_modifier.match(tree))?tbang(result._x):(result=bang_modifier.match(tree))?bang(result._x):normal(tree))-where[result=null]]-where[loop_anon=a.anonymizer("xs","ys","x","y","i","j","l","lj","r","o","k"),scope=anon("(function (xs) {var _x, _x0, _xi, _xl; _body}).call(this, S[_xs])"),scoped(t)=scope.replace({_body:t}),expand(s)=s.replace(/@/g,"Array.prototype.slice.call").replace(/#/g,"Object.prototype.hasOwnProperty.call"),form(x)=x/!expand/!anon/!scoped/!loop_anon,map=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length; _xi < _xl; ++_xi) _x = xs[_xi], ys.push((_f));              return ys"),each=form("for (var                            _xi = 0, _xl = xs.length; _xi < _xl; ++_xi) _x = xs[_xi], (_f);                       return xs"),flatmap=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length; _xi < _xl; ++_xi) _x = xs[_xi], ys.push.apply(ys, @((_f))); return ys"),filter=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length;     _xi < _xl; ++_xi) _x = xs[_xi], (_f) && ys.push(_x);        return ys"),filter_not=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length;     _xi < _xl; ++_xi) _x = xs[_xi], (_f) || ys.push(_x);        return ys"),map_filter=form("for (var ys = new xs.constructor(), _xi = 0, _xl = xs.length, _y; _xi < _xl; ++_xi) _x = xs[_xi], (_y = (_f)) && ys.push(_y); return ys"),foldl=form("for (var _x0 = xs[0], _xi = 1, _xl = xs.length;            _xi < _xl; ++_xi) _x = xs[_xi], _x0 = (_f); return _x0"),foldr=form("for (var _xl = xs.length, _xi = _xl - 2, _x0 = xs[_xl - 1]; _xi >= 0; --_xi) _x = xs[_xi], _x0 = (_f); return _x0"),unfold=form("for (var ys = [], _x = xs, _xi = 0;                     _x !== null; ++_xi) ys.push(_x), _x = (_f);    return ys"),ifoldl=form("for (var _x0 = (_init), _xi = 0, _xl = xs.length;      _xi < _xl; ++_xi) _x = xs[_xi], _x0 = (_f);     return _x0"),ifoldr=form("for (var _xl = xs.length - 1, _xi = _xl, _x0 = (_init); _xi >= 0; --_xi) _x = xs[_xi], _x0 = (_f);     return _x0"),exists=form("for (var _x = xs[0], _xi = 0, _xl = xs.length, x; _xi < _xl; ++_xi) {_x = xs[_xi]; if (x = (_f)) return x} return false"),concat=anon("(S[_xs]).concat((S[_ys]))"),zip=form("for (var ys = (S[_ys]), pairs = [], i = 0, l = xs.length; i < l; ++i) pairs.push([xs[i], ys[i]]); return pairs"),cross=form("for (var ys = (S[_ys]), pairs = [], i = 0, l = xs.length, lj = ys.length; i < l; ++i) for (var j = 0; j < lj; ++j) pairs.push([xs[i], ys[j]]);return pairs"),kmap=form("var r = new xs.constructor();    for (var _x in xs) if (#(xs, _x)) r[_f] = xs[_x]; return r"),keach=form("                                 for (var _x in xs) if (#(xs, _x)) _f;             return xs"),kfilter=form("var r = new xs.constructor();    for (var _x in xs) if (#(xs, _x) &&      (_f))  r[_x] = xs[_x]; return r"),kfilter_not=form("var r = new xs.constructor();    for (var _x in xs) if (#(xs, _x) &&    ! (_f))  r[_x] = xs[_x]; return r"),kmap_filter=form("var r = new xs.constructor(), x; for (var _x in xs) if (#(xs, _x) && (x = (_f))) r[x]  = xs[_x]; return r"),vmap=form("var r = new xs.constructor();    for (var  k in xs) if (#(xs, k)) _x = xs[k], r[k] = (_f); return r"),veach=form("                                 for (var  k in xs) if (#(xs, k)) _x = xs[k], _f;          return xs"),vfilter=form("var r = new xs.constructor();    for (var  k in xs) if (#(xs, k)) _x = xs[k],        (_f) && (r[k] = _x); return r"),vfilter_not=form("var r = new xs.constructor();    for (var  k in xs) if (#(xs, k)) _x = xs[k],        (_f) || (r[k] = _x); return r"),vmap_filter=form("var r = new xs.constructor(), x; for (var  k in xs) if (#(xs, k)) _x = xs[k], x = (_f), x && (r[k] =  x); return r")],word_macros=[rule("S[n[_upper]]",n),rule("S[ni[_upper]]",ni),rule("S[_o /keys]",keys),rule("S[_o |object]",object),rule("S[n[_lower, _upper]]",n),rule("S[ni[_lower, _upper]]",ni),rule("S[_o /values]",values),rule("S[_o -object]",object),rule("S[n[_lower, _upper, _step]]",n),rule("S[ni[_lower, _upper, _step]]",ni),rule("S[_o /pairs]",pairs),rule("S[_o /object]",object)]-where[n(match)=n_pattern.replace(a.merge({_lower:"0",_step:"1"},match)),ni(match)=ni_pattern.replace(a.merge({_lower:"0",_step:"1"},match)),n_pattern=anon("(function (i, u, s) {if ((u - i) * s <= 0) return [];for (var r = [], d = u - i; d > 0 ? i <  u : i >  u; i += s) r.push(i); return r})((_lower), (_upper), (_step))"),ni_pattern=anon("(function (i, u, s) {if ((u - i) * s <= 0) return [];for (var r = [], d = u - i; d > 0 ? i <= u : i >= u; i += s) r.push(i); return r})((_lower), (_upper), (_step))"),scope=anon("(function (o) {_body}).call(this, (S[_o]))"),scoped(t)=scope.replace({_body:t}),form(p)=tree.replace(match)-given.match-where[tree=scoped(anon(p))],keys=form("var ks = []; for (var k in o) Object.prototype.hasOwnProperty.call(o, k) && ks.push(k); return ks"),values=form("var vs = []; for (var k in o) Object.prototype.hasOwnProperty.call(o, k) && vs.push(o[k]); return vs"),pairs=form("var ps = []; for (var k in o) Object.prototype.hasOwnProperty.call(o, k) && ps.push([k, o[k]]); return ps"),object=form("for (var r = {}, i = 0, l = o.length, x; i < l; ++i) x = o[i], r[x[0]] = x[1]; return r")]]})(caterwaul);caterwaul.js_all=function(){return this.seq(this.words(this.js_literals(this.js())))}})();');
+meta::cached_dependency('caterwaul.terminal.js', <<'__');
+// Terminal library | Spencer Tipping
+// Licensed under the terms of the MIT source code license
+
+// Introduction.
+// This module provides ANSI terminal rendering of a text-based scene graph. Unlike curses/ncurses, it doesn't provide much in the way of window borders or other UI framing; it just gives you a
+// way to manage a layered display of information with various text attributes. Perhaps counterintuitively, it uses a subclass of Caterwaul syntax trees to implement this scene graph data
+// structure.
+
+  // Prerequisites.
+//   If you plan on using this library for any serious applications, I recommend externally using 'stty -echo -icanon' or similar to enable character-at-a-time input and no explicit echoing. This
+//   can't be handled from within Javascript without using C extensions, and that would make the library runtime-specific and potentially non-portable.
+
+caterwaul.js_all()(function ($) {
+  $.terminal = capture [
+
+// Low-level rendering methods.
+// The terminal library uses a chaining syntax to construct temporary objects that are then serialized into driver strings. For example, suppose you want to render 'hello world' in blue at row
+// 10, column 20. You'd do this by constructing a renderer:
+
+// | console.log('%s', caterwaul.terminal.render().at(20, 10).fg(34).text('hello world'));
+
+// You can get some useful constants by 'using' caterwaul.terminal.render:
+
+// | console.log('%s', render().clear(line, forward).fg(blue).text('hello world')),
+//   using [caterwaul.terminal],           // for render()
+//   using [caterwaul.terminal.render]     // for line, forward, blue, etc
+
+    render = ctor -where [ctor(xs) = this instanceof ctor ? this -se [it.xs = xs] : new ctor(xs || [])]
+             -se- it.prototype /-$.merge/ capture [add(x)   = new this.constructor(this.xs + [x] -seq),             toString()       = this.xs.join(''),
+
+                                                   text(x)  = this.add(x),                                          clear(what, how) = this.add('\033[#{how}#{what}'),
+
+                                                   at(x, y) = this.add(y ? '\033[#{Math.round(y)};#{Math.round(x)}H' : '\033[#{Math.round(x)}G'),
+
+                                                   up(x)    = this.add('\033[#{Math.abs(x)}#{x < 0 ? "F" : "E"}'),  reset()     = this.add('\033[0;0m'),
+                                                   down(x)  = this.up(-x),                                          bg(n, mode) = n != null ? this.add('\033[#{mode || 0};#{40 + n}m') : this,
+                                                                                                                    fg(n, mode) = n != null ? this.add('\033[#{mode || 0};#{30 + n}m') : this]
+
+             -se- it           /-$.merge/ capture [black  =  0,   red    =  1,   green   = 2,  yellow    = 3,  blue  = 4,  purple   = 5,  cyan = 6,  white = 7,
+                                                   normal =  0,   bold   =  1,   italic  = 3,  underline = 4,  blink = 5,  negative = 7,
+                                                   line   = 'K',  screen = 'J',  forward = 0,  backward  = 1,  all   = 2],
+
+  // Size detection.
+//   There's a proper way to get the terminal size, but we don't necessarily have access to it from inside Javascript. Fortunately, we can use a hack to do the same thing. The hack in this case
+//   is to try to move the cursor way out into the middle of nowhere and see where it ends up. It has to stop at the bottom-right corner of the terminal, and its position tells us the terminal's
+//   size.
+
+  // This function doesn't handle both the input and the output. It just renders the setup code that saves the current position, jumps to the corner, asks the terminal for its status, and returns
+//   the cursor to where it started. It's up to your application to listen for the terminal's reply. (Note that doing this requires that the terminal be in single-character read mode.)
+
+    detect_size() = '\033[s\033[65535;65535H\033[6n\033[u',
+
+  // Mouse mode.
+//   This function enables or disables mouse position reporting mode according to the XTerm mouse protocol.
+
+    mouse_mode(on) = '\033[?1000#{on ? "h" : "l"}',
+
+// Overlays.
+// Each overlay is a region that somehow transforms the content underneath it. The most common transformation is one that renders characters specific to an overlay while replacing all others with
+// spaces. An overlay is defined as a relative position, size, and a content generation function. The content generation function takes a block of text (an array of array of characters) that the
+// overlay is covering, and returns a new block of text for the overlay to display. Each 'character' in the block of text may be preceded and followed by an escape sequence that modifies it.
+// Redundant escape sequences are optimized away at render-time.
+
+// You probably won't use overlays directly. Rather, you'll most likely use a text_overlay, which presents a simpler interface. You can set its text dynamically and it will truncate it to fit
+// within its dimensions. It also provides trivial readline-style editing, though not as nice as readline.
+
+// Because a scene graph is a tree-like structure, it is implemented as (you guessed it) a subclass of Caterwaul syntax trees. This actually has some significant benefits, one of them being the
+// ease of establishing a trivial isomorphism between syntax trees and graphical elements.
+
+    overlay_constructor(f)(xs = arguments) = this -se [it._visible = true, it._position = [0, 0], it._dimensions = [0, 0], it.length = 0] -se- f.apply(it, xs),
+    overlay_subclass(f, xs = arguments)    = $.syntax_subclass(f /!$.terminal.overlay_constructor, $.terminal.overlay_prototype, (+xs).slice(1) /[{}][x0 /-$.merge/ x] -seq),
+
+    overlay_prototype = capture [bind(name, f)    = this -se- (it['_#{name}_listeners'] = it['_#{name}_listeners'] || []).push(f),
+                                 trigger(name, x) = this -se [it['_#{name}_listeners'] && it['_#{name}_listeners'] *!f[f.call(this, x)] -seq],
+
+                                 handle_input(s)  = this /-parse_input/ s,
+
+                                 contains(x, y)   = x instanceof Array ? this.contains(x[0], x[1]) :
+                                                                         x >= this._position[0] && x <= this._position[0] + this._dimensions[0] &&
+                                                                         y >= this._position[1] && y <= this._position[1] + this._dimensions[1],
+
+                                 handle(event)    = event.position(this.cursor_position()) /unless [event.position()]
+                                                    -se- this.trigger('#{event.name()}_capture', event) -se- event /!this.propagate -se- this.trigger(event.name(), event),
+
+                                 propagate(event) = +this %[x /~contains/ translated.position()] *![x /~handle/ translated] -seq
+                                                    -se- event.destination_is(this) /unless [it.length] -where [translated = event /~visit/ this],
+
+                                 children(xs = arguments) = +xs *~![x.render ? [x] : x] *!this.push -seq -re- this,
+
+  // Hierarchical rendering.
+//   An overlay's render() method generates the escape codes to reload that overlay as well as its children. There are a few caveats, though. One is that this method is context-sensitive;
+//   overlays don't have parent links, so it's not possible for a single overlay to know where it is located on the screen without some extra information. The context object contains both the
+//   parent overlay and that parent's absolute position.
+
+  // The other caveat is that this method doesn't actually do anything until you provide a content() function. content() is invoked anytime render() is called, and it should return a string to
+//   redraw the overlay's contents. It also receives a copy of the context object. Note that content() is expected to deal with any existing stuff that the last render left in the terminal.
+
+                                 render_root()    = {position: [1, 1], parent: null} /!this.render,
+                                 render(context)  = this._visible ? this.content(context) + +this *[{parent: this, position: p} /!x.render] /seq /re [it.join('')]
+                                                                    -where [p = this._position /-v2plus/ context.position] :
+                                                                    '',
+
+                                 // Tree serialization for debugging; this has nothing to do with actual rendering. Caterwaul provides the toString() method automatically.
+                                 serialize(xs)    = xs -se [it.push('[overlay @[#{this._position.join(", ")}]: '), +this *![x /~serialize/ it] -seq, it.push(']')]]
+
+             /events   ('click doubleclick mousedown mouseup key control cursor_position_detect'.qw *~![[x, '#{x}_capture']] -seq)
+    /-$.merge/accessors('visible position dimensions parent cursor_position'.qw)
+
+  // IO dialog.
+//   The terminal sometimes writes events to standard input. Ultimately all keystroke and mouse events come in this way, and it's up to the terminal library to decode the escape sequences. These
+//   are the incoming events that it understands (minus whitespace, inserted here for readability):
+
+  // | \033[ n ; m R                 <- cursor position report
+//     \033[ A-D                     <- up, down, right, left arrows, respectively
+//     \033[ M bxy                   <- mouse press event, where x and y are space-encoded numbers and b is a bitfield: 3=release, 2=button3, 1=button2, 0=button1
+//     \033[ <character>             <- alt + something, though this is ambiguous
+
+  // Everything else is either lower ASCII or a Unicode character, which is considered to be regular input.
+
+                -where [parse_input(overlay, s)  = overlay -se- s.split('\033[') *![overlay /-normal_keystrokes/ parse_escape(overlay, x)] /seq,
+                        normal_keystrokes(o, s)  = s.split('') *![x.charCodeAt(0) < 32 ? o /-control_event/ x : o /-key_event/ x] -seq,
+                        parse_escape(o, s)       = /^[ABCD]/.test(s)               ? o /-arrow_event/     s.charAt(0)    -re- s.substr(1) :
+                                                   /^M.../.test(s)                 ? o /-mouse_event/     s.substr(1, 3) -re- s.substr(4) :
+
+                                                   /^(\d+);(\d+)R/.exec(s) -re [it ? o /+it[2] /-cursor_position/ +it[1]      -re- s.substr(it[0].length) :
+                                                                                     o         /-escaped_key/     s.charAt(0) -re- s.substr(1)],
+
+                        mouse_event(o, s)        = s.charCodeAt(0) & 0x8 ? o /~handle/ mouse_event_for(s, 'mouseup') : o /~handle/ mouse_event_for(s, 'mousedown'),
+                        mouse_event_for(s, name) = $.terminal.event[name](s.charCodeAt(0) & 0x7, [s.charCodeAt(1) - 32, s.charCodeAt(2) - 32], s.charCodeAt(0) >> 4),
+
+                        arrow_event(o, s)        = o /~handle/ $.terminal.event.arrow(s),
+                        control_event(o, s)      = o /~handle/ $.terminal.event.control(s),
+                        key_event(o, s)          = o /~handle/ $.terminal.event.key(s),
+                        escaped_key(o, s)        = o /~handle/ $.terminal.event.escaped(s),
+
+                        cursor_position(o, x, y) = o /~cursor_position/ [x, y] -se- o /~handle/ $.terminal.event.cursor_position_detect(x, y)],
+
+// Events.
+// This library understands mouse escape sequences and can translate them into events that get propagated through the scene graph. The interface is similar to jQuery's DOM event interface: events
+// are captured and then bubbled. Available events are:
+
+// | click:        fired when the user does a mouse-press followed by a mouse-release
+//   doubleclick:  fired when the user does two clicks in quick succession (400ms timeout) and in roughly the same location (3x2 character margin)
+//   mousedown:    fired when the user presses a mouse button
+//   mouseup:      fired when the user releases a mouse button
+
+// Key events are also reported and are propagated to whichever overlay contains the cursor. These are partitioned into 'normal' and 'control' characters:
+
+// | key:          fired when the user types a key that isn't a control character (basically a printable character; see below)
+//   control:      fired when the user types a control character, such as the arrow keys, Ctrl+something, Alt+something, etc.
+
+// Events come with some data that may be helpful:
+
+// | position()    the position of the event relative to the element that is receiving it. For keystrokes, the cursor position before the keystroke is used.
+//   target()      the capture destination of the event if it has been fully captured, otherwise null
+//   name()        the name of the event, for instance 'click', 'mousedown', etc
+//   key()         the key that was pressed; null for non-key events
+//   arrow()       the arrow that was pressed, expressed as a single character 'n', 's', 'e', 'w'; null for non-arrow events
+//   code()        the ASCII code for a control character event; null for non-control events
+//   button()      a bitmask of button indexes; lowest bit is 1, next is 2, next is 3
+//   modifiers()   a bitmask of modifier keys such as control, shift, and alt -- available only for mouse events. shift = bit 0, meta = bit 1, control = bit 2
+
+    event = given [data, target] [this instanceof $.terminal.event ? this -se [it /-$.merge/ data, it._target = target || null, it._path = []] : new $.terminal.event(data, target)]
+            -se- it.prototype           /capture [stop() = this._stopped = this,  target() = this._target,  path() = this._path,  position() = this._position || [0, 0],
+
+                                                  destination_is(o) = this._path *![x /~target/ o] -seq -re- this,
+                                                  visit(overlay)    = new this.constructor({} /this.data /-$.merge/{_position: this.position() /-v2minus/ overlay.position()}, this._target)
+                                                                      -se- this.path().push(it)]
+
+                              /-$.merge/ accessors('name code button arrow key modifiers'.qw)
+
+            -se- it           /-$.merge/ capture [mousedown(button, position, keys)   = $.terminal.event({_name: 'mousedown',   _button: button, _position: position, _modifiers: keys}),
+                                                  mouseup(button, position, keys)     = $.terminal.event({_name: 'mouseup',     _button: button, _position: position, _modifiers: keys}),
+                                                  click(button, position, keys)       = $.terminal.event({_name: 'click',       _button: button, _position: position, _modifiers: keys}),
+                                                  doubleclick(button, position, keys) = $.terminal.event({_name: 'doubleclick', _button: button, _position: position, _modifiers: keys}),
+
+                                                  key(character)                      = $.terminal.event({_name: 'key', _key: character}),
+                                                  escaped(character)                  = $.terminal.event({_name: 'key', _key: character, _modifiers: 0x2}),             // meta modifier
+
+                                                  arrow(code)                         = $.terminal.event({_name: 'control', _arrow: arrow_codes[code]}),
+                                                  control(character)                  = $.terminal.event({_name: 'control', _code:  character}),
+
+                                                  cursor_position_detect(x, y)        = $.terminal.event({_name: 'cursor_position_detect', _position: [x, y]}),
+
+                                                  shift = 1, meta = 2, ctrl = 4,  button1 = 1, button2 = 2, button3 = 4]
+
+    -where [arrow_codes = {A: 'n', B: 's', C: 'e', D: 'w'}]],
+
+// Common overlays.
+// These are designed for common use cases. linear_text_overlay displays a single line of text and is the simplest overlay to use. It doesn't mask any content beneath it unless your content is
+// large enough to overwrite it. It also doesn't clip its contents.
+
+  $.terminal /-$.merge/ capture [
+    linear_text_overlay = ctor /accessors('text fg bg'.qw) /methods /!$.terminal.overlay_subclass
+                  -where [ctor(text, options) = text instanceof this.constructor ? this -se [it._text = text._text, it._fg = text._fg, it._bg = text._bg] :
+                                                                                   this -se [it._text = text] -se [it._fg = options.fg, it._bg = options.bg, when.options],
+
+                          methods             = capture [content(context) = this.renderer_for(context).text(this._text),
+                                                         renderer_for(c)  = $.terminal.render().at(p[0], p[1]).fg(this._fg).bg(this._bg) -where [p = this._position /-v2plus/ c.position]]],
+
+    container_overlay = ctor /methods /!$.terminal.overlay_subclass -where [ctor(xs = arguments) = this.children.apply(this, xs),
+                                                                            methods              = capture [content(context) = '']],
+
+// Masking overlays can be used to clear stuff. If you add one of these as the first child to another overlay, it will clear the rectangle occupied by the overlay before rendering its other
+// contents. The mask itself doesn't have a size or position; it detects the parent's position and size at render-time.
+
+    masking_overlay = ctor /accessors('content_cc'.qw) /methods /!$.terminal.overlay_subclass
+              -where [ctor(content_cc) = this -se [it._content_cc = content_cc],
+                      methods          = capture [content(context) = n[p1[1], p2[1]] *y[$.terminal.render().at(p1[0], y).text(y /!row)] -seq -re- it.join('')
+                                                             -where [p1     = context.position,
+                                                                     p2     = p1 /-v2plus/ context.parent._dimensions,
+                                                                     row(y) = this._content_cc ? n[p1[0], p2[0]] *[this._content_cc(x, y)] -seq -re- it.join('') :
+                                                                                                 n[p1[0], p2[0]] *[' ']                    -seq -re- it.join('')]]],
+
+// The toplevel overlay can be used to manage a terminal window. It encapsulates all of the usual dialog that happens to enable things like size detection and mouse event reporting. To do this,
+// it requires that you hook up stdin to it and give it a way to print stuff to the screen. For node.js, for example, here's what that looks like:
+
+// | t = new toplevel_overlay(console.log);              // hookup the stdout continuation
+//   process.stdin.on('data', "t.handle_input(_)".qf);   // hookup the stdin listener
+
+// Once you've done that, you should invoke some methods to initialize it, if you care about things like terminal sizing and mouse events:
+
+// | t.update_size();                                    // initiate terminal dialog to get size
+//   t.mouse_mode(true);                                 // enable mouse position reporting; this turns on mouse event propagation
+
+// Because the toplevel is an overlay, you can add components to it and they'll receive events automatically. Note that you'll need to set the terminal to raw mode (stty -icanon) in order to get
+// events to work properly.
+
+    toplevel_overlay = ctor /accessors('dimensions stdout_cc'.qw) /methods /!$.terminal.overlay_subclass
+               -where [ctor(stdout_cc) = this -se [it._stdout_cc = stdout_cc, it._sizing = false, it._dimensions = [0, 0]]
+                                              -se- it.cursor_position_detect_capture(bgiven.x in it.record_size(x)),
+
+                       methods         = capture [update_size()    = this -se [it._sizing = true, $.terminal.detect_size() /!it._stdout_cc],
+                                                  record_size(e)   = this.dimensions(e.position()) -se [it._sizing = false] -when [this._sizing],
+                                                  mouse_mode(on)   = this -se- $.terminal.mouse_mode(on) /!it._stdout_cc,
+                                                  content(context) = '',
+                                                  repaint()        = this -se- it.render_root() /!it._stdout_cc]]],
+
+  where [pluralize(f)(xs)  = xs *[[x, f(x)]] -object -seq,
+         accessor(name)(x) = arguments.length ? this -se [it['_#{name}'] = x] : this['_#{name}'],  accessors = pluralize(accessor),
+         event(name)(x)    = x instanceof Function ? this.bind(name, x) : this.trigger(name, x),   events    = pluralize(event)],
+
+  using [caterwaul.linear.vector(2, 'v2')]})(caterwaul);
+
+// Generated by SDoc 
+
+__
 meta::configuration('dependencies', <<'__');
 # Caterwaul extensions depend on caterwaul with standard extensions. You can
 # also add any additional dependencies here:
@@ -1071,9 +1319,10 @@ meta::configuration('dependencies', <<'__');
 caterwaul.js:     ../caterwaul/build/caterwaul.min.js
 caterwaul.std.js: ../caterwaul/build/caterwaul.std.min.js
 
-caterwaul.regexp.js: ../caterwaul-regexp/regexp.js
-caterwaul.parser.js: ../caterwaul-parser/parser.js
-caterwaul.bloom.js:  ../caterwaul-bloom/bloom.js
+caterwaul.regexp.js:   ../caterwaul-regexp/regexp.js
+caterwaul.parser.js:   ../caterwaul-parser/parser.js
+caterwaul.bloom.js:    ../caterwaul-bloom/bloom.js
+caterwaul.terminal.js: ../caterwaul-terminal/terminal.js
 
 __
 meta::data('author', 'Spencer Tipping');
@@ -2730,6 +2979,7 @@ from.
 - include cached_dependency::caterwaul.regexp.js
 - include cached_dependency::caterwaul.parser.js
 - include cached_dependency::caterwaul.bloom.js
+- include cached_dependency::caterwaul.terminal.js
 
 __
 meta::sdoc('js::hrepl', <<'__');
