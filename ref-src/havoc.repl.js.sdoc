@@ -7,7 +7,7 @@ This module provides a simple REPL for Caterwaul. The REPL has a small set of ut
 caterwaul.js_all()(function ($) {
   $.havoc.repl(argv) = argv *!commands.load /seq /when.argv -re- link_stdin_to(handle_interaction)
 
-               -where [repl_scope            = $.havoc.scope([]),
+               -where [repl_scope            = $.havoc.scope($.havoc.native),
 
                        read_file(name)       = require('fs').readFileSync(name, 'utf8'),
 
