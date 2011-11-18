@@ -709,6 +709,26 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
+meta::havoc('directed-rewriting', <<'__');
+Directed rewriting.
+It isn't always desirable to rewrite things ubiquitously. This should make some linguistic sense; people contextualize things by saying things like "when I say X, I mean Y" -- indicating that
+the person who's saying something influences how it should be interpreted (as opposed to making a statement about the globally-accepted meaning of a statement). And so we have the same problem
+with Havoc. For example, consider this program:
+
+| a $ b = a b,
+  'right-associative ($)
+
+This is a complete disaster because right-associativity is a syntactic rewrite (not a semantic one), and due to transitivity these definitions have made all function applications
+right-associative. Much better is to contextualize this rewrite inside another container:
+
+| 'precompile (a $ b) = ('precompile a) ('precompile b),
+  'eval-when 'precompile ('right-associative ($))
+
+Then each statement is evaluated several times, each time within a context that describes how it should be interpreted:
+
+| 'run ('compile ('precompile statement))
+
+__
 meta::havoc('editor-structure', <<'__');
 Editor data structures.
 Programmers like for programs to be represented in some way that reflects user input carefully. This is probably why, after years of insistence of using text as the program storage format,
