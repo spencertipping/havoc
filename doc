@@ -731,6 +731,10 @@ This becomes easier when the editor manages the state at a higher level than jus
 There's also the question of how programs are managed by version control. It may be worth having the editor use its own version control that is specialized to syntax tree operations (though
 this is a huge can of worms to open...).
 
+Offline editing with memoized compile states.
+There may be a way to avoid writing an editor. If Havoc watches the filesystem, then it can do automatic difference recomputation rather than starting from scratch. The compiler would then be
+online or offline, and compilation states would be stored on disk to prevent unnecessary recomputation.
+
 __
 meta::havoc('introduction', <<'__');
 Postmortem for reference implementation.

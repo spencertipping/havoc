@@ -8,6 +8,8 @@ caterwaul.js_all()(function ($) {
   $.havoc.native = [syntax.infix('/number+', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data + +match.y.data}')],
                     syntax.infix('/number-', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data - +match.y.data}')],
                     syntax.infix('/number*', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data * +match.y.data}')],
-                    syntax.infix('/number/', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data / +match.y.data}')]],
+                    syntax.infix('/number/', syntax.symbol('x'), syntax.symbol('y')) /-syntax.intrinsic/ given.match [syntax.symbol('#{+match.x.data / +match.y.data}')],
+
+                    syntax.infix('//', syntax.symbol('body'), syntax.symbol('scope')) /-syntax.intrinsic/ given.match [$.havoc.scope(match.scope.flatten(','))(match.body)]],
 
   using [caterwaul.havoc]})(caterwaul);
