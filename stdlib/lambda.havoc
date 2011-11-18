@@ -1,9 +1,4 @@
 Lambda encoding.
-This is done at a lower level than is performant, but I may be able to fix it later.
+This uses Havoc's native scoping to rewrite lambda terms. It is probably really slow.
 
-'lambda x expression value = 'lambda-substitute expression x value,
-
-'lambda-substitute y x value = y,
-'lambda-substitute (a b) x value = ('lambda-substitute a x value) ('lambda-substitute b x value),
-'lambda-substitute (a op$ b) x value = ('lambda-substitute a x value op$ 'lambda-substitute b x value),
-'lambda-substitute x x value = value
+'lambda x expression value = (expression // (x = value))
