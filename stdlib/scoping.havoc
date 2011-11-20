@@ -1,4 +1,5 @@
 Scoping.
+This illustrates a failure with Havoc's current scoping implementation. The right-hand side of // should be expanded prior to substitution, but in this case it isn't.
 
 'right-associative (op$) = (a op$ b op$ c = (a op$ (b op$ c))),
 'foo = ('x + 'y + 'z // 'right-associative (+))

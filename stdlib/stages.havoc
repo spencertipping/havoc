@@ -1,6 +1,0 @@
-Execution stages.
-This allows Havoc to behave sort of like Lisp. Each stage is basically a flag that prevents execution from happening at the wrong time.
-
-'compile (a op$ b) = ('compile a op$ 'compile b),
-
-'compile ('right-associative (op$) = ('compile (a op$ b op$ c) = 'compile (a op$ (b op$ c))))
