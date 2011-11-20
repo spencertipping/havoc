@@ -709,138 +709,20 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
-meta::havoc('directed-rewriting', <<'__');
-Directed rewriting.
-It isn't always desirable to rewrite things ubiquitously. This should make some linguistic sense; people contextualize things by saying things like "when I say X, I mean Y" -- indicating that
-the person who's saying something influences how it should be interpreted (as opposed to making a statement about the globally-accepted meaning of a statement). And so we have the same problem
-with Havoc. For example, consider this program:
+meta::havoc('directional-rewriting', <<'__');
+Directional rewriting.
+Havoc has until now provided bidirectional equality, even though this is less powerful than using directional material implication. One of the big reasons Havoc has until now used symmetry is
+that it enables rewriting to be used in contravariant ways:
 
-| a $ b = a b,
-  'right-associative ($)
+| f x = x + 1
+  g (f x) = x + 2               This is valid if (x + 1) can be matched back into (f x); I refer to this as being contravariant.
 
-This is a complete disaster because right-associativity is a syntactic rewrite (not a semantic one), and due to transitivity these definitions have made all function applications
-right-associative. Much better is to contextualize this rewrite inside another container:
+| f x => x + 1                  Directional implication; f x implies x + 1, but not the other way around.
+  g (f x) => x + 2              Invalid to rewrite (x + 1) into (f x); we must know that (f x) was the form that generated (x + 1). This might break extensionality.
 
-| 'precompile (a $ b) = ('precompile a) ('precompile b),
-  'eval-when 'precompile ('right-associative ($))
+There are some cases where symmetric equality is not technically correct. For example:
 
-Then each statement is evaluated several times, each time within a context that describes how it should be interpreted:
-
-| 'run ('compile ('precompile statement))
-
-__
-meta::havoc('editor-structure', <<'__');
-Editor data structures.
-Programmers like for programs to be represented in some way that reflects user input carefully. This is probably why, after years of insistence of using text as the program storage format,
-programmers still use it despite imposing all sorts of low-level structure on code written in Java. (And even going so far as to build Eclipse to automatically work at this structured level.)
-And I think the motivation is simplicity; programmers are willing to trade visibility of effects for visibility of process.
-
-I feel like there's something really important in that statement. Process is more important than effect. And so if you have visibility into only one of these things, it must be process. (This
-is probably a large contributing factor behind the unpopularity of languages like Lisp and Haskell. The process is not visible, despite the effects being more so.)
-
-Here's what I take away from this:
-
-| 1  The editor needs to ultimately be text or ASTs. There can be no hidden state.
-  2  It's just fine for the editor to impose nondestructive structure on your program, for instance find-as-you-type for each side of each equation.
-  3  The editor needs to allow the programmer to edit the program in destructive ways (so no append-only stuff). Simplicity is more valuable than a fully-accessible history.
-  4  Programmer input must be visually distinct, and easily separable from, conclusions that the compiler makes about that input.
-  5  Programs must be readable from and writable to text; otherwise programmers, myself included, will get paranoid.
-
-Collaborative editing.
-This becomes easier when the editor manages the state at a higher level than just plain text, but at the very least it's possible to collaborate if programs can be converted to and from text.
-There's also the question of how programs are managed by version control. It may be worth having the editor use its own version control that is specialized to syntax tree operations (though
-this is a huge can of worms to open...).
-
-Offline editing with memoized compile states.
-There may be a way to avoid writing an editor. If Havoc watches the filesystem, then it can do automatic difference recomputation rather than starting from scratch. The compiler would then be
-online or offline, and compilation states would be stored on disk to prevent unnecessary recomputation.
-
-__
-meta::havoc('introduction', <<'__');
-Postmortem for reference implementation.
-First I want to say that the reference implementation was quite a success. It took about two days in Caterwaul, it tolerated repeated modifications and didn't break down, and I ended up
-learning a lot about how Havoc needs to work. So by all of those measures the project was successful.
-
-At a high level, here's what I want to fix for the next implementation:
-
-| 1  Compiler and interpreter performance, obviously -- especially considering that Havoc is likely to be used as an image-based online compiler of offline images.
-  2  Transparency. Right now it's difficult to anticipate what a program will do, and this would be easy to fix because every value is serializable.
-  3  Rewrite scoping. Global rewrites make it slow and nonlocal.
-  4  Things like operator precedence and associativity rewriting. Right now it's a disaster because it breaks parentheses, and the 'top stuff is a good start.
-  5  System interfacing, though I'm not in a huge hurry to open this can of worms.
-
-__
-meta::havoc('performance', <<'__');
-Performance.
-It doesn't actually matter how quickly or slowly Havoc runs. What matters is the amount of time the user spends waiting for it. This means a couple of things. First, offline compilation for
-this language is crazy. If the compiler and editor are fused, then the compiler can be running as a background thread as you're editing, and hopefully it can store the state of the compile as
-well as the state of user input (though in separate files). This should minimize the perceived delay of doing things.
-
-Second, a platform with good JIT support (node.js/caterwaul qualifies) is probably necessary. The reason is that the programmer might want to have the editor/compiler do a lot of work at
-compile-time (since compile-time and runtime are kind of blurred anyway). So profile-based optimization would be a good move, and this brings with it the usual overhead of shape analysis, flow
-analysis, etc.
-
-Live graph updating.
-Havoc programs are fairly complex graphs. Each equation is an edge, and each value is a vertex. The goal, then, is to construct the finished graph and identify the right path from beginning to
-end. This should be possible because we know what the starting and ending values look like.
-
-Rather than rebuilding the whole thing from scratch, it probably makes sense for the interpreter to store the graph state along with the source. This graph state can be compiled at any point.
-The source is just the user input required to construct the graph in the first place.
-
-__
-meta::havoc('rewriting', <<'__');
-Toplevel rewriting.
-This is challenging because it involves recursion. Anything written at the toplevel is subject to reinterpretation (rewriting), but it also governs rewriting. Further, it isn't clear to me
-that you'd want toplevel rewriting to be implicit or universal. I think it would be more useful to contain syntactic rewrites to certain scopes.
-
-There's an open question here, and it gets back to some of the issues I had with Gnarly: How do we differentiate between parenthetical grouping and implicit grouping as a result of left
-associativity? That is, suppose I type these two things:
-
-| a + b * c             Here, left-association happens naturally
-  (a + b) * c           Here it happens as a result of parentheses, but it appears to have happened naturally
-
-Given that they compile into the same representation, how do we avoid rewriting the second with an operator-precedence rewrite?
-
-Explicit brackets.
-One option is to use explicit brackets of a different form, for instance, using square brackets or curly braces to indicate that we want a syntax-explicit group to be created. This might have
-the effect of "applying" a function to a bracketed expression; for example:
-
-| [5]                   Becomes (" " [] 5)
-  [5, 6, 7]             Becomes (" " [] ("," 5 ("," 6 7)))
-
-As long as the syntactic representation is consistent it can be used for pattern matching; the benefit of it being a function application is that it can be matched by something as general as
-(f x), which makes it easier to destructure syntax in equation-space.
-
-__
-meta::havoc('scoping', <<'__');
-Rewrite scoping.
-There's more to this than just cordoning off an equation to a particular set of values. A big part of this is controlling which kinds of values get matched in the first place. I ran into some
-problems with this when defining a lambda rewrite, for example:
-
-| 'lambda x x value = value,
-  'lambda y x value = y,
-  'lambda (a op$ b) x value = ('lambda a x value) op$ ('lambda b x value)
-
-Technically, the first and second equations are contradictory because the second includes the first in its domain. What I would like to say is more along the lines of this:
-
-| 'lambda x y value = (x == y) value y,
-  'lambda (a op$ b) x value = ('lambda a x value) op$ ('lambda b x value)
-
-So now I'm relying on a new operator provided by the system (which isn't particularly a problem, by the way). However, it's only part of the solution. I might also want to apply something to
-numbers, symbols, etc. I probably need more than just == to make decisions about things.
-
-__
-meta::havoc('transparency', <<'__');
-Transparency.
-This is a really important one. I was thinking about this yesterday; I think the best idea I've had so far is to highlight matching terms in the editor as you're constructing an equation. This
-graphically illustrates the impact of any given thing that you'd add to your program. (Maybe it could use the third dimension for expansion layers.) This interface could be reused for code
-searching, since this would probably be more useful than regexp-based searching anyway.
-
-__
-meta::havoc('variable-naming', <<'__');
-Variable naming conclusions.
-I really like the way variable names shook out. I'm not crazy about the prefix-quoting syntax (looks too much like Lisp :)), but I couldn't find a better alternative on the spot. The comment
-syntax is excellent, and having the parser give you infix and a tiny amount of precedence for free is great.
+| 'head ('cons x xs) = x        Concluding that x = 'head ('cons x xs) ∀ xs could result in assuming that all values exist, since anything could fill the position of xs.
 
 __
 meta::hook('before-shell::ad', <<'__');
@@ -1219,7 +1101,7 @@ function::havoc                          ab205c6d3f1bcb24e771a86587b182b1
 meta::type::havoc                        4be05d459bfb601e4ac41868bab2a133
 parent::/home/spencertipping/bin/object  a048633520257eeb10084b7aaf08863a
 parent::vim-highlighters                 612ee2b5b7bffc6ecab4b6a0cb7b670f
-vim_highlighter::havoc                   6cf9d87e66504359108f27b0e5399a4f
+vim_highlighter::havoc                   25178bcf68457fc057f3b15d1c8c1352
 
 __
 meta::parent('/home/spencertipping/bin/object', <<'__');
@@ -1490,7 +1372,7 @@ let main_syntax = 'havoc'
 
 syn sync minlines=5
 syn case match
-setlocal iskeyword=33-39,42-43,45-127
+setlocal iskeyword=33-39,42-43,45-90,92,94-122,124,126
 
 " High-level lexer concerns:
 syn match   havoc_literal_symbol    /\<[^A-Za-z][^()\[\]{} \n\t,;]*[A-Za-z0-9_']\>/
