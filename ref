@@ -2468,20 +2468,15 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
   $.havoc.syntax = $.syntax_subclass(ctor, methods) -se- it /-$.merge/ statics_for(it)
 
            -where [bloom_hashes   = jenkins_string(419, 581, 12),                       // Arbitrary hash keys (I might change these at any point)
-                   syntax_bloom() = $.bloom(bloom_hashes, 1),                           // 32 bits of entropy
+                   syntax_bloom() = $.bloom(bloom_hashes, 1),                           // 32 bits of entropy, optimized for small sets
                    empty_bloom    = syntax_bloom(),
-
-                   blooms       = 0,
-                   matches      = 0,
-                   structures   = 0,
-                   cannot_match = 0,
 
                    ctor(data, xs = +arguments -seq -se- it.shift()) = data instanceof this.constructor ? this -se [it.data = data.data, it.length = 0]
                                                                                                        : this -se [it.data = data, it.length = 0, xs *!it.push -seq],
 
                    methods = capture [toString()            = +this -seq -re [this.length ? '(#{it.join(this.data === " " ? this.data : " " + this.data + " ")})' : this.data],
 
-                                      id()                  = this._id || (++structures, this._id = this.structure()),
+                                      id()                  = this._id || (this._id = this.structure()),
 
   Role detection.
   Syntax trees have two different roles that may overlap. One role is as a value, in which case the tree behaves normally. The other role is as an equation, which applies only to trees of the
@@ -2493,7 +2488,7 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                       is_wildcard()         = /^[a-z]/.test(this.data),
                                       is_operator()         = /[^A-Za-z0-9'_]$/.test(this.data),
                                       is_quoted_operator()  = this.length === 0 && this.is_operator(),
-                                      is_tautology()        = this.is_equation() && this[0] /~eq/ this[1],
+                                      is_tautology()        = this.is_equation() && this[0] /~match/ this[1],
 
                                       eq(tree)              = this.bloom().hash() === tree.bloom().hash() && this /~match/ tree && tree /~match/ this,
 
@@ -2503,19 +2498,19 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
   This is used as an optimized way to match trees. Basically, we take the set of all constants in the tree and turn it into a Bloom filter; then only the trees which also contain those
   constants can match the pattern. (Here, can_match() assumes that the receiver is the pattern and the tree is the match target -- just like match() does.)
 
-                                      self_bloom()          = this._self_bloom      || (this._self_bloom      = this.is_wildcard() ? empty_bloom : (++blooms, syntax_bloom() /~add/ this.data)),
-                                      bloom()               = this._bloom           || (++blooms, this._bloom = this /[this.self_bloom()][x0 /~union/ x.bloom()] -seq),
+                                      self_bloom()          = this._self_bloom      || (this._self_bloom = this.is_wildcard() ? empty_bloom : syntax_bloom() /~add/ this.data),
+                                      bloom()               = this._bloom           || (this._bloom      = this /[this.self_bloom()][x0 /~union/ x.bloom()] -seq),
 
                                       pattern_bloom()       = this._pattern_bloom   || (this._pattern_bloom   = this.is_rewriter() && this[0].bloom()),
                                       expansion_bloom()     = this._expansion_bloom || (this._expansion_bloom = this.is_equation() && this[1].bloom()),
 
-                                      can_match(tree)       = this.bloom() /~subset/ tree.bloom() -se [cannot_match += !it],
+                                      can_match(tree)       = this.bloom() /~subset/ tree.bloom(),
 
   Rewriting.
   Every equation has the ability to produce a rewriting function that takes a value and returns either the rewritten value or false. The rewriter() method returns one such method if the node
   is an equation. It returns false if the node is not an equation.
 
-                                      match(x, bindings)    = ++matches -re- this / x /~ll_match/ (bindings || {}) -when- this /~can_match/ x,
+                                      match(x, bindings)    = this / x /~ll_match/ (bindings || {}) -when- this /~can_match/ x,
                                       ll_match(x, bs)       = bs /~hasOwnProperty/ this.data ? bs -when- x /~eq/ bs[this.data] :
                                                          this.is_wildcard() && ! this.length ? bs -se [bs[this.data] = x] :
                                                                           this.is_wildcard() ? bs -se [bs[this.data] = x] -when- this / x /~match_children/ bs :
@@ -2539,9 +2534,7 @@ These are the usual Caterwaul syntax trees, but customized for Havoc interpreter
                                                 comma(x, y)           = new ctor(',', x, y),
                                                 equation(x, y)        = new ctor('=', x, y),
                                                 symbol(x)             = new ctor(x),
-                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true],
-
-                                                performance_counters() = {blooms: blooms, matches: matches, structures: structures, cannot_match: cannot_match}]]
+                                                intrinsic(pattern, f) = new ctor('{intrinsic}', pattern) -se [it.intrinsic = f, it.is_intrinsic() = true]]]
 
            -using- caterwaul.bloom})(caterwaul);
 
@@ -2723,7 +2716,7 @@ Scoping.
 Scopes provide bounded rewriting. This means that values within a given scope are rewritten, but values outside of the scope are unaffected. Each scope is separated into 'invariants', which
 are the equations used to rewrite things within it, and 'variants', which are the values that later get rewritten. I refer to the invariants as assumptions.
 
-  $.havoc.scope(invariants) = invariants *!assume -seq -re- "_ /!deep_rewrite".qf /se [it.assumptions = assumptions, it.assume = assume]
+  $.havoc.scope(invariants) = invariants *~![x.flatten(',')] *!assume -seq -re- "_ /!deep_rewrite".qf /se [it.assumptions = assumptions, it.assume = assume]
 
                       -where [assumptions       = [],
                               already_assumed   = {},
@@ -2732,7 +2725,7 @@ are the equations used to rewrite things within it, and 'variants', which are th
                               assume(v)         = deep_rewrite(v).flatten(',') *!assume /seq -se- assumptions *![x /!deep_rewrite /!assume] /seq
                                                   -when- add_assumption(v) -unless [!v || already_assumed[v.id()]],
 
-                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v -se- console.log('#{v} x #{x} -> #{it}') /when.it] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re- it[it.length - 1] /when [it.length > 1],
+                              rewrite(v)        = v /~!v[assumptions |[x /~rewrite/ v] |seq, re [it && it.id() !== v.id() ? it : null]] -seq -re- it[it.length - 1] /when [it.length > 1],
                               deep_rewrite(v)   = v /~rmap/ rewrite -re [it.id() !== v.id() ? deep_rewrite(it) : it]]})(caterwaul);
 
 __

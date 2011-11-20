@@ -1,4 +1,0 @@
-Lambda encoding.
-This uses Havoc's native scoping to rewrite lambda terms. It is probably really slow.
-
-'lambda x expression value = (expression // (x = value))
