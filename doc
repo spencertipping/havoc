@@ -725,6 +725,22 @@ There are some cases where symmetric equality is not technically correct. For ex
 | 'head ('cons x xs) = x        Concluding that x = 'head ('cons x xs) ∀ xs could result in assuming that all values exist, since anything could fill the position of xs.
 
 __
+meta::havoc('rewriting-order', <<'__');
+Rewriting order.
+Havoc can't expand terms depth-first. The reason is that it then black-holes on things like '(x = y) = ((x + 1) = (y + 1))', which is otherwise a perfectly reasonable thing to write. Rather
+than depth-first, Havoc needs to sweep across terms, expanding each one at most once per iteration.
+
+Detecting termination.
+This is subtle and I'm not sure what the answer is. On one hand, it seems like it should be possible to detect the type of values produced by each equation and apply some heuristics to
+determine whether these values will impact future rewrites. For example, something like '(x = y) = ((x + 1) = (y + 1))' might be an intermediate link for another rewrite; but if you were to
+also define 'successor x = (x + 1)', then the stream of values produced by this equation would keep up with the left-hand side complexity of the first equation. So I don't know of a good
+heuristic that can be used to detect when eager rewriting should stop happening.
+
+It is probably similarly impractical to try to do completely lazy rewriting for two reasons. First, suppose you've got some value like 'f x'. It isn't necessarily obvious how to expand
+equation-producing rules to produce something that matches 'f x'. Second, and perhaps more importantly, it isn't even clear which values need to be rewritten. This is especially interesting
+when you have things like arithmetic expressions, where the notation provides Havoc with very little direction.
+
+__
 meta::hook('before-shell::ad', <<'__');
 ad('havoc::');
 
