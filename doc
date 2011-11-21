@@ -741,6 +741,50 @@ equation-producing rules to produce something that matches 'f x'. Second, and pe
 when you have things like arithmetic expressions, where the notation provides Havoc with very little direction.
 
 __
+meta::havoc('text-dynamic', <<'__');
+Tangent: Text editing dynamic.
+Editing things with text vs. an opaque image changes the dynamic significantly. I observed this working with self-modifying Perl files, which have properties of both but ultimately feel more
+like an image than like text. However, even inside the shell they have some text-like properties. I was just noticing the output from 'ls' with no filters; I wouldn't have noticed cruft that
+had accumulated, since there are so many attributes (133, in fact). This is generally an argument I've made against image-based systems: it's less obvious where cruft exists, since views tend
+to be more contextual.
+
+However, the problem isn't unique to images. It also exists in large bodies of text in verbose languages that are poorly annotated. Ruby and Java both have this problem, though for different
+reasons. Java lends itself to static analysis (barring reflection), but is so verbose that it's often difficult to determine the structure of a simple piece of code. Ruby is preposterously
+difficult to statically analyze, and despite its relative terseness it tends to be difficult for a human to fully understand a large codebase. (It also encourages the development of large
+codebases in the first place.)
+
+So I'm going to go out on a limb and guess that while text is more useful in the small scale, it miserably fails to maintain its advantages as code grows. Image-based development is more
+sustainable, at least for single developers with few third-party dependencies. (And with proper merge tools and revision control, it probably scales quite nicely to teams.) However, the
+presentation needs to be done correctly. Specifically, everything that impacts the behavior of the program should be shown whether the user wants to see it or not -- much like text.
+
+__
+meta::havoc('workspaces', <<'__');
+Workspaces.
+Because Havoc is about symbolic logic more than it is about actually running stuff, it probably makes more sense to separate axiomatic things from domain-specific things. Axioms are defined in
+text files, since text is highly transparent and difficult for a compiler to modify (and this is a feature). It is also easy to version-control. Corollaries and domain-specific instantiations
+of those axioms are stored in an interactive and mutable workspace.
+
+Directed expansion.
+All zero-complexity expansion happens eagerly, and all nontrivial expansion happens lazily. In order for Havoc to know which is which, equations are distilled to the transitive closure after
+inlining. So, for instance, consider this pair:
+
+| 'f x = ('g x + 1),
+  'g x = ('f x + 2)
+
+Arbitrarily, one is rewritten using the definition of the other:
+
+| 'f x = ('f x + 2 + 1)
+
+And this definition now has nonzero complexity, so rewriting stops. The user can force further rewriting:
+
+| 'f x = ('f x + 2 + 1)   ->  'f x = (('f x + 2 + 1) + 2 + 1)   ->  'f x = ((('f x + 2 + 1) + 2 + 1) + 2 + 1)   ->   ...
+
+The same is true for equations. If '(x = y) = ((x + 1) = (y + 1))' is known, then the user can direct this rewriting as well:
+
+| (x = y) = (x z = y z),
+  'f = 'g   ->  'f z = 'g z   ->  'f z z = 'g z z   ->   ...
+
+__
 meta::hook('before-shell::ad', <<'__');
 ad('havoc::');
 
