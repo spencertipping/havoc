@@ -9,8 +9,13 @@ Havoc provides an operator -> to denote lambda functions. You must use quoted va
 Linked lists.
 This is a test library for Havoc. It is totally not going to be used in production.
 
+'foldl (op$) zero ('cons x xs) = (x op$ ('foldl (op$) xs)),
+'foldl (op$) zero 'nil         = zero,
+
+'reducel (op$) ('cons x 'nil)         = x,
+'reducel (op$) ('cons x ('cons y ys)) = (x op$ 'reducel (op$) ('cons y ys)),
+
 ('lr ('map f)       (x xs) ('cons (f x) ('map f xs)),
- 'lr ('filter f)    (x xs) (f x ('cons x ('filter f xs)) ('filter f xs)),
- 'lr ('foldl (op$)) (x xs) (x op$ ('foldl (op$) xs)))
+ 'lr ('filter f)    (x xs) (f x ('cons x ('filter f xs)) ('filter f xs)))
 
 // ('lr f (head-name tail-name) cons-case = (f ('cons head-name tail-name) = cons-case, f 'nil = 'nil))
