@@ -725,6 +725,17 @@ There are some cases where symmetric equality is not technically correct. For ex
 | 'head ('cons x xs) = x        Concluding that x = 'head ('cons x xs) ∀ xs could result in assuming that all values exist, since anything could fill the position of xs.
 
 __
+meta::havoc('immediate-priorities', <<'__');
+Immediate priorities.
+
+| 1  Implement trivial transitivity detection (inlining). This is the best way to optimize rewriting right now.
+  2  Optimize rewriting at the low level, ideally with further hashing.
+  3  Figure out how to control and signal the expansion of recursive meta-rules like (x = y) = ((x + 1) = (y + 1)).
+  4  Conjunctions as LHS, and do this efficiently.
+  5  Figure out operator precedence, ideally using rewrites.
+  6  Annotate primitive things with function applications (e.g. (symbol primitive), (number 5), etc.). This lets you do type-dependent matching.
+
+__
 meta::havoc('rewriting-order', <<'__');
 Rewriting order.
 Havoc can't expand terms depth-first. The reason is that it then black-holes on things like '(x = y) = ((x + 1) = (y + 1))', which is otherwise a perfectly reasonable thing to write. Rather
