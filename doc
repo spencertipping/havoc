@@ -734,6 +734,7 @@ Immediate priorities.
   4  Conjunctions as LHS, and do this efficiently.
   5  Figure out operator precedence, ideally using rewrites.
   6  Annotate primitive things with function applications (e.g. (symbol primitive), (number 5), etc.). This lets you do type-dependent matching.
+  7  Bias towards constants; these will be more prevalent than variables in end-user programs.
 
 __
 meta::havoc('rewriting-order', <<'__');
