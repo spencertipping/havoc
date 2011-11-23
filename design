@@ -741,6 +741,48 @@ associative, and idempotent, and I assume nothing about the inner operator.
   no   no    yes        Multi map to set over hashed values, with fictitious identity element
   no   no    no         Multi map to set over hashed values
 
+Note: This whole document is a little wonky. I'm really unsure whether these data structures have the right characteristics.
+
+__
+meta::havoc('data-structure-kernel', <<'__');
+Data structure kernel.
+At the core of Havoc is a fairly simple analytical kernel that figures out how to represent various subexpression hierarchies in memory. One trivial example of this is cons, which has no
+useful properties at all and is just represented as a tree. A more interesting case is +, which is commutative and associative. As such, it is implemented as a multiset. This means that
+invocations of + are translated into multiset union calls:
+
+| 'add x y = (x + y)                    # translated into 'add x y = havoc.flat_multiset(x, y)          // does unioning automatically if x and y are already sets
+
+In order to do this, Havoc needs to identify that these properties exist for various operators. This is done inside Havoc:
+
+| ((x op$ y) op$ z = (x op$ (y op$ z))) = 'associative (op$),
+  (x op$ y) = (y op$ x) = 'commutative (op$),
+  ('associative a, 'commutative a) = 'havoc::structure 'multiset a
+
+__
+meta::havoc('memoization', <<'__');
+Memoizing compilation.
+Havoc is really slow for a number of reasons. The only way for it to be remotely practical is if it memoizes intermediate compilation steps in a reliable way (or has an online compiler, which
+is really the same thing).
+
+__
+meta::havoc('notation', <<'__');
+Notation.
+As I mentioned in doc, I'm surprised that, at least so far, most equations and test cases have used more constants than variables. So from an ergonomic perspective, constants should be easier
+to type and to read. (And using ' as the differentiator works well, since it's minimally disruptive to type.)
+
+__
+meta::havoc('orthogonal-bloom-filters', <<'__');
+Orthogonal Bloom filters.
+The most difficult part about rewriting is determining which equation to use (provided that it exists). As a matter of optimization, it's really important to be able to reduce the equation
+search space up front. Right now I use Bloom filters to index the constants in each term; matching is possibly only when the term to be matched contains the pattern's constants as a subset.
+
+However, there are other ways to index terms too. Any indexing will provide a significant advantage, so it's worth it.
+
+__
+meta::havoc('structural-hashing', <<'__');
+Structural hashing.
+Equations can be hashed based on their constants. (Variables don't contribute to the match structure, so they are all erased with respect to the hash function.)
+
 __
 meta::hook('before-shell::ad', <<'__');
 ad('havoc::');
