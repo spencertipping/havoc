@@ -754,9 +754,9 @@ invocations of + are translated into multiset union calls:
 
 In order to do this, Havoc needs to identify that these properties exist for various operators. This is done inside Havoc:
 
-| ((x op$ y) op$ z = (x op$ (y op$ z))) = 'associative (op$),
+| (x op$ y) op$ z = (x op$ (y op$ z)) = 'associative (op$),
   (x op$ y) = (y op$ x) = 'commutative (op$),
-  ('associative a, 'commutative a) = 'havoc::structure 'multiset a
+  ('associative a, 'commutative a) = 'havoc::structure 'flat-multiset a
 
 __
 meta::havoc('memoization', <<'__');
