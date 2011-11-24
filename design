@@ -770,6 +770,22 @@ Notation.
 As I mentioned in doc, I'm surprised that, at least so far, most equations and test cases have used more constants than variables. So from an ergonomic perspective, constants should be easier
 to type and to read. (And using ' as the differentiator works well, since it's minimally disruptive to type.)
 
+Havoc needs to have two orthogonal ways to distinguish between variables and constants, and between operators and values. My first attempt at this was to use the first character to determine
+variance and the last character to determine operator status. The advantages of this approach are:
+
+| 1  When reading something as English, you often put an adverb in front of a verb; so any words should precede operator characters. (e.g. vector+)
+  2  Using the initial character to determine variance means that quotation works as in Lisp, and you can append ' to variables like you can in Haskell and OCaml.
+  3  Trivial cases work as expected: single-character operators become constants, and single-character symbols become variables.
+  4  Fairly intuitive to read and write. I find it easy to predict the role of a word based on its visual characteristics when it's written this way.
+
+One alternative approach is reversing the two indicators: the first character would determine operator status while the last determines variable status. Consequences are:
+
+| 1  Much simpler to parse, though parsers exist for either scheme.
+  2  Potentially simpler to read. This is a bit ambiguous because I'm not sure what the rules would be for the last character. (Though with syntax highlighting it's no big deal.)
+  3  You can still append ' to values, though doing so might change the variable status.
+  4  Depending on the phrasing, this approach may help linguistic interpretation since adverbs sometimes follow, not precede, verbs. (e.g. x <<transitively y) It also promotes good
+     front-loading of intent while leaving more space for implementation details.
+
 __
 meta::havoc('orthogonal-bloom-filters', <<'__');
 Orthogonal Bloom filters.
