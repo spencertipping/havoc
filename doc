@@ -709,6 +709,12 @@ meta::function('vim', <<'__');
 # Installs VIM highlighters.
 file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for grep s/^vim_highlighter:://o, keys %data;
 __
+meta::havoc('contradictions', <<'__');
+Lazy evaluation, eager toplevel.
+This is a big problem. The runtime needs to know about the presence or absence of equations eagerly, but evaluation is generally lazy. This means that the toplevel needs to force everything
+that has any hope of producing equations that might impact the toplevel (or scopes).
+
+__
 meta::havoc('directed-rewriting', <<'__');
 Directed rewriting.
 It isn't always desirable to rewrite things ubiquitously. This should make some linguistic sense; people contextualize things by saying things like "when I say X, I mean Y" -- indicating that
